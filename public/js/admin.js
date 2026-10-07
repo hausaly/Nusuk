@@ -17,7 +17,7 @@ const TABS=()=>[['overview','Overview'],['requests','Service Requests'],['bookin
 
 NC.mountAdmin=(u,logout)=>{user=u;onLogout=logout;
   $('app').innerHTML=`<div class="adm"><div class="side" id="sd"></div><div class="main" id="mn"><p>Loading…</p></div></div>`;
-  $('sd').innerHTML=`<div class="who">${esc(user.name)}<br>${esc(user.role)}</div>`+TABS().map(t=>`<button data-t="${t[0]}">${ic('dash')}${t[1]}</button>`).join('')+`<button data-t="_out">${ic('login')}Sign out</button>`;
+  $('sd').innerHTML=`<div class="who">${esc(user.name)}<br>${esc(user.role)}</div>`+TABS().map(t=>`<button data-t="${t[0]}">${ic('dash')}${t[1]}</button>`).join('')+`<button data-t="_out">${ic('logout')}Sign out</button>`;
   $('sd').onclick=e=>{const b=e.target.closest('button');if(!b)return;b.dataset.t=='_out'?onLogout():show(b.dataset.t)};
   show(cur)};
 

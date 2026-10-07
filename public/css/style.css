@@ -57,3 +57,10 @@ textarea:focus-visible{outline:3px solid var(--gd);outline-offset:2px}
 .adm table select{min-height:36px;margin:0;width:auto}.adm .detail{margin-top:16px}.adm .detail dl{display:grid;grid-template-columns:140px 1fr;gap:6px 14px;margin:0 0 14px}.adm .detail dt{font-weight:600}.adm .detail dd{margin:0;overflow-wrap:anywhere}
 .side .who{color:#bdb3a2;font-size:.82rem;padding:4px 12px 14px;border-bottom:1px solid #2c261e;margin-bottom:8px}
 .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:8px;z-index:50}
+
+/* Hero: badge + quote headline + lead paragraph with accent bar */
+.hero2 .badge{display:inline-flex;align-items:center;gap:10px;padding:10px 18px;margin-bottom:28px;border:1px solid rgba(221,180,126,.35);background:rgba(221,180,126,.1);color:var(--g);font:700 .92rem/1 Cabin,Poppins,sans-serif;letter-spacing:.07em;text-transform:uppercase;border-radius:4px}
+.hero2 h1{font-family:Cabin,Poppins,sans-serif;font-weight:700;font-size:clamp(2.4rem,6.2vw,4.5rem);line-height:1.06;letter-spacing:-.025em;margin:0 0 30px;max-width:980px}
+.hero2 h1 .hl{color:var(--g)}
+.hero2 .lead{max-width:860px;margin:0;padding-left:24px;border-left:4px solid var(--g);font:400 clamp(1.02rem,1.9vw,1.2rem)/1.75 Lato,Poppins,sans-serif;color:#e6dfd2}
+.hero2 .row{margin-top:34px}

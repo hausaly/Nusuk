@@ -239,8 +239,8 @@ export const server = http.createServer((req, res) => {
   const bp = config.basePath;
   if (bp) {
     if (url.pathname === bp) { res.writeHead(301, { Location: bp + '/' + url.search }); return res.end(); }
-    if (!url.pathname.startsWith(bp + '/')) return send(res, 404, 'Not found');
-    url.pathname = url.pathname.slice(bp.length);
+    // Some hosts (cPanel/Passenger) strip the mount prefix before it reaches us; accept both forms.
+    if (url.pathname.startsWith(bp + '/')) url.pathname = url.pathname.slice(bp.length);
   }
   if (url.pathname.startsWith('/api/')) return handleApi(req, res, url);
   serveStatic(req, res, url);

@@ -52,6 +52,12 @@ location = /nusuk { return 301 /nusuk/; }
 handle /nusuk* { reverse_proxy 127.0.0.1:3000 }
 ```
 
+## cPanel shared hosting (Passenger)
+
+Needs **Setup Node.js App** with Node ≥ 22.13. Create the app with Application URL `yourdomain.com/nusuk`,
+Startup file `app.cjs`, and env vars `BASE_PATH=/nusuk`, `HTTPS=1`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`,
+`DATA_DIR=/home/<cpanel-user>/nusuk-data` (outside `public_html`).
+
 ## Layout
 
 ```

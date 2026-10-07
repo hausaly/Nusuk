@@ -169,7 +169,7 @@ test('works when mounted under BASE_PATH', async () => {
     assert.equal(redirect.status, 301); assert.equal(redirect.headers.get('location'), '/nusuk/');
     assert.equal((await fetch(b + '/')).status, 200);
     assert.equal((await fetch(b + '/css/style.css')).status, 200);
-    assert.equal((await fetch(`http://127.0.0.1:${port}/api/health`)).status, 404);
+    assert.equal((await fetch(`http://127.0.0.1:${port}/api/health`)).status, 200);   // prefix already stripped by host
     const l = await fetch(b + '/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'boss@example.com', password: 'correct-horse-battery' }) });
     assert.equal(l.status, 200);
     assert.match(l.headers.get('set-cookie'), /Path=\/nusuk;/);

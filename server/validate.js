@@ -8,8 +8,6 @@ export const SERVICES = [
 ];
 export const MODES = ['Online (Virtual)', 'Offline (On-site)'];
 export const REQUEST_STATUSES = ['New', 'Contacted', 'In progress', 'Closed'];
-export const BOOKING_TYPES = ['Hotel reservation', 'eSIM', 'Haramain High-speed Train ticket'];
-export const BOOKING_STATUSES = ['Pending', 'Ongoing', 'Completed'];
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PHONE = /^\+?[0-9\s\-()]{7,18}$/;
@@ -34,24 +32,8 @@ export function serviceRequest(b = {}) {
   return Object.keys(errors).length ? { errors } : { value: { ...v, status: 'New', notes: '' } };
 }
 
-export function bookingRequest(b = {}) {
-  const v = {
-    type: str(b.type), name: str(b.name, 120), email: str(b.email, 120).toLowerCase(), phone: str(b.phone, 30),
-    details: str(b.details, 1500), dateFrom: str(b.dateFrom, 10), dateTo: str(b.dateTo, 10),
-  };
-  const errors = {};
-  if (!BOOKING_TYPES.includes(v.type)) errors.bt = 'Select a service.';
-  if (!v.name) errors.bn = 'Name is required.';
-  if (!EMAIL.test(v.email)) errors.be = 'Enter a valid email address.';
-  if (!PHONE.test(v.phone)) errors.bp = 'Enter a valid phone number.';
-  if (!v.details) errors.bd = 'Please describe what you need.';
-  for (const k of ['dateFrom', 'dateTo']) if (v[k] && !/^\d{4}-\d{2}-\d{2}$/.test(v[k])) errors.bd = 'Invalid date.';
-  return Object.keys(errors).length ? { errors } : { value: { ...v, status: 'Pending', notes: '' } };
-}
-
 // Admin-managed inventory collections: field -> label/max length
 export const INVENTORY = {
-  hotels: ['name', 'city', 'stars', 'roomType'],
   esims: ['name', 'provider', 'data', 'validity'],
 };
 export function inventoryItem(kind, b = {}) {
@@ -72,6 +54,9 @@ export function userInput(b = {}, { requirePassword }) {
 const url = v => { const s = str(v, 500); return !s || /^https?:\/\/\S+$/i.test(s) ? s : null; };
 export function settingsInput(b = {}) {
   const out = { brochures: {}, youtube: {}, fxRate: '' }, errors = {};
+  const mk = (key, max, label) => { const r = String(b?.[key] ?? '').trim(); if (!r) return 0; const n = Number(r); if (!Number.isFinite(n) || n < 0 || n > max) { errors[key] = label; return 0; } return Math.round(n * 100) / 100; };
+  out.markupPct = mk('markupPct', 500, 'Default mark-up % must be 0–500.');
+  out.markupFixed = mk('markupFixed', 1e7, 'Default fixed mark-up must be ₦0–10,000,000.');
   const raw = String(b?.fxRate ?? '').trim();
   if (raw) {
     const n = Number(raw);

@@ -5,8 +5,10 @@ import { config } from './config.js';
 import { records, settings, db } from './db.js';
 import * as auth from './auth.js';
 import * as v from './validate.js';
+import { registerBooking, paymentMode } from './booking.js';
 
 auth.bootstrapAdmin();
+let payHandler = (req, res) => { res.writeHead(404); res.end(); };   // set by registerBooking()
 
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
@@ -26,11 +28,19 @@ const send = (res, status, body, headers = {}) => {
 };
 class HttpError extends Error { constructor(status, msg, extra) { super(msg); this.status = status; this.extra = extra; } }
 
-async function readJson(req) {
+async function readBody(req, max = 64 * 1024) {
   const chunks = []; let size = 0;
-  for await (const c of req) { size += c.length; if (size > 64 * 1024) throw new HttpError(413, 'Payload too large'); chunks.push(c); }
-  if (!chunks.length) return {};
-  try { return JSON.parse(Buffer.concat(chunks).toString('utf8')); } catch { throw new HttpError(400, 'Invalid JSON'); }
+  for await (const c of req) { size += c.length; if (size > max) throw new HttpError(413, 'Payload too large'); chunks.push(c); }
+  return Buffer.concat(chunks);
+}
+const parseJson = buf => { if (!buf.length) return {}; try { return JSON.parse(buf.toString('utf8')); } catch { throw new HttpError(400, 'Invalid JSON'); } };
+
+/** Public base URL of the site (used for payment return links). Set PUBLIC_URL in production. */
+function publicUrl(req) {
+  if (process.env.PUBLIC_URL) return process.env.PUBLIC_URL.replace(/\/+$/, '');
+  const proto = (req.headers['x-forwarded-proto'] || (config.https ? 'https' : 'http')).split(',')[0].trim();
+  const host = (req.headers['x-forwarded-host'] || req.headers.host || 'localhost').split(',')[0].trim();
+  return `${proto}://${host}${config.basePath}`;
 }
 
 const cookies = req => Object.fromEntries((req.headers.cookie || '').split(';').map(c => c.trim().split(/=(.*)/s).slice(0, 2)).filter(c => c[0]));
@@ -84,14 +94,6 @@ route('POST', '/api/requests', async ({ req, body }) => {
   notify('service request', rec);
   return { ok: true, id: rec.id };
 });
-route('POST', '/api/bookings', async ({ req, body }) => {
-  limit(req, 'submit', 10, 60 * 60e3);
-  if (body.website) return { ok: true };
-  const rec = records.create('bookings', must(v.bookingRequest(body)));
-  notify('booking request', rec);
-  return { ok: true, reference: rec.id.slice(0, 8).toUpperCase() };
-});
-
 // auth
 route('POST', '/api/auth/login', async ({ req, res, body }) => {
   limit(req, 'login', 8, 15 * 60e3);
@@ -106,18 +108,19 @@ route('GET', '/api/auth/me', ({ user }) => ({ user }));
 // admin
 const A = { auth: true }, ADMIN = { auth: true, role: 'admin' };
 route('GET', '/api/admin/summary', A, () => {
-  const reqs = records.list('requests'), bks = records.list('bookings');
+  const reqs = records.list('requests'), ords = records.list('orders');
+  const paid = ords.filter(o => o.paymentStatus === 'paid');
   return {
     requests: reqs.length, newRequests: reqs.filter(r => r.status === 'New').length,
-    bookings: bks.length, pendingBookings: bks.filter(b => b.status === 'Pending').length,
-    hotels: records.count('hotels'), esims: records.count('esims'),
+    orders: ords.length, pendingOrders: ords.filter(o => o.status === 'Pending').length,
+    revenue: paid.reduce((t, o) => t + (o.amount || 0), 0), hotels: records.count('hotels'), esims: records.count('esims'),
     byService: v.SERVICES.map(s => ({ service: s, count: reqs.filter(r => r.service === s).length })),
+    payment: paymentMode(),
   };
 });
 
 for (const [coll, label, statuses, cols] of [
   ['requests', 'Service requests', v.REQUEST_STATUSES, [['createdAt', 'Submitted'], ['service', 'Service'], ['mode', 'Mode'], ['firstName', 'First name'], ['lastName', 'Last name'], ['email', 'Email'], ['phone', 'Phone'], ['company', 'Company'], ['role', 'Role'], ['status', 'Status'], ['notes', 'Notes']]],
-  ['bookings', 'Bookings', v.BOOKING_STATUSES, [['id', 'Reference'], ['createdAt', 'Submitted'], ['type', 'Service'], ['name', 'Name'], ['email', 'Email'], ['phone', 'Phone'], ['dateFrom', 'From'], ['dateTo', 'To'], ['details', 'Details'], ['status', 'Status'], ['notes', 'Notes']]],
 ]) {
   route('GET', `/api/admin/${coll}`, A, () => ({ items: records.list(coll), statuses }));
   route('GET', `/api/admin/${coll}.csv`, A, () => ({ csv: toCsv(records.list(coll), cols), name: `nusuk-${coll}-${new Date().toISOString().slice(0, 10)}.csv` }));
@@ -138,12 +141,16 @@ for (const kind of Object.keys(v.INVENTORY)) {
   route('DELETE', `/api/admin/${kind}/:id`, A, ({ params }) => { if (!records.remove(kind, params.id)) throw new HttpError(404, 'Not found'); return { ok: true }; });
 }
 
-route('GET', '/api/admin/settings', ADMIN, () => { const s = settings.all(); return { brochures: s.brochures || {}, youtube: s.youtube || {}, fxRate: s.fxRate ?? '' }; });
+route('GET', '/api/admin/settings', ADMIN, () => { const s = settings.all(); return { brochures: s.brochures || {}, youtube: s.youtube || {}, fxRate: s.fxRate ?? '', markupPct: s.markupPct ?? 0, markupFixed: s.markupFixed ?? 0, payment: paymentMode() }; });
 route('PUT', '/api/admin/settings', ADMIN, ({ body }) => {
   const s = must(v.settingsInput(body));
-  settings.set('brochures', s.brochures); settings.set('youtube', s.youtube); settings.set('fxRate', s.fxRate);
+  settings.set('brochures', s.brochures); settings.set('youtube', s.youtube); settings.set('fxRate', s.fxRate); settings.set('markupPct', s.markupPct); settings.set('markupFixed', s.markupFixed);
   return s;
 });
+
+const bk = { route, HttpError, must, fail, A, ADMIN, limit, notify, publicUrl };
+registerBooking(bk);
+payHandler = (req, res, url) => bk.payRoutes(req, res, url);
 
 const userRows = () => db.prepare('SELECT * FROM users ORDER BY created_at').all().map(auth.publicUser);
 route('GET', '/api/admin/users', ADMIN, () => ({ items: userRows() }));
@@ -192,11 +199,17 @@ async function handleApi(req, res, url) {
     const user = auth.userFromToken(cookies(req)[COOKIE]);
     if (hit.opts.auth && !user) throw new HttpError(401, 'Sign in required');
     if (hit.opts.role && user.role !== hit.opts.role) throw new HttpError(403, 'Administrator access required');
-    const body = req.method === 'GET' || req.method === 'DELETE' ? {} : await readJson(req);
-    const ctx = { req, res, user, body, params: hit.re.exec(url.pathname).groups || {} };
+    const noBody = req.method === 'GET' || req.method === 'DELETE';
+    const rawBody = noBody ? Buffer.alloc(0) : await readBody(req, hit.opts.maxBody || 64 * 1024);
+    const body = noBody || hit.opts.raw ? {} : parseJson(rawBody);
+    const ctx = { req, res, user, body, rawBody, params: hit.re.exec(url.pathname).groups || {} };
     const out = await hit.handler(ctx);
     if (out && typeof out.csv === 'string') {
       return send(res, 200, '﻿' + out.csv, { ...secHeaders, 'Content-Type': 'text/csv; charset=utf-8', 'Content-Disposition': `attachment; filename="${out.name}"` });
+    }
+    if (out && Buffer.isBuffer(out.file)) {
+      return send(res, 200, out.file, { ...secHeaders, 'Cache-Control': out.cache || 'no-store', 'Content-Type': out.type, 'Content-Length': out.file.length,
+        ...(out.name ? { 'Content-Disposition': `${out.inline ? 'inline' : 'attachment'}; filename="${out.name}"` } : {}) });
     }
     send(res, 200, out ?? { ok: true }, secHeaders);
   } catch (e) {
@@ -243,6 +256,7 @@ export const server = http.createServer((req, res) => {
     if (url.pathname.startsWith(bp + '/')) url.pathname = url.pathname.slice(bp.length);
   }
   if (url.pathname.startsWith('/api/')) return handleApi(req, res, url);
+  if (url.pathname.startsWith('/pay/')) return payHandler(req, res, url);
   serveStatic(req, res, url);
 });
 

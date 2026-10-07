@@ -26,6 +26,15 @@ If `ADMIN_PASSWORD` is empty, a random one is printed on first start. Change it 
 | Sub-path hosting | `BASE_PATH=/nusuk` |
 | Notifications | Optional `NOTIFY_WEBHOOK_URL` receives a JSON summary of each new request/booking |
 
+## DIY Booking (Hotels · HHR Train · Transfers)
+
+- **Hotels (Makkah / Madinah):** guests search by dates and rooms, see results **cheapest first**, review the order, enter their details and pay with **Paystack**. A booking ID (`NC-H-XXXXXX`) and a downloadable PDF slip are created. No login for clients.
+- **HHR Train / Transfers:** one-way request forms (Train stations: Makkah, Al-Sulimaniyah - Jeddah, Airport - Jeddah, KAEC; six vehicle types). IDs `NC-T-…` / `NC-R-…`.
+- **Admin → Hotel Inventory:** add/edit hotels manually, **bulk upload Excel/CSV** (template provided), attach the supplier's original offer PDF, cover image. Selling price per night = rate × FX rate (SAR) × (1 + mark-up %) + fixed ₦ — mark-up defaults live in **Settings** and are applied automatically on upload.
+- **Admin → DIY Orders:** all orders with client details, payment and fulfilment status (Pending / Fulfilled / Cancelled), notes, CSV export and PDF slip.
+
+Payments need `PAYSTACK_SECRET_KEY` and `PUBLIC_URL` (see `.env.example`). In the Paystack dashboard, set the **webhook URL** to `<PUBLIC_URL>/api/paystack/webhook`. Without a key, clients see "online payment not available" (set `PAYMENT_SIMULATION=1` only for demos).
+
 ## Deploy
 
 Needs a persistent disk for `DATA_DIR` (SQLite file `nusuk.db`).

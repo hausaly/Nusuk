@@ -28,7 +28,6 @@ const TS=[['T1','Alhaji Abdulhadi Umar Al-Futi','Chairman, Raudah Travel & Tours
 const tests=()=>`<section class="s"><div class="w"><div class="eyebrow">Testimonials</div><h2>What Industry Leaders Say</h2><div class="grid">${TS.map(t=>`<figure class="t" style="margin:0"><img loading="lazy" src="img/${t[0].toLowerCase()}.jpg" alt="Portrait of ${t[1]}"><q>“${t[3]}”</q><figcaption><b>${t[1]}</b><br><span class="mu">${t[2]}</span></figcaption></figure>`).join('')}</div></div></section>`;
 const POS='NUSUK CONSULT is a pioneering specialist advisory practice for Umrah external-agents and OTA companies, providing professional expertise in NUSUK MASAR ecosystem, covering licensing, contracting, regulatory readiness, visa operations, KPI performance, evaluation and classification, Umrah program development, and operational excellence—supporting operators in strengthening their systems, capabilities, and performance standards within the NUSUK MASAR ecosystem.';
 const GZ='Let’s take your company toward Green Zone classification—reducing penalties, suspensions, fines, and visa delays or rejections while staying updated on NUSUK MASAR operational best practices.';
-const BT=['Hotel reservation','eSIM','Haramain High-speed Train ticket'];
 const V={
 home:()=>`<div class="home"><section class="hero2"><div class="w"><span class="badge"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 3 7.5v9L12 21l9-4.5v-9zM3 7.5l9 4.5 9-4.5M12 12v9"/></svg>AFRICA’S NUSUK MASAR SPECIALIST</span><h1>“Beyond compliance, toward <span class="hl">operational excellence.</span>”</h1><p class="lead">NUSUK Consult is a specialist advisory and professional services practice for Umrah external agents and OTA companies, delivering expertise across the NUSUK MASAR ecosystem—from licensing and contracting to regulatory readiness, visa operations, KPI performance, evaluation and classification, Umrah programme development, and operational excellence.</p><div class="row"><a class="btn" href="#/services">Explore Our Services</a><a class="btn o" href="#/interest">Request a Service</a></div>
 <div class="stats"><div><b>300+</b><span>Attendees · UEA O.1, Kano</span></div><div><b>200+</b><span>Attendees · UEA O.1, Abuja</span></div><div><b>44</b><span>Master-level certifications · our founder</span></div><div><b>#1</b><span>Al Rajhi Educational Platform Leaderboard</span></div></div></div></section>
@@ -38,13 +37,8 @@ home:()=>`<div class="home"><section class="hero2"><div class="w"><span class="b
 about:()=>`<section class="s"><div class="w"><div class="eyebrow">About</div><h1>NUSUK CONSULT — Beyond Compliance</h1><p>${POS}</p><p class="mu">${GZ}</p></div></section>
 <section class="s alt founder"><div class="w"><div class="eyebrow">Leadership</div><h2>MEET THE FOUNDER/CEO</h2><article class="fcard"><figure class="fphoto"><img src="img/f.jpg" alt="Engr. Ibrahim Inusa, Founder and CEO of NUSUK Consult"></figure><div class="fbody"><h3>ENGR. IBRAHIM INUSA</h3><p class="frole">Nusuk Masar Consultant</p><p>Engr. Ibrahim holds a Master’s degree in IT from UNITEN, Malaysia, and a Bachelor’s degree from Marwadi University, India. He Ranked #1 on the Al Rajhi Educational Platform Leaderboard in collaboration with ministry of Hajj & Umrah in Saudi Arabia after completion of 44 Certifications course work at Master Level with 4 Badges in Pilgrim management and Nusuk ecosystem. Engr. Ibrahim has been a keynote speaker and NUSUK MASAR instructor at several international conferences across Europe and Africa, and featured in some leading tech industry magazines.</p><p>Engr. Ibrahim Inusa is a pioneering NUSUK MASAR Consultant for Umrah External Agents and OTA Companies, and the Founder & Managing Director of Hausaly EduTravels Ltd and NUSUK Consult, where he serves as Lead Instructor.</p></div></article></div></section>${reqCta}`,
 services:()=>`<section class="s"><div class="w"><div class="eyebrow">Services</div><h1>NUSUK CONSULT SERVICES</h1>${cards()}</div></section>${reqCta}${tests()}`,
-booking:()=>`<section class="s"><div class="w" style="max-width:900px"><div class="eyebrow">Service 7</div><h1 style="font-size:clamp(1.6rem,4vw,2.2rem)">Ground Service Bookings</h1><p class="mu">Hotel reservations, eSIMs and Haramain High-speed Train tickets. Tell us what you need and our team will confirm availability and pricing.</p><div id="bm"><form id="bf" novalidate>
-<div><label for="bt">Service *</label><select id="bt"><option value="">Select a service</option>${BT.map(o=>`<option>${o}</option>`).join('')}</select><div class="err" id="e_bt"></div></div>
-<div class="f2"><div><label for="bn">Full Name *</label><input id="bn" autocomplete="name"><div class="err" id="e_bn"></div></div><div><label for="be">Email *</label><input id="be" type="email" autocomplete="email"><div class="err" id="e_be"></div></div>
-<div><label for="bp">Phone Number *</label><input id="bp" type="tel" autocomplete="tel"><div class="err" id="e_bp"></div></div><div></div>
-<div><label for="b1">From</label><input id="b1" type="date"></div><div><label for="b2">To</label><input id="b2" type="date"></div></div>
-<div><label for="bd">Details *</label><textarea id="bd" rows="5" maxlength="1500" placeholder="City, number of rooms/travellers, preferred dates, any special requirements"></textarea><div class="err" id="e_bd"></div></div>
-<div class="hp" aria-hidden="true"><label>Website<input id="bw" tabindex="-1" autocomplete="off"></label></div><div class="err" id="e_ball" role="alert"></div><button class="btn" id="bsb" type="submit">Submit Booking Request</button></form></div></div></section>`,
+booking:()=>`<div id="bk"><section class="s"><div class="w"><p class="mu">Loading…</p></div></section></div>`,
+slip:()=>`<div id="sl"><section class="s"><div class="w"><p class="mu">Loading your booking slip…</p></div></section></div>`,
 privacy:()=>`<section class="s"><div class="w" style="max-width:760px"><h1>Privacy Policy</h1><p>This is a placeholder. The final Privacy Policy text has not yet been supplied and should be provided before launch.</p><p>Service requests submitted through the Interest Form (service, mode, name, email, phone, company, role) are visible only to NUSUK CONSULT administrators.</p></div></section>`,
 interest:(a)=>{const pre=+a[0]>0&&+a[0]<7?OPT[+a[0]-1]:'';return `<section class="s"><div class="w" style="max-width:900px"><h1 style="font-size:clamp(1.6rem,4vw,2.2rem)">NUSUK CONSULT SERVICE INTEREST FORM</h1><p class="mu">Complete the form below to request a NUSUK Consult service.</p><div id="fm"><form id="f" novalidate>
 <div><label for="sv">Service Request *</label><select id="sv"><option value="">Select a service</option>${OPT.map(o=>`<option ${o==pre?'selected':''}>${o}</option>`).join('')}</select><div class="err" id="e_sv"></div></div>
@@ -57,7 +51,7 @@ interest:(a)=>{const pre=+a[0]>0&&+a[0]<7?OPT[+a[0]-1]:'';return `<section class
 <div class="box"><h3>PROGRAM ARRANGEMENT</h3><p><b>VIRTUAL (ONLINE)</b><br>Program Venue: Zoom / Google Meet</p><p><b>ON-SITE (OFFLINE)</b><br>Program Venue, Instructor Accommodation & Round-Trip Travel — Client-Provided; Excluded from Program Fee.</p></div></div></div></section>`},
 login:()=>`<section class="s"><div class="w" style="max-width:460px"><h1>Admin Login</h1><div class="box" id="lg"><p>Loading…</p></div></div></section>`,
 admin:()=>`<div class="adm"><div class="side" id="sd"></div><div class="main" id="mn"><p>Loading…</p></div></div>`};
-const TT={home:'NUSUK CONSULT | Beyond Compliance',about:'About NUSUK CONSULT | NUSUK MASAR Consulting',services:'NUSUK CONSULT Services',booking:'Ground Service Bookings | NUSUK CONSULT',interest:'Service Interest Form | NUSUK CONSULT',privacy:'Privacy Policy | NUSUK CONSULT',login:'Admin Login | NUSUK CONSULT',admin:'Admin Dashboard | NUSUK CONSULT'};
+const TT={home:'NUSUK CONSULT | Beyond Compliance',about:'About NUSUK CONSULT | NUSUK MASAR Consulting',services:'NUSUK CONSULT Services',booking:'DIY Booking | NUSUK CONSULT',slip:'Booking Slip | NUSUK CONSULT',interest:'Service Interest Form | NUSUK CONSULT',privacy:'Privacy Policy | NUSUK CONSULT',login:'Admin Login | NUSUK CONSULT',admin:'Admin Dashboard | NUSUK CONSULT'};
 // ---------------- runtime ----------------
 const $=id=>document.getElementById(id);
 async function api(method,url,body){
@@ -90,10 +84,10 @@ const ready=Promise.all([loadMe(),loadSettings()]);
 function route(){
   const h=location.hash.replace(/^#\/?/,'').split('/');const r=V[h[0]||'home']?(h[0]||'home'):'home';
   document.title=TT[r];$('app').innerHTML=V[r](h.slice(1));window.scrollTo(0,0);
-  const items=[['about','About'],['services','Services'],['booking','Booking'],me?['admin','Dashboard','dash']:['login','Login','login']];
+  const items=[['about','About'],['services','Services'],['booking','DIY Booking'],me?['admin','Dashboard','dash']:['login','Login','login']];
   $('nv').innerHTML=items.map(n=>`<a href="#/${n[0]}" class="${n[0]==r?'on ':''}${n[2]?'login':''}">${n[2]?ic(n[2]):''}${n[1]}</a>`).join('');
   $('nv').classList.remove('o');$('mb').setAttribute('aria-expanded','false');
-  if(r=='interest')bindForm();if(r=='booking')bindBooking();if(r=='login')loginView();if(r=='admin')adminView();}
+  if(r=='interest')bindForm();if(r=='booking')bookingView();if(r=='slip')slipView(h.slice(1));if(r=='login')loginView();if(r=='admin')adminView();}
 addEventListener('hashchange',route);
 $('mb').onclick=()=>{const o=$('nv').classList.toggle('o');$('mb').setAttribute('aria-expanded',o)};
 
@@ -112,12 +106,6 @@ function bindForm(){
       payload:{service:g('sv'),mode,firstName:g('fn'),lastName:g('ln'),email:g('em'),phone:g('ph'),company:g('co'),role:g('ro'),website:g('website')},
       done:()=>{$('fm').innerHTML='<div class="ok" role="status"><h3>Request received</h3><p>Thank you. Your service request has been submitted to NUSUK CONSULT. Our team will contact you shortly.</p><a class="btn" href="#/">Back to Home</a></div>'}})}}
 
-function bindBooking(){
-  $('bf').onsubmit=ev=>{ev.preventDefault();const g=i=>$(i).value.trim();
-    submitForm({btn:'bsb',all:'e_ball',url:'/api/bookings',prefix:'e_',keys:['bt','bn','be','bp','bd'],
-      payload:{type:g('bt'),name:g('bn'),email:g('be'),phone:g('bp'),dateFrom:g('b1'),dateTo:g('b2'),details:g('bd'),website:g('bw')},
-      done:()=>{$('bm').innerHTML='<div class="ok" role="status"><h3>Booking request received</h3><p>Thank you. Our team will confirm availability and pricing with you shortly.</p><a class="btn" href="#/">Back to Home</a></div>'}})}}
-
 function loginView(){
   const el=$('lg');
   if(me){el.innerHTML=`<p>Signed in as <b>${esc(me.name)}</b> (${esc(me.role)}).</p><a class="btn" href="#/admin">Open Dashboard</a>`;return}
@@ -126,6 +114,9 @@ function loginView(){
     try{me=(await api('POST','/api/auth/login',{email:$('le').value,password:$('lp').value})).user;location.hash='#/admin'}
     catch(e){$('lb').disabled=false;$('e_l').textContent=e.message}}}
 
+const mods={};const loadJs=src=>mods[src]??=new Promise((ok,no)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=()=>{delete mods[src];no()};document.head.appendChild(s)});
+async function bookingView(){try{await loadJs('js/booking.js');NC.mountBooking()}catch{$('bk').innerHTML='<section class="s"><div class="w"><p class="err">Could not load the booking page. Please refresh.</p></div></section>'}}
+async function slipView(args){try{await loadJs('js/booking.js');NC.mountSlip(args[0],args[1])}catch{$('sl').innerHTML='<section class="s"><div class="w"><p class="err">Could not load your slip. Please refresh.</p></div></section>'}}
 let adminLoaded=null;
 async function adminView(){
   if(!me){$('mn').innerHTML='<h2>Access restricted</h2><p>The dashboard is available to authenticated administrators only. <a href="#/login">Admin Login</a></p>';return}

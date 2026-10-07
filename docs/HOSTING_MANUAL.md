@@ -16,6 +16,7 @@ How the platform was deployed to **https://www.hausaly.com/nusuk/** on **Truehos
 | URL path | `/nusuk` (set with `BASE_PATH`) |
 
 **Before you start, confirm:**
+
 - [ ] cPanel has **Setup Node.js App** (search "node" in cPanel's tool search)
 - [ ] The version list includes **22.13+**
 - [ ] The domain's DNS already points to the hosting (A record = the server IP)
@@ -92,18 +93,21 @@ Truehost adds a WordPress rewrite block that sends every non-file URL to a missi
 1. File Manager → **Settings → Show Hidden Files**.
 2. Find the `.htaccess` that contains lines starting `PassengerAppRoot` (cPanel created it when you made the app — in `public_html` or `public_html/nusuk`).
 3. **Copy** it first as a backup (`.htaccess.bak`).
-4. Edit it and **delete only** this block:
-   ```
-   # BEGIN WordPress
-   RewriteEngine On
-   RewriteBase /
-   RewriteRule ^index\.php$ - [L]
-   RewriteCond %{REQUEST_FILENAME} !-f
-   RewriteCond %{REQUEST_FILENAME} !-d
-   RewriteRule . /index.php [L]
-   # END WordPress
-   ```
-   Keep the Passenger lines, the HTTPS redirect and the security rules.
+4. Edit it and **delete only** the block shown below.
+
+```
+# BEGIN WordPress
+RewriteEngine On
+RewriteBase /
+RewriteRule ^index\.php$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.php [L]
+# END WordPress
+```
+
+Keep the Passenger lines, the HTTPS redirect and the security rules, then continue:
+
 5. Save, then **Restart** the Node app.
 
 ### Step 5 — Verify
@@ -162,11 +166,13 @@ Truehost adds a WordPress rewrite block that sends every non-file URL to a missi
 | Node version list tops out below 22 | Plan limitation | Ask the host to enable Node 22, or use a VPS |
 
 **Diagnostic files** (in `/home/<cpanel-user>/nusuk/`):
+
 - `boot.log` — written by `app.cjs`: startup info, errors, first 30 requests.
 - `stderr.log` — written by cPanel: the app's error output.
 Delete both once everything works.
 
 **Useful checks**
+
 - Health: `/nusuk/api/health` → `{"ok":true}`
 - cPanel → **Metrics → Errors** shows recent Apache errors.
 

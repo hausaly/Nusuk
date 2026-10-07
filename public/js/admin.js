@@ -179,11 +179,14 @@ VIEWS.settings=async mn=>{
   mn.innerHTML=`<h2>Settings</h2><p class="mu">Public links shown on the website. Leave blank to keep the button disabled.</p><form id="sf" class="box">
   <h3>Hotel mark-up (profit) defaults</h3><p class="mu">Applied automatically to every hotel rate you upload or add (you can override it per upload or per hotel). Selling price = rate × FX rate × (1 + %) + fixed ₦.</p>
   <div class="f2"><div><label>Default mark-up %<input name="markupPct" type="number" step="0.01" min="0" max="500" value="${esc(s.markupPct??0)}"></label></div><div><label>Default fixed mark-up per night (₦)<input name="markupFixed" type="number" step="1" min="0" value="${esc(s.markupFixed??0)}"></label></div></div>
-  <p class="mu">Online payments: <b>${esc({paystack:'Paystack — live',simulation:'Test mode (simulated)',off:'Not configured'}[s.payment]||'')}</b></p>
+  <p class="mu">Online payments: <b>${esc({paystack:'Paystack',simulation:'Test mode (simulated)',off:'Not configured'}[s.payment]||'')}</b> <button type="button" class="btn sm o" id="pchk" style="margin-left:8px">Check Paystack connection</button></p><div id="pchkr" role="status"></div>
   <h3>Platform FX rate</h3><div><label>Naira (₦) per 1 Saudi Riyal (SAR) — shown in the top bar; leave blank to hide<input name="fxRate" type="number" step="0.01" min="0" inputmode="decimal" placeholder="e.g. 410.50" value="${esc(s.fxRate??'')}"></label></div>
   <h3>Brochures</h3>${[[2,'Company Registration'],[3,'UEA O.1 Capacity Building'],[4,'Operations Masterclass'],[5,'Saudi Partner Contracting'],[6,'Package Development']].map(([k,l])=>row('brochures',k,l)).join('')}
   <h3>Session videos (YouTube)</h3>${[[1,'UEA O.1 — Kano'],[2,'UEA O.1 — Abuja'],[3,'SSP 3rd Edition']].map(([k,l])=>row('youtube',k,l)).join('')}
   <div class="err" id="e_sf" role="alert"></div><div class="row" style="margin:0"><button class="btn sm">Save settings</button></div></form>`;
+  $('pchk').onclick=async e=>{const b=e.currentTarget;b.disabled=true;$('pchkr').innerHTML='<p class="mu">Checking…</p>';
+    try{const r=await api('GET','/api/admin/payments/check');$('pchkr').innerHTML=`<div class="callout ${r.ok?'':'r'}" style="margin:8px 0"><div><b>${r.ok?'✔ Working':'✖ Problem'}</b> — ${esc(r.message)}</div></div>`}
+    catch(err){$('pchkr').innerHTML=`<p class="err">${esc(errText(err))}</p>`}finally{b.disabled=false}};
   $('sf').onsubmit=async e=>{e.preventDefault();const out={brochures:{},youtube:{},fxRate:'',markupPct:'',markupFixed:''};
     for(const [n,v] of new FormData(e.target)){if(n=='fxRate'||n=='markupPct'||n=='markupFixed'){out[n]=v;continue}const [g,k]=n.split('.');out[g][k]=v}
     const say=m=>{const el=$('e_sf');if(el)el.textContent=m};

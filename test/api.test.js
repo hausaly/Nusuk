@@ -246,6 +246,12 @@ test('hotel order → simulated payment → slip', async () => {
   assert.ok((await call('GET', '/api/admin/summary', null, cookie)).body.revenue >= quote.total);
 });
 
+test('payment connection check is admin-only and explains a missing key', async () => {
+  assert.equal((await call('GET', '/api/admin/payments/check')).status, 401);
+  const r = await call('GET', '/api/admin/payments/check', null, cookie);
+  assert.equal(r.status, 200); assert.equal(r.body.ok, false); assert.match(r.body.message, /Test mode|PAYSTACK_SECRET_KEY/);
+});
+
 test('payment webhook requires a valid Paystack signature and a matching amount', async () => {
   const stay = { city: 'Makkah', checkIn: dayStr(20), checkOut: dayStr(21), adults: 1, children: 0, rooms: 1 };
   const o = await call('POST', '/api/orders/hotel', { ...stay, hotelId, customer: { fullName: 'Musa Ibrahim', phone: '08131227047', email: 'm@example.com', address: 'Biu' } });

@@ -179,6 +179,18 @@ export function registerBooking(k) {
     }
     res.writeHead(404, { 'Content-Type': 'text/plain' }); res.end('Not found');
   };
+  // Admin "Check Paystack connection": validates the secret key and that this server can reach Paystack (no money moves).
+  route('GET', '/api/admin/payments/check', ADMIN, async () => {
+    const key = process.env.PAYSTACK_SECRET_KEY, mode = paymentMode();
+    if (!key) return { ok: false, mode, message: mode === 'simulation' ? 'Test mode (simulated payments). Set PAYSTACK_SECRET_KEY to use Paystack.' : 'PAYSTACK_SECRET_KEY is not set on this server.' };
+    const keyMode = key.startsWith('sk_live_') ? 'live' : key.startsWith('sk_test_') ? 'test' : 'unknown';
+    try {
+      const r = await fetch('https://api.paystack.co/transaction?perPage=1', { headers: { Authorization: `Bearer ${key}` }, signal: AbortSignal.timeout(12000) });
+      const j = await r.json().catch(() => ({}));
+      if (r.ok && j.status) return { ok: true, mode, keyMode, message: `Connected to Paystack using ${keyMode.toUpperCase()} keys.${keyMode === 'test' ? ' Payments are test-only — no real money.' : ''}` };
+      return { ok: false, mode, keyMode, message: r.status === 401 ? 'Paystack rejected the secret key. Check PAYSTACK_SECRET_KEY.' : `Paystack replied with an error (${r.status}): ${j.message || 'unknown'}` };
+    } catch { return { ok: false, mode, keyMode, message: 'This server could not reach Paystack (network blocked or timed out).' }; }
+  });
   route('POST', '/api/paystack/webhook', { raw: true }, ({ req, rawBody }) => {
     const key = process.env.PAYSTACK_SECRET_KEY; if (!key) throw new HttpError(404, 'Not found');
     const sig = crypto.createHmac('sha512', key).update(rawBody).digest('hex');

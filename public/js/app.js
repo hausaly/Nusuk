@@ -62,7 +62,7 @@ const TT={home:'NUSUK CONSULT | Beyond Compliance',about:'About NUSUK CONSULT | 
 // ---------------- runtime ----------------
 const $=id=>document.getElementById(id);
 async function api(method,url,body){
-  const r=await fetch(url,{method,credentials:'same-origin',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});
+  const r=await fetch(url.replace(/^\//,''),{method,credentials:'same-origin',headers:body?{'Content-Type':'application/json'}:{},body:body?JSON.stringify(body):undefined});
   const j=await r.json().catch(()=>({}));
   if(!r.ok){const e=new Error(j.error||'Request failed');e.status=r.status;e.errors=j.errors;throw e}
   return j}

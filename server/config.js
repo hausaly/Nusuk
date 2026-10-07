@@ -20,6 +20,8 @@ export const config = {
   publicDir: path.join(ROOT, 'public'),
   adminEmail: (process.env.ADMIN_EMAIL || 'admin@nusuk.com.ng').trim().toLowerCase(),
   adminPassword: process.env.ADMIN_PASSWORD || '',
+  // Mount point when served under a sub-path, e.g. BASE_PATH=/nusuk  (empty = site root)
+  basePath: ('/' + (process.env.BASE_PATH || '').replace(/^\/+|\/+$/g, '')).replace(/^\/$/, ''),
   https: process.env.HTTPS === '1',
   webhook: process.env.NOTIFY_WEBHOOK_URL || '',
 };

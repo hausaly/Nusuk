@@ -36,7 +36,7 @@ async function readJson(req) {
 const cookies = req => Object.fromEntries((req.headers.cookie || '').split(';').map(c => c.trim().split(/=(.*)/s).slice(0, 2)).filter(c => c[0]));
 const COOKIE = 'nc_session';
 const setCookie = (token, maxAge) =>
-  `${COOKIE}=${token}; HttpOnly; SameSite=Strict; Path=/; Max-Age=${maxAge}${config.https ? '; Secure' : ''}`;
+  `${COOKIE}=${token}; HttpOnly; SameSite=Strict; Path=${config.basePath || '/'}; Max-Age=${maxAge}${config.https ? '; Secure' : ''}`;
 
 // Sliding-window rate limiter keyed by ip+bucket
 const hits = new Map();
@@ -236,6 +236,12 @@ export const server = http.createServer((req, res) => {
   res.setHeader('X-Frame-Options', 'DENY');
   if (config.https) res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
   const url = new URL(req.url, 'http://localhost');
+  const bp = config.basePath;
+  if (bp) {
+    if (url.pathname === bp) { res.writeHead(301, { Location: bp + '/' + url.search }); return res.end(); }
+    if (!url.pathname.startsWith(bp + '/')) return send(res, 404, 'Not found');
+    url.pathname = url.pathname.slice(bp.length);
+  }
   if (url.pathname.startsWith('/api/')) return handleApi(req, res, url);
   serveStatic(req, res, url);
 });

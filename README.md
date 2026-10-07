@@ -23,6 +23,7 @@ If `ADMIN_PASSWORD` is empty, a random one is printed on first start. Change it 
 | Admin login | Email + password (scrypt), HttpOnly SameSite=Strict session cookie, 12h expiry, login rate limit |
 | Dashboard | Overview stats · Service Requests & Bookings (search, status workflow, internal notes, CSV export, delete) · Hotel & eSIM inventory CRUD · Users (admin/staff roles) · Settings (brochure & YouTube links) |
 | Roles | `admin`: everything. `staff`: requests, bookings, inventory — no Users/Settings |
+| Sub-path hosting | `BASE_PATH=/nusuk` |
 | Notifications | Optional `NOTIFY_WEBHOOK_URL` receives a JSON summary of each new request/booking |
 
 ## Deploy
@@ -36,6 +37,20 @@ docker run -p 3000:3000 -v nusuk-data:/data -e HTTPS=1 -e ADMIN_EMAIL=you@exampl
 
 Put it behind an HTTPS reverse proxy (Caddy/nginx/Cloudflare) and set `HTTPS=1` so cookies are `Secure`
 and the proxy's `X-Forwarded-For` is used for rate limiting. Back up by copying `data/nusuk.db`.
+
+## Serving under a sub-path (e.g. https://www.hausaly.com/nusuk)
+
+Set `BASE_PATH=/nusuk`. The app then answers only under `/nusuk/…` (`/nusuk` redirects to `/nusuk/`), and the
+session cookie is scoped to that path. Your front web server must forward `/nusuk/` **unchanged** (do not strip the prefix):
+
+```nginx
+location /nusuk/ { proxy_pass http://127.0.0.1:3000; proxy_set_header Host $host; proxy_set_header X-Forwarded-For $remote_addr; }
+location = /nusuk { return 301 /nusuk/; }
+```
+```
+# Caddy
+handle /nusuk* { reverse_proxy 127.0.0.1:3000 }
+```
 
 ## Layout
 

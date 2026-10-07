@@ -155,3 +155,23 @@ test('login is rate limited', async () => {
   for (let i = 0; i < 10; i++) last = (await login('boss@example.com', 'bad' + i)).r.status;
   assert.equal(last, 429);
 });
+
+test('works when mounted under BASE_PATH', async () => {
+  const { spawn } = await import('node:child_process');
+  const d2 = fs.mkdtempSync(path.join(os.tmpdir(), 'nusuk-bp-'));
+  const port = 3900 + Math.floor(Math.random() * 90);
+  const child = spawn(process.execPath, ['--disable-warning=ExperimentalWarning', 'server/index.js'], {
+    env: { ...process.env, PORT: String(port), DATA_DIR: d2, BASE_PATH: '/nusuk', ADMIN_PASSWORD: 'correct-horse-battery' }, stdio: 'ignore' });
+  try {
+    const b = `http://127.0.0.1:${port}/nusuk`;
+    for (let i = 0; i < 30; i++) { try { await fetch(b + '/api/health'); break; } catch { await new Promise(r => setTimeout(r, 100)); } }
+    const redirect = await fetch(b, { redirect: 'manual' });
+    assert.equal(redirect.status, 301); assert.equal(redirect.headers.get('location'), '/nusuk/');
+    assert.equal((await fetch(b + '/')).status, 200);
+    assert.equal((await fetch(b + '/css/style.css')).status, 200);
+    assert.equal((await fetch(`http://127.0.0.1:${port}/api/health`)).status, 404);
+    const l = await fetch(b + '/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'boss@example.com', password: 'correct-horse-battery' }) });
+    assert.equal(l.status, 200);
+    assert.match(l.headers.get('set-cookie'), /Path=\/nusuk;/);
+  } finally { child.kill(); fs.rmSync(d2, { recursive: true, force: true }); }
+});

@@ -69,7 +69,23 @@ async function api(method,url,body){
 window.NC={api,esc,ic,$};
 let me=null;
 async function loadMe(){try{me=(await api('GET','/api/auth/me')).user}catch{me=null}}
-async function loadSettings(){try{const s=await api('GET','/api/public-settings');BROCH=s.brochures||{};YT=s.youtube||{}}catch{}}
+let FX='';
+async function loadSettings(){try{const s=await api('GET','/api/public-settings');BROCH=s.brochures||{};YT=s.youtube||{};FX=s.fxRate??''}catch{}}
+const TI={
+  phone:'M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z',
+  fx:'M2 6h20v12H2zM12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM6 10v4M18 10v4',
+  cal:'M3 5h18v16H3zM3 10h18M8 3v4M16 3v4',
+  pin:'M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11zM12 12a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5z'};
+const tic=k=>`<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="${TI[k]}"/></svg>`;
+function hijri(){try{return new Intl.DateTimeFormat('en-u-ca-islamic-umalqura',{day:'numeric',month:'short',year:'numeric',timeZone:'Africa/Lagos'}).format(new Date()).replace(/\s*AH$/,'')}catch{return ''}}
+function renderTopbar(){
+  const h=hijri(),fx=FX!==''&&FX!=null?`SAR 1 = ₦${Number(FX).toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2})}`:'';
+  const items=[
+    `<a href="tel:+2348131227047">${tic('phone')}<span class="lbl">Call on:</span> <b>+2348131227047</b></a>`,
+    fx&&`<span>${tic('fx')}<span class="lbl">Platform FX Rate:</span> <b>${fx}</b></span>`,
+    h&&`<span>${tic('cal')}<b>${esc(h)}</b> <span class="lbl">AH</span></span>`,
+    `<span>${tic('pin')}<b>Nigeria</b></span>`].filter(Boolean);
+  $('tb').innerHTML=`<div class="w tb-in">${items.join('<i class="sep" aria-hidden="true"></i>')}</div>`}
 const ready=Promise.all([loadMe(),loadSettings()]);
 
 function route(){
@@ -118,4 +134,4 @@ async function adminView(){
   try{await adminLoaded;NC.mountAdmin(me,async()=>{try{await api('POST','/api/auth/logout')}catch{}me=null;location.hash='#/';route()})}
   catch{$('mn').innerHTML='<p>Could not load the dashboard.</p>'}}
 
-ready.then(route);
+ready.then(()=>{renderTopbar();route()});

@@ -88,11 +88,12 @@ VIEWS.settings=async mn=>{
   const s=await api('GET','/api/admin/settings');
   const row=(g,k,l)=>`<div><label>${l}<input name="${g}.${k}" type="url" placeholder="https://…" value="${esc((s[g]||{})[k]||'')}"></label></div>`;
   mn.innerHTML=`<h2>Settings</h2><p class="mu">Public links shown on the website. Leave blank to keep the button disabled.</p><form id="sf" class="box">
+  <h3>Platform FX rate</h3><div><label>Naira (₦) per 1 Saudi Riyal (SAR) — shown in the top bar; leave blank to hide<input name="fxRate" type="number" step="0.01" min="0" inputmode="decimal" placeholder="e.g. 410.50" value="${esc(s.fxRate??'')}"></label></div>
   <h3>Brochures</h3>${[[2,'Company Registration'],[3,'UEA O.1 Capacity Building'],[4,'Operations Masterclass'],[5,'Saudi Partner Contracting'],[6,'Package Development']].map(([k,l])=>row('brochures',k,l)).join('')}
   <h3>Session videos (YouTube)</h3>${[[1,'UEA O.1 — Kano'],[2,'UEA O.1 — Abuja'],[3,'SSP 3rd Edition']].map(([k,l])=>row('youtube',k,l)).join('')}
   <div class="err" id="e_sf" role="alert"></div><div class="row" style="margin:0"><button class="btn sm">Save settings</button></div></form>`;
-  $('sf').onsubmit=async e=>{e.preventDefault();const out={brochures:{},youtube:{}};
-    for(const [n,v] of new FormData(e.target)){const [g,k]=n.split('.');out[g][k]=v}
+  $('sf').onsubmit=async e=>{e.preventDefault();const out={brochures:{},youtube:{},fxRate:''};
+    for(const [n,v] of new FormData(e.target)){if(n=='fxRate'){out.fxRate=v;continue}const [g,k]=n.split('.');out[g][k]=v}
     const say=m=>{const el=$('e_sf');if(el)el.textContent=m};
     try{await api('PUT','/api/admin/settings',out);say('');toast('Settings saved')}catch(err){say(errText(err))}}};
 })();

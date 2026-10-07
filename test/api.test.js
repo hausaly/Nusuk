@@ -117,6 +117,10 @@ test('bookings, inventory and settings', async () => {
 
   assert.equal((await call('PUT', '/api/admin/settings', { brochures: { 2: 'javascript:alert(1)' } }, cookie)).status, 422);
   await call('PUT', '/api/admin/settings', { brochures: { 2: 'https://example.com/b.pdf' }, youtube: { 1: 'https://youtu.be/x' } }, cookie);
+  assert.equal((await call('PUT', '/api/admin/settings', { fxRate: 'abc' }, cookie)).status, 422);
+  assert.equal((await call('PUT', '/api/admin/settings', { fxRate: '-5' }, cookie)).status, 422);
+  await call('PUT', '/api/admin/settings', { brochures: { 2: 'https://example.com/b.pdf' }, youtube: { 1: 'https://youtu.be/x' }, fxRate: '412.456' }, cookie);
+  assert.equal((await call('GET', '/api/public-settings')).body.fxRate, 412.46);
   const pub = await call('GET', '/api/public-settings');
   assert.equal(pub.body.brochures[2], 'https://example.com/b.pdf');
 });

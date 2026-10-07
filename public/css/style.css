@@ -64,3 +64,12 @@ textarea:focus-visible{outline:3px solid var(--gd);outline-offset:2px}
 .hero2 h1 .hl{color:var(--g)}
 .hero2 .lead{max-width:860px;margin:0;padding-left:24px;border-left:4px solid var(--g);font:400 clamp(1.02rem,1.9vw,1.2rem)/1.75 Lato,Poppins,sans-serif;color:#e6dfd2}
 .hero2 .row{margin-top:34px}
+
+/* Top info bar */
+.topbar{background:#14110d;color:#e6dfd2;font-size:.84rem;border-bottom:1px solid #2c261e}
+.tb-in{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 0;min-height:42px;padding-top:6px;padding-bottom:6px}
+.tb-in>*:not(.sep){display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.tb-in a{text-decoration:none}.tb-in a:hover b{color:var(--g)}
+.tb-in svg.i{width:16px;height:16px;color:var(--g)}.tb-in b{font-weight:600;color:#fff}
+.tb-in .sep{width:1px;height:16px;background:#4a4236;margin:0 18px}
+@media(max-width:700px){.topbar{font-size:.78rem}.tb-in{justify-content:flex-start;gap:4px 0}.tb-in .sep{margin:0 10px}.tb-in .lbl{display:none}}

@@ -71,7 +71,13 @@ export function userInput(b = {}, { requirePassword }) {
 
 const url = v => { const s = str(v, 500); return !s || /^https?:\/\/\S+$/i.test(s) ? s : null; };
 export function settingsInput(b = {}) {
-  const out = { brochures: {}, youtube: {} }, errors = {};
+  const out = { brochures: {}, youtube: {}, fxRate: '' }, errors = {};
+  const raw = String(b?.fxRate ?? '').trim();
+  if (raw) {
+    const n = Number(raw);
+    if (!Number.isFinite(n) || n <= 0 || n > 1e6) errors.fxRate = 'FX rate must be a positive number (Naira per 1 Saudi Riyal).';
+    else out.fxRate = Math.round(n * 100) / 100;
+  }
   for (const [group, keys] of [['brochures', [2, 3, 4, 5, 6]], ['youtube', [1, 2, 3]]]) {
     for (const k of keys) {
       const u = url(b?.[group]?.[k]);

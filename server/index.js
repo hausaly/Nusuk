@@ -76,7 +76,7 @@ const must = (r) => r.errors ? fail(r.errors) : r.value;
 
 // public
 route('GET', '/api/health', () => ({ ok: true }));
-route('GET', '/api/public-settings', () => { const s = settings.all(); return { brochures: s.brochures || {}, youtube: s.youtube || {} }; });
+route('GET', '/api/public-settings', () => { const s = settings.all(); return { brochures: s.brochures || {}, youtube: s.youtube || {}, fxRate: s.fxRate ?? '' }; });
 route('POST', '/api/requests', async ({ req, body }) => {
   limit(req, 'submit', 10, 60 * 60e3);
   if (body.website) return { ok: true };            // honeypot: bots fill hidden field
@@ -138,10 +138,10 @@ for (const kind of Object.keys(v.INVENTORY)) {
   route('DELETE', `/api/admin/${kind}/:id`, A, ({ params }) => { if (!records.remove(kind, params.id)) throw new HttpError(404, 'Not found'); return { ok: true }; });
 }
 
-route('GET', '/api/admin/settings', ADMIN, () => { const s = settings.all(); return { brochures: s.brochures || {}, youtube: s.youtube || {} }; });
+route('GET', '/api/admin/settings', ADMIN, () => { const s = settings.all(); return { brochures: s.brochures || {}, youtube: s.youtube || {}, fxRate: s.fxRate ?? '' }; });
 route('PUT', '/api/admin/settings', ADMIN, ({ body }) => {
   const s = must(v.settingsInput(body));
-  settings.set('brochures', s.brochures); settings.set('youtube', s.youtube);
+  settings.set('brochures', s.brochures); settings.set('youtube', s.youtube); settings.set('fxRate', s.fxRate);
   return s;
 });
 

@@ -87,3 +87,14 @@ footer .fl svg.i,footer .fc svg.i{color:var(--g)}footer .fl svg.i{width:16px;hei
 footer .fc li{display:flex;gap:12px;align-items:flex-start;font-size:.93rem;color:#d8d0c2;line-height:1.55}
 footer .fc svg.i{width:20px;height:20px;margin-top:2px}footer .fc small{color:#9c9384}
 footer .copy{margin:34px 0 0;border-top:1px solid #3a3329;padding-top:18px;font-size:.88rem;color:#9c9384}
+
+/* About: founder card */
+.founder h2{margin-bottom:28px}
+.fcard{display:grid;grid-template-columns:430px 1fr;gap:0;align-items:stretch;background:var(--bg);border:1px solid var(--bd);border-radius:16px;box-shadow:0 6px 28px rgba(29,26,22,.07);overflow:hidden}
+.fphoto{margin:0;background:#f8efe9;min-height:100%}
+.fphoto img{display:block;width:100%;height:100%;min-height:380px;object-fit:cover;object-position:12% 50%}
+.fbody{padding:36px 44px;display:flex;flex-direction:column;justify-content:center}
+.fbody h3{font-size:1.65rem;margin:0 0 8px;letter-spacing:-.01em}
+.fbody .frole{display:inline-block;align-self:flex-start;margin:0 0 22px;padding:6px 14px;border:1px solid var(--g);background:var(--bg2);color:var(--gd);border-radius:99px;font-weight:700;font-size:.74rem;letter-spacing:.12em;text-transform:uppercase}
+.fbody p{margin:0 0 16px;font-size:1rem;line-height:1.8;color:#2b2620;max-width:68ch}.fbody p:last-child{margin-bottom:0}
+@media(max-width:820px){.fcard{grid-template-columns:1fr}.fphoto img{min-height:0;height:360px;object-position:15% 40%}.fbody{padding:26px 22px}}

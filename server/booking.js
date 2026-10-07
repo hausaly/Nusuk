@@ -83,7 +83,6 @@ export function registerBooking(k) {
 
   route('POST', '/api/orders/hotel', async ({ req, body }) => {
     limit(req, 'order', 20, 60 * 60e3);
-    if (paymentMode() === 'off') throw new HttpError(503, 'Online payment is not available yet. Please contact us to complete your booking.');
     const stay = must(parseStay(body));
     const q = quoteHotel(String(body.hotelId || ''), stay);
     if (!q) throw new HttpError(409, 'Sorry, this room is no longer available for your dates. Please search again.');
@@ -91,9 +90,13 @@ export function registerBooking(k) {
     if (Object.keys(e).length) fail(e);
     const o = records.create('orders', {
       type: 'hotel', bookingId: bookingId('H'), token: crypto.randomBytes(18).toString('base64url'), status: 'Awaiting payment', paymentStatus: 'unpaid',
-      amount: q.total, currency: 'NGN', customer: c, notes: '', payment: { provider: paymentMode(), reference: null, attempts: 0 },
+      amount: q.total, currency: 'NGN', customer: c, notes: '', payment: { provider: paymentMode() === 'off' ? 'manual' : paymentMode(), reference: null, attempts: 0 },
       details: { hotelId: q.id, hotelName: q.name, city: q.city, address: q.address, distance: q.distance, stars: q.stars, facilities: q.facilities, roomType: q.roomType, checkIn: stay.checkIn, checkOut: stay.checkOut, nights: stay.nights, rooms: stay.rooms, adults: stay.adults, children: stay.children, perNight: q.perNight },
     });
+    if (paymentMode() === 'off') {      // manual payment: reservation first, our team collects payment
+      notify('hotel reservation (payment pending)', { service: `${o.details.hotelName} · ${o.details.checkIn} → ${o.details.checkOut} · ₦${o.amount.toLocaleString('en-NG')}`, name: o.customer.fullName, email: o.customer.email, phone: o.customer.phone });
+      return { bookingId: o.bookingId, token: o.token, manual: true };
+    }
     const authorizationUrl = await initPayment(o, req);
     return { bookingId: o.bookingId, token: o.token, authorizationUrl };
   });
@@ -103,7 +106,7 @@ export function registerBooking(k) {
     const t = new URL(req.url, 'http://x').searchParams.get('t') || '';
     const o = byId(params.id);
     if (!o || !safeEq(o.token, t)) throw new HttpError(404, 'Booking not found');
-    if (o.type !== 'hotel' || o.paymentStatus === 'paid' || o.status === 'Cancelled') throw new HttpError(409, 'This booking does not need payment.');
+    if (o.type !== 'hotel' || o.paymentStatus === 'paid' || o.status === 'Cancelled' || o.payment?.provider === 'manual') throw new HttpError(409, 'Online payment is not available for this booking. Our team will contact you.');
     return { authorizationUrl: await initPayment(o, req) };
   });
 
@@ -212,6 +215,13 @@ export function registerBooking(k) {
     const patch = {};
     if (body.status !== undefined) { if (!ORDER_STATUSES.includes(body.status)) fail({ status: 'Invalid status.' }); patch.status = body.status; }
     if (body.notes !== undefined) patch.notes = String(body.notes).slice(0, 2000);
+    if (body.paymentStatus !== undefined) {
+      const cur = records.get('orders', params.id); if (!cur) throw new HttpError(404, 'Not found');
+      if (cur.type !== 'hotel' || !['paid', 'unpaid'].includes(body.paymentStatus)) fail({ paymentStatus: 'Payment status can only be paid or unpaid on hotel orders.' });
+      patch.paymentStatus = body.paymentStatus;
+      patch.payment = { ...(cur.payment || {}), paidAt: body.paymentStatus === 'paid' ? new Date().toISOString() : null, channel: body.paymentStatus === 'paid' ? (cur.payment?.channel || 'manual') : '' };
+      if (body.paymentStatus === 'paid' && cur.status === 'Awaiting payment' && body.status === undefined) patch.status = 'Pending';
+    }
     return records.update('orders', params.id, patch) ?? (() => { throw new HttpError(404, 'Not found'); })();
   });
   route('DELETE', '/api/admin/orders/:id', ADMIN, ({ params }) => { if (!records.remove('orders', params.id)) throw new HttpError(404, 'Not found'); return { ok: true }; });

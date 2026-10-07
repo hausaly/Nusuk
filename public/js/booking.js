@@ -88,7 +88,7 @@ function orderFlow(h,stay){
   const m=document.createElement('div');m.className='modal';m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');
   document.body.appendChild(m);document.body.style.overflow='hidden';
   const close=()=>{m.remove();document.body.style.overflow=''};
-  const shell=(title,step,body)=>{m.innerHTML=`<div class="mbox"><button class="mx" aria-label="Close">×</button><div class="msteps"><span class="${step>=1?'on':''}">1 Review</span><i></i><span class="${step>=2?'on':''}">2 Your details</span><i></i><span>3 Payment</span></div><h2>${title}</h2>${body}</div>`;m.querySelector('.mx').onclick=close};
+  const shell=(title,step,body)=>{m.innerHTML=`<div class="mbox"><button class="mx" aria-label="Close">×</button><div class="msteps"><span class="${step>=1?'on':''}">1 Review</span><i></i><span class="${step>=2?'on':''}">2 Your details</span><i></i><span>${cfg.payment=='off'?'3 Confirmation':'3 Payment'}</span></div><h2>${title}</h2>${body}</div>`;m.querySelector('.mx').onclick=close};
   m.onclick=e=>{if(e.target==m)close()};
   const summary=`<div class="osum"><div class="oh"><b>${esc(h.name)}</b><span class="stars">${stars(h.stars)}</span></div><div class="oc">${ic('pin',14)} ${esc(h.city)}${h.address?' · '+esc(h.address):''}</div>
   <table><tr><th>Room type</th><td>${esc(h.roomType)}</td></tr><tr><th>Check-in</th><td>${fd(stay.checkIn)}</td></tr><tr><th>Check-out</th><td>${fd(stay.checkOut)}</td></tr><tr><th>Nights</th><td>${stay.nights}</td></tr><tr><th>Rooms</th><td>${stay.rooms}</td></tr><tr><th>Guests</th><td>${stay.adults} adult${stay.adults>1?'s':''}${stay.children?`, ${stay.children} child${stay.children>1?'ren':''}`:''}</td></tr>${h.distance?`<tr><th>Distance</th><td>${esc(h.distance)}</td></tr>`:''}<tr><th>Rate per night</th><td>${NGN(h.perNight)}</td></tr></table>
@@ -98,13 +98,14 @@ function orderFlow(h,stay){
     shell('Your details',2,`<div class="osm">${esc(h.name)} · ${esc(h.roomType)} · ${stay.nights} night${stay.nights>1?'s':''} · <b>${NGN(h.total)}</b></div>
     <form id="of" novalidate>${custFields('o_')}<div class="fld"><label for="o_address">Address *</label><div class="ctl"><input id="o_address" autocomplete="street-address"></div><div class="err" id="e_o_address"></div></div>
     ${cfg.payment=='simulation'?'<div class="testbn">TEST MODE — payments are simulated. No real money is charged.</div>':''}
-    ${cfg.payment=='off'?'<div class="testbn">Online payment is not available yet. Please contact us to complete this booking.</div>':''}
-    <div class="err" id="e_o_all" role="alert"></div><div class="mact"><button type="button" class="btn o" id="mb">Back</button><button class="btn" id="mp" ${cfg.payment=='off'?'disabled':''}>${ic('shield',18)} Continue to payment</button></div>
-    <p class="secure">${ic('shield',14)} Secure payment powered by Paystack. Your booking slip is generated right after payment.</p></form>`);
+    ${cfg.payment=='off'?'<div class="infobn">No payment is needed now. Our team will contact you on WhatsApp / email with payment details — your room is confirmed once payment is received.</div>':''}
+    <div class="err" id="e_o_all" role="alert"></div><div class="mact"><button type="button" class="btn o" id="mb">Back</button><button class="btn" id="mp">${ic('shield',18)} ${cfg.payment=='off'?'Confirm booking':'Continue to payment'}</button></div>
+    <p class="secure">${ic('shield',14)} ${cfg.payment=='off'?'Your booking slip with your Booking ID is generated right away.':'Secure payment powered by Paystack. Your booking slip is generated right after payment.'}</p></form>`);
     $('mb').onclick=review;
     $('of').onsubmit=async e=>{e.preventDefault();const b=$('mp');b.disabled=true;errs('e_o_',{},['fullName','phone','email','address','all']);
       const c=custVals('o_');c.address=$('o_address').value.trim();
       try{const out=await api('POST','api/orders/hotel',{hotelId:h.id,city:stay.city,checkIn:stay.checkIn,checkOut:stay.checkOut,adults:stay.adults,children:stay.children,rooms:stay.rooms,customer:c});
+        if(out.manual){close();location.hash=`#/slip/${out.bookingId}/${out.token}`;return}
         shell('Redirecting to payment…',3,'<div class="bk-load"><i></i><i></i><i></i></div><p class="secure">Please wait — do not close this page.</p>');location.href=out.authorizationUrl}
       catch(err){b.disabled=false;if(err.errors){const x=err.errors;for(const k of ['fullName','phone','email','address'])$('e_o_'+k).textContent=x[k]||'';$('e_o_all').textContent=x.city||x.checkIn||x.checkOut||x.adults||x.rooms||''}else $('e_o_all').textContent=err.message}};
   };
@@ -167,8 +168,9 @@ NC.mountSlip=async(id,token)=>{
     const {order:o}=await api('GET',`api/orders/${encodeURIComponent(id)}/slip?t=${encodeURIComponent(token)}`);
     await loadSlipJs();
     const [label,col]=NCSlip.status(o);
-    const unpaid=o.type=='hotel'&&o.paymentStatus!='paid'&&o.status!='Cancelled';
-    const banner=o.type=='hotel'?(o.paymentStatus=='paid'?`<div class="sb ok">${ic('check',26)}<div><b>Payment successful — your booking is confirmed</b><span>Booking ID <b>${esc(o.bookingId)}</b>. Download your slip below.</span></div></div>`:`<div class="sb wait">${ic('clock',26)}<div><b>Payment not completed yet</b><span>Your room is not confirmed until payment is received.</span></div></div>`)
+    const manual=o.payment?.mode=='manual';
+    const unpaid=o.type=='hotel'&&o.paymentStatus!='paid'&&o.status!='Cancelled'&&!manual;
+    const banner=o.type=='hotel'?(o.paymentStatus=='paid'?`<div class="sb ok">${ic('check',26)}<div><b>Payment successful — your booking is confirmed</b><span>Booking ID <b>${esc(o.bookingId)}</b>. Download your slip below.</span></div></div>`:manual?`<div class="sb wait">${ic('clock',26)}<div><b>Booking received — payment pending</b><span>Booking ID <b>${esc(o.bookingId)}</b>. Our team will contact you on WhatsApp / email with payment details. Your room is confirmed once payment is received.</span></div></div>`:`<div class="sb wait">${ic('clock',26)}<div><b>Payment not completed yet</b><span>Your room is not confirmed until payment is received.</span></div></div>`)
       :`<div class="sb ok">${ic('check',26)}<div><b>Request received</b><span>Booking ID <b>${esc(o.bookingId)}</b>. Our team will contact you with the price and payment details.</span></div></div>`;
     root.innerHTML=`<div class="w slp">${banner}<div class="slact">${unpaid?`<button class="btn" id="spay">${ic('shield',18)} Complete payment</button><button class="btn o" id="sref">I have paid — refresh</button>`:''}<button class="btn" id="sdl">${ic('dl',18)} Download PDF slip</button><button class="btn o" id="spr">Print</button><a class="btn o" href="#/booking">New booking</a></div>${NCSlip.html(o)}</div>`;
     $('sdl').onclick=async e=>{const b=e.currentTarget;b.disabled=true;try{await NCSlip.pdf(o)}finally{b.disabled=false}};

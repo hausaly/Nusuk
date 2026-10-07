@@ -128,6 +128,15 @@ Keep the Passenger lines, the HTTPS redirect and the security rules, then contin
 
 ---
 
+## 4b. DIY Booking (hotels, HHR train, transfers)
+
+- **Payments are manual by default.** No extra settings are needed: a client reserves a hotel, receives a slip marked *payment pending*, your team contacts them, and you click **Mark as PAID** on the order (Dashboard → DIY Orders).
+- **Before clients can book hotels:** set the **Platform FX rate** (Settings) and add hotels (Dashboard → Hotel Inventory — add one by one, or bulk-upload the Excel template). Set your default **mark-up %** in Settings.
+- **Uploads on shared hosting:** hotel files are stored next to the database (`nusuk-data/media` and `nusuk-data/offers`) — they are included when you back up `nusuk-data`.
+- **Turning on Paystack later:** add `PAYSTACK_SECRET_KEY` (start with the `sk_test_…` key) and `PUBLIC_URL=https://www.hausaly.com/nusuk`, set the Paystack webhook to `https://www.hausaly.com/nusuk/api/paystack/webhook`, restart, then use **Settings → Check Paystack connection**. Never share screenshots showing the secret key.
+
+---
+
 ## 5. Updating the live site (after new changes)
 
 1. **Back up** `/home/<cpanel-user>/nusuk-data/nusuk.db` (File Manager → Download).

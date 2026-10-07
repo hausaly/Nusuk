@@ -8,7 +8,7 @@ const guests=d=>`${d.adults} adult${d.adults==1?'':'s'}${d.children?`, ${d.child
 const TYPE={hotel:'Hotel booking',train:'HHR Train request',transfer:'Transfer request'};
 
 function status(o){
-  if(o.type=='hotel'){ if(o.status=='Cancelled')return['CANCELLED','red']; if(o.paymentStatus=='paid')return[o.status=='Fulfilled'?'CONFIRMED · FULFILLED':'CONFIRMED · PAID','green']; return['AWAITING PAYMENT','amber']; }
+  if(o.type=='hotel'){ if(o.status=='Cancelled')return['CANCELLED','red']; if(o.paymentStatus=='paid')return[o.status=='Fulfilled'?'CONFIRMED · FULFILLED':'CONFIRMED · PAID','green']; return[o.payment?.mode=='manual'?'RESERVED · PAYMENT PENDING':'AWAITING PAYMENT','amber']; }
   return o.status=='Fulfilled'?['FULFILLED','green']:o.status=='Cancelled'?['CANCELLED','red']:['REQUEST RECEIVED','amber'];
 }
 function sections(o){
@@ -18,8 +18,10 @@ function sections(o){
   if(o.type=='hotel'){
     book=[['Hotel',d.hotelName+(d.stars?`  (${d.stars}★)`:'')],['City',d.city],['Address',d.address||'—'],['Distance',d.distance||'—'],['Room type',d.roomType],['Check-in',dt(d.checkIn)],['Check-out',dt(d.checkOut)],['Total nights',String(d.nights)],['Rooms',String(d.rooms)],['Guests',guests(d)]];
     if(d.facilities&&d.facilities.length)book.push(['Facilities',d.facilities.join(', ')]);
-    pay=[['Rate per night',`NGN ${num(d.perNight)}`],['Nights × rooms',`${d.nights} × ${d.rooms}`],['Payment status',o.paymentStatus=='paid'?'Paid':'Unpaid'],['Payment reference',o.payment?.reference||'—']];
+    pay=[['Rate per night',`NGN ${num(d.perNight)}`],['Nights × rooms',`${d.nights} × ${d.rooms}`],['Payment status',o.paymentStatus=='paid'?'Paid':'Pending']];
+    if(o.payment?.reference)pay.push(['Payment reference',o.payment.reference]);
     if(o.payment?.paidAt)pay.push(['Paid on',dtm(o.payment.paidAt)]);
+    if(o.paymentStatus!='paid'&&o.payment?.mode=='manual')pay.push(['Next step','Our team will contact you with payment details. Your room is confirmed once payment is received.']);
   }else if(o.type=='train'){
     book=[['Service',d.service],['From',d.from],['To',d.to],['Travel date',dt(d.date)+(d.time?`, ${d.time}`:'')],['Passengers',guests(d)]];
     pay=[['Pricing','Our team will contact you with the fare and payment details.']];

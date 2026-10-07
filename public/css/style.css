@@ -192,3 +192,4 @@ footer .copy{margin:34px 0 0;border-top:1px solid #3a3329;padding-top:18px;font-
 @media(max-width:600px){.fld.dual{grid-template-columns:1fr;padding:8px 8px}.fld.dual .half+.half{border-left:0;border-top:1px solid var(--bd);margin-top:6px;padding-top:8px}.bk-tabs{padding:8px}.hc-top h3{font-size:1.1rem}}
 .vc{position:relative}.vc input{left:0;top:0;width:1px;height:1px}
 .adm .toolbar select{width:auto;min-width:160px;margin:0}.sb span b{display:inline;font-size:inherit}
+.infobn{background:#fdf6ea;border:1px solid #efd9b2;border-left:4px solid var(--g);color:#5b4a26;border-radius:10px;padding:10px 14px;font-size:.86rem;margin:6px 0 10px}

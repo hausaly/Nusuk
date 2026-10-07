@@ -324,3 +324,25 @@ test('hotel image and original-offer PDF uploads are validated and stored', asyn
   assert.equal((await fetch(base + '/api/admin/offers/' + pdf.body.offerPdf)).status, 401);          // offers are private
   assert.equal((await fetch(base + '/api/admin/offers/' + pdf.body.offerPdf, { headers: { Cookie: cookie } })).status, 200);
 });
+
+test('manual payment mode (no Paystack): reservation → pending slip → admin marks paid', async () => {
+  process.env.PAYMENT_SIMULATION = '0';
+  try {
+    assert.equal((await call('GET', '/api/booking-config')).body.payment, 'off');
+    const stay = { city: 'Makkah', checkIn: dayStr(30), checkOut: dayStr(32), adults: 2, children: 0, rooms: 1 };
+    const customer = { fullName: 'Zainab Yusuf', phone: '+2348131227047', email: 'z@example.com', address: 'Maiduguri' };
+    const o = await call('POST', '/api/orders/hotel', { ...stay, hotelId, customer });
+    assert.equal(o.status, 200); assert.equal(o.body.manual, true); assert.ok(!o.body.authorizationUrl);
+    const slip = (await call('GET', `/api/orders/${o.body.bookingId}/slip?t=${o.body.token}`)).body.order;
+    assert.equal(slip.paymentStatus, 'unpaid'); assert.equal(slip.status, 'Awaiting payment'); assert.equal(slip.payment.mode, 'manual');
+    assert.equal((await call('POST', `/api/orders/${o.body.bookingId}/pay?t=${o.body.token}`, {})).status, 409);   // no online payment in manual mode
+    const row = (await call('GET', '/api/admin/orders', null, cookie)).body.items.find(x => x.bookingId === o.body.bookingId);
+    assert.equal((await call('PATCH', `/api/admin/orders/${row.id}`, { paymentStatus: 'refunded' }, cookie)).status, 422);
+    const paid = await call('PATCH', `/api/admin/orders/${row.id}`, { paymentStatus: 'paid' }, cookie);
+    assert.equal(paid.body.paymentStatus, 'paid'); assert.equal(paid.body.status, 'Pending'); assert.ok(paid.body.payment.paidAt);
+    assert.equal((await call('GET', `/api/orders/${o.body.bookingId}/slip?t=${o.body.token}`)).body.order.paymentStatus, 'paid');
+    const train = (await call('GET', '/api/admin/orders', null, cookie)).body.items.find(x => x.type === 'train');
+    assert.equal((await call('PATCH', `/api/admin/orders/${train.id}`, { paymentStatus: 'paid' }, cookie)).status, 422);   // only hotel orders carry payment
+    assert.equal((await call('PATCH', `/api/admin/orders/${row.id}`, { paymentStatus: 'unpaid' }, cookie)).body.paymentStatus, 'unpaid');
+  } finally { process.env.PAYMENT_SIMULATION = '1'; }
+});

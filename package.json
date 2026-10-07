@@ -1,0 +1,13 @@
+{
+  "name": "nusuk-consult",
+  "version": "1.0.0",
+  "description": "NUSUK CONSULT | Beyond Compliance — public site, service-request intake and admin dashboard",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "test": "node --test test/*.test.js"
+  }
+}

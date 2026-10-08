@@ -13,7 +13,12 @@ const IC={
  car:'<path d="M5 17H3v-5l2-5h14l2 5v5h-2M5 17a2 2 0 1 0 4 0M15 17a2 2 0 1 0 4 0M9 17h6M3 12h18"/>',
  swap:'<path d="M7 4 3 8l4 4M3 8h14M17 20l4-4-4-4M21 16H7"/>', clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
  check:'<path d="M5 12l5 5 9-10"/>', dl:'<path d="M12 3v12M7 10l5 5 5-5M4 20h16"/>', shield:'<path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/>',
- wifi:'<path d="M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0M12 19h.01"/>', bus:'<rect x="4" y="3" width="16" height="15" rx="2"/><path d="M4 11h16M7 21v-3M17 21v-3M8 15h.01M16 15h.01"/>'
+ wifi:'<path d="M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0M12 19h.01"/>',
+ medal:'<circle cx="12" cy="9" r="6"/><path d="M8.5 14.5 7 22l5-3 5 3-1.5-7.5M9.5 9l2 2 3-3"/>', card:'<rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20M6 15h4"/>',
+ headset:'<path d="M4 14v-2a8 8 0 0 1 16 0v2M4 14h3v5H5a1 1 0 0 1-1-1zM20 14h-3v5h2a1 1 0 0 0 1-1zM17 19a4 4 0 0 1-4 2"/>',
+ tag:'<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.2"/><path d="M10 15l4-4"/>',
+ help:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2zM15 3a6 6 0 0 1 6 6M15 7a2 2 0 0 1 2 2"/>',
+ calpay:'<path d="M3 5h18v16H3zM3 10h18M8 3v4M16 3v4"/><path d="M12 12.5v5M14 13.5c-.4-.5-1-.7-2-.7-1.2 0-2 .6-2 1.4s.8 1.2 2 1.4 2 .6 2 1.4-.8 1.4-2 1.4c-1 0-1.7-.3-2-.8"/>', bus:'<rect x="4" y="3" width="16" height="15" rx="2"/><path d="M4 11h16M7 21v-3M17 21v-3M8 15h.01M16 15h.01"/>'
 };
 const ic=(n,s)=>svg(IC[n],s);
 const stars=n=>n>0?'★'.repeat(n)+'<span class="off">'+'★'.repeat(5-n)+'</span>':'';
@@ -29,16 +34,33 @@ const custVals=p=>({fullName:$(p+'fullName').value.trim(),phone:$(p+'phone').val
 // ============ shell ============
 NC.mountBooking=async()=>{
   const root=$('bk'); if(!root)return;
-  try{cfg??=await api('GET','api/booking-config')}catch{root.innerHTML='<div class="w"><p class="err">Could not load booking options. Please refresh.</p></div>';return}
+  try{cfg??=await api('GET','api/booking-config')}catch(e){root.innerHTML=`<div class="w" style="padding:40px 20px"><p class="err">Could not load booking options (${e.status?'server error '+e.status:'no connection'}). Please refresh. If it keeps happening, contact us.</p></div>`;return}
   st.checkIn||(st.checkIn='');
-  root.innerHTML=`<section class="bk-hero"><div class="w"><div class="eyebrow">DIY BOOKING</div><h1>Book your Umrah ground services</h1><p>Hotels in Makkah &amp; Madinah, the Haramain train and airport transfers — choose, pay and get your booking slip instantly. No account needed.</p></div></section>
+  root.innerHTML=`<section class="bk-hero"><div class="w"><div class="eyebrow">DIY BOOKING</div><h1>One Shop, Multiple deals</h1><p>Hotels in Makkah &amp; Madinah, the Haramain train and airport transfers — choose, book and get your booking slip instantly. No account needed.</p>
+  <div class="trust"><span>${ic('shield',18)}<b>IATA</b> Certified</span><i></i><span>${ic('medal',18)}<b>NCAA</b> Certified</span><i></i><span>${ic('card',18)}<b>Flexible</b> Payment</span><i></i><span>${ic('headset',18)}<b>24/7</b> Support</span></div></div></section>
   <section class="w bk-wrap"><div class="bk-card"><div class="bk-tabs" role="tablist">
   ${[['hotels','Hotels','hotel'],['train','HHR Train','train'],['transfers','Transfers','car']].map(t=>`<button role="tab" data-tab="${t[0]}" class="${tab==t[0]?'on':''}">${ic(t[2],22)}<span>${t[1]}</span></button>`).join('')}</div>
-  <div class="bk-panel" id="bkp"></div></div><div id="bkr"></div></section>`;
+  <div class="bk-panel" id="bkp"></div></div><div id="bkr"></div>
+  <div class="conf"><h2>Book with Confidence.</h2><p class="cp">All service providers on Nusuk are officially licensed and approved by the Ministry of Hajj and Umrah to ensure safety, reliability, and quality service for every pilgrim.</p>
+  <div class="cgrid"><div class="ci">${ic('tag',38)}<div><b>Get Your Discount</b><p>Save up to 20% on each booking.</p></div></div><div class="ci">${ic('help',38)}<div><b>Get Real Help, 24/7</b><p>Skip the bots. Talk to a real travel expert.</p></div></div><div class="ci">${ic('calpay',38)}<div><b>Reserve Now, Pay Later</b><p>Convenient options online and 24/7 global concierge.</p></div></div></div></div>
+  <div id="bkf"></div></section>`;
   root.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;root.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('on',x==b));$('bkr').innerHTML='';panel()});
   panel();
+  featured();
 };
 const panel=()=>({hotels:hotelsPanel,train:trainPanel,transfers:transferPanel}[tab])();
+
+// ============ FEATURED OFFERS ============
+async function featured(){
+  const box=$('bkf');if(!box)return;
+  let items=[];try{items=(await api('GET','api/hotels/featured')).items}catch{}
+  if(!items.length){box.innerHTML='';return}
+  box.innerHTML=`<div class="fo-head"><h2>Featured hotel offers</h2><p>Handpicked stays in Makkah and Madinah — prices shown per room, per night.</p></div><div class="fo">${items.map((h,i)=>`<article class="foc"><div class="foi ${h.image?'':'ph'}" ${h.image?`style="background-image:url('${esc(h.image)}')"`:''}>${h.image?'':ic('hotel',40)}${h.featured?'<span class="best">Featured</span>':''}</div>
+    <div class="fob"><div class="hc-top"><h3>${esc(h.name)}</h3><span class="stars">${stars(h.stars)}</span></div><div class="hc-city">${ic('pin',14)} ${esc(h.city)}</div>${h.distance?`<div class="hc-dist">${ic('pin',13)} ${esc(h.distance)}</div>`:''}
+    ${h.facilities.length?`<div class="hc-fac">${h.facilities.slice(0,3).map(f=>`<span>${ic('check',12)} ${esc(f)}</span>`).join('')}</div>`:''}
+    <div class="fof"><div><small>From</small><b>${NGN(h.perNight)}</b><small>/ night</small></div><button class="btn sm" data-fo="${i}">View offer</button></div></div></article>`).join('')}</div>`;
+  box.querySelectorAll('[data-fo]').forEach(b=>b.onclick=()=>{const h=items[+b.dataset.fo];tab='hotels';st.city=h.city;document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('on',x.dataset.tab=='hotels'));$('bkr').innerHTML='';hotelsPanel();window.scrollTo({top:0,behavior:'smooth'});setTimeout(()=>{const i=$('hi');i&&i.focus()},350)});
+}
 
 // ============ HOTELS ============
 function hotelsPanel(){

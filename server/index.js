@@ -113,7 +113,7 @@ route('GET', '/api/admin/summary', A, () => {
   return {
     requests: reqs.length, newRequests: reqs.filter(r => r.status === 'New').length,
     orders: ords.length, pendingOrders: ords.filter(o => o.status === 'Pending').length,
-    revenue: paid.reduce((t, o) => t + (o.amount || 0), 0), hotels: records.count('hotels'), esims: records.count('esims'),
+    revenue: paid.reduce((t, o) => t + (o.amount || 0), 0), hotels: records.count('hotels'),
     byService: v.SERVICES.map(s => ({ service: s, count: reqs.filter(r => r.service === s).length })),
     payment: paymentMode(),
   };
@@ -131,14 +131,6 @@ for (const [coll, label, statuses, cols] of [
     return records.update(coll, params.id, patch) ?? (() => { throw new HttpError(404, 'Not found'); })();
   });
   route('DELETE', `/api/admin/${coll}/:id`, A, ({ params }) => { if (!records.remove(coll, params.id)) throw new HttpError(404, 'Not found'); return { ok: true }; });
-}
-
-for (const kind of Object.keys(v.INVENTORY)) {
-  route('GET', `/api/admin/${kind}`, A, () => ({ items: records.list(kind) }));
-  route('POST', `/api/admin/${kind}`, A, ({ body }) => records.create(kind, must(v.inventoryItem(kind, body))));
-  route('PUT', `/api/admin/${kind}/:id`, A, ({ params, body }) =>
-    records.update(kind, params.id, must(v.inventoryItem(kind, body))) ?? (() => { throw new HttpError(404, 'Not found'); })());
-  route('DELETE', `/api/admin/${kind}/:id`, A, ({ params }) => { if (!records.remove(kind, params.id)) throw new HttpError(404, 'Not found'); return { ok: true }; });
 }
 
 route('GET', '/api/admin/settings', ADMIN, () => { const s = settings.all(); return { brochures: s.brochures || {}, youtube: s.youtube || {}, fxRate: s.fxRate ?? '', markupPct: s.markupPct ?? 0, markupFixed: s.markupFixed ?? 0, payment: paymentMode() }; });

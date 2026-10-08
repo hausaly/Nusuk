@@ -346,3 +346,19 @@ test('manual payment mode (no Paystack): reservation → pending slip → admin 
     assert.equal((await call('PATCH', `/api/admin/orders/${row.id}`, { paymentStatus: 'unpaid' }, cookie)).body.paymentStatus, 'unpaid');
   } finally { process.env.PAYMENT_SIMULATION = '1'; }
 });
+
+test('featured offers: flagged hotels first, max 3, one card per hotel', async () => {
+  const list = (await call('GET', '/api/admin/hotels', null, cookie)).body.items;
+  const target = list.find(h => h.name === 'Madinah Stay');
+  assert.equal((await call('PUT', `/api/admin/hotels/${target.id}`, { featured: true }, cookie)).body.featured, true);
+  const r = await call('GET', '/api/hotels/featured');
+  assert.equal(r.status, 200); assert.ok(r.body.items.length >= 1 && r.body.items.length <= 3);
+  assert.equal(r.body.items[0].name, 'Madinah Stay'); assert.equal(r.body.items[0].featured, true);
+  assert.equal(new Set(r.body.items.map(i => i.name)).size, r.body.items.length);
+  assert.ok(r.body.items.every(i => i.perNight > 0 && !('cost' in i)));          // price only, never the supplier cost
+});
+
+test('eSIM inventory is gone', async () => {
+  assert.equal((await call('GET', '/api/admin/esims', null, cookie)).status, 404);
+  assert.ok(!('esims' in (await call('GET', '/api/admin/summary', null, cookie)).body));
+});

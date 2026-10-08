@@ -32,15 +32,6 @@ export function serviceRequest(b = {}) {
   return Object.keys(errors).length ? { errors } : { value: { ...v, status: 'New', notes: '' } };
 }
 
-// Admin-managed inventory collections: field -> label/max length
-export const INVENTORY = {
-  esims: ['name', 'provider', 'data', 'validity'],
-};
-export function inventoryItem(kind, b = {}) {
-  const v = Object.fromEntries(INVENTORY[kind].map(f => [f, str(b[f], 120)]));
-  return v.name ? { value: v } : { errors: { name: 'Name is required.' } };
-}
-
 export function userInput(b = {}, { requirePassword }) {
   const v = { name: str(b.name, 100), email: str(b.email, 120).toLowerCase(), role: str(b.role, 10) || 'staff', password: typeof b.password === 'string' ? b.password : '' };
   const errors = {};

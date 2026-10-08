@@ -7,11 +7,9 @@ const pill=s=>`<span class="pill ${esc(String(s).toLowerCase().split(' ')[0])}">
 const errText=e=>e.errors?Object.values(e.errors).join(' '):e.message;
 const download=(url)=>{const a=document.createElement('a');a.href=url;a.click()};
 
-const INV={
-  esims:{t:'eSIM Inventory',f:[['name','Plan name'],['provider','Provider'],['data','Data'],['validity','Validity']]}};
 
 let user,onLogout,cur='overview';
-const TABS=()=>[['overview','Overview'],['requests','Service Requests'],['orders','DIY Orders'],['hotels','Hotel Inventory'],['esims','eSIM Inventory'],
+const TABS=()=>[['overview','Overview'],['requests','Service Requests'],['orders','DIY Orders'],['hotels','Hotel Inventory'],
   ...(user.role=='admin'?[['users','Users'],['settings','Settings']]:[])];
 
 NC.mountAdmin=(u,logout)=>{user=u;onLogout=logout;
@@ -78,7 +76,6 @@ function crud({title,base,fields,extra=[],pwd=false}){
         catch(err){$('e_ef').textContent=errText(err)}}};
     draw()}}
 
-for(const k in INV)VIEWS[k]=crud({title:INV[k].t,base:'/api/admin/'+k,fields:INV[k].f});
 VIEWS.users=crud({title:'Users',base:'/api/admin/users',fields:[['name','Name'],['email','Email'],['role','Role','select',['staff','admin']]],extra:[['password','Password (min 10 characters)','password']]});
 
 // ---- DIY orders (hotels, HHR train, transfers)
@@ -125,7 +122,7 @@ VIEWS.hotels=async mn=>{
     ${fxRate>0?'':'<div class="callout" style="margin:0 0 12px"><div><b>Platform FX rate not set.</b> Hotels priced in SAR are hidden from clients until you set it in <b>Settings</b>.</div></div>'}
     <div class="toolbar"><input id="q" placeholder="Search hotels…" value="${esc(q)}" aria-label="Search"><button class="btn sm" id="add">Add hotel</button><button class="btn sm" id="bulk">Bulk upload (Excel / CSV)</button><a class="btn sm o" href="api/admin/hotels-template.xlsx">Download template</a></div>
     <div id="hu"></div><div id="hf"></div>
-    <div class="tw"><table><tr><th>Hotel</th><th>Room type</th><th>Distance</th><th>Rate / night</th><th>Mark-up</th><th>Selling / night</th><th>Valid</th><th>Offer</th><th>Live</th><th></th></tr>${R.map(h=>`<tr${h.active?'':' style="opacity:.55"'}><td><b>${esc(h.name)}</b><br><small>${esc(h.city)}${h.stars?` · ${h.stars}★`:''}</small></td><td>${esc(h.roomType)}<br><small>sleeps ${h.capacity}</small></td><td>${h.distanceM!=null?h.distanceM+' m':'—'}</td><td>${esc(h.currency)} ${Number(h.cost).toLocaleString('en-NG')}</td><td>${h.markupPct||0}%${h.markupFixed?` + ${NG(h.markupFixed)}`:''}</td><td><b>${nightly(h)!=null?NG(nightly(h)):'<span class="err">needs FX</span>'}</b></td><td><small>${h.validFrom||h.validTo?`${esc(h.validFrom||'…')} → ${esc(h.validTo||'…')}`:'always'}</small></td><td>${h.offerPdf?`<a href="api/admin/offers/${esc(h.offerPdf)}" target="_blank" rel="noopener">PDF</a>`:'—'}</td><td><input type="checkbox" data-a="${h.id}" ${h.active?'checked':''} aria-label="Live" style="width:18px;min-height:18px;margin:0"></td><td style="white-space:nowrap"><button class="btn sm o" data-m="${h.id}">Edit</button> <button class="btn sm o" data-x="${h.id}">Delete</button></td></tr>`).join('')||'<tr><td colspan="10">No hotels yet — add one or upload an Excel file.</td></tr>'}</table></div>`;
+    <div class="tw"><table><tr><th>Hotel</th><th>Room type</th><th>Distance</th><th>Rate / night</th><th>Mark-up</th><th>Selling / night</th><th>Valid</th><th>Offer</th><th>Live</th><th></th></tr>${R.map(h=>`<tr${h.active?'':' style="opacity:.55"'}><td><b>${esc(h.name)}</b>${h.featured?' <span class="pill new">Featured</span>':''}<br><small>${esc(h.city)}${h.stars?` · ${h.stars}★`:''}</small></td><td>${esc(h.roomType)}<br><small>sleeps ${h.capacity}</small></td><td>${h.distanceM!=null?h.distanceM+' m':'—'}</td><td>${esc(h.currency)} ${Number(h.cost).toLocaleString('en-NG')}</td><td>${h.markupPct||0}%${h.markupFixed?` + ${NG(h.markupFixed)}`:''}</td><td><b>${nightly(h)!=null?NG(nightly(h)):'<span class="err">needs FX</span>'}</b></td><td><small>${h.validFrom||h.validTo?`${esc(h.validFrom||'…')} → ${esc(h.validTo||'…')}`:'always'}</small></td><td>${h.offerPdf?`<a href="api/admin/offers/${esc(h.offerPdf)}" target="_blank" rel="noopener">PDF</a>`:'—'}</td><td><input type="checkbox" data-a="${h.id}" ${h.active?'checked':''} aria-label="Live" style="width:18px;min-height:18px;margin:0"></td><td style="white-space:nowrap"><button class="btn sm o" data-m="${h.id}">Edit</button> <button class="btn sm o" data-x="${h.id}">Delete</button></td></tr>`).join('')||'<tr><td colspan="10">No hotels yet — add one or upload an Excel file.</td></tr>'}</table></div>`;
     const qi=$('q');qi.oninput=e=>{q=e.target.value.toLowerCase();const p=qi.selectionStart;draw();$('q').focus();$('q').setSelectionRange(p,p)};
     $('add').onclick=()=>form(null);$('bulk').onclick=upload;
     mn.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>form(items.find(h=>h.id==b.dataset.m)));
@@ -160,10 +157,11 @@ VIEWS.hotels=async mn=>{
     <div class="f2"><div><label>Valid from<input name="validFrom" type="date" value="${esc(v.validFrom||'')}"></label></div><div><label>Valid to<input name="validTo" type="date" value="${esc(v.validTo||'')}"></label></div></div>
     <div class="f2"><div><label>Cover image ${v.imageUrl?`<small>(current: <a href="${esc(v.imageUrl)}" target="_blank" rel="noopener">view</a>)</small>`:''}<input type="file" id="hc_img" accept="image/jpeg,image/png,image/webp"></label></div><div><label>Original offer (PDF) ${v.offerPdf?`<small>(<a href="api/admin/offers/${esc(v.offerPdf)}" target="_blank" rel="noopener">current</a>)</small>`:''}<input type="file" id="hc_pdf" accept="application/pdf"></label></div></div>
     <label style="display:flex;gap:10px;align-items:center;font-weight:500"><input type="checkbox" name="active" ${v.active?'checked':''} style="width:20px;min-height:20px;margin:0"> Live (visible to clients)</label>
+    <label style="display:flex;gap:10px;align-items:center;font-weight:500"><input type="checkbox" name="featured" ${v.featured?'checked':''} style="width:20px;min-height:20px;margin:0"> Featured offer (shown on the DIY Booking page — the 3 best are displayed)</label>
     <div class="err" id="e_ef" role="alert"></div><div class="row" style="margin:0"><button class="btn sm" id="hs">Save</button><button type="button" class="btn sm o" id="hx">Cancel</button></div></form></div>`;
     const prev=()=>{const c=+$('hc_cost').value||0,cur=$('hc_cur').value,p=+$('hc_pct').value||0,f=+$('hc_fix').value||0;const base=cur=='SAR'?(fxRate>0?c*fxRate:null):c;$('hc_prev').textContent=base==null?'Set the FX rate in Settings to see the SAR price':c?NG(Math.round(base*(1+p/100)+f)):'—'};
     ['hc_cost','hc_cur','hc_pct','hc_fix'].forEach(i=>$(i).oninput=prev);prev();$('hx').onclick=()=>$('hf').innerHTML='';$('hf').scrollIntoView({behavior:'smooth',block:'start'});
-    $('ef').onsubmit=async e=>{e.preventDefault();const fd=new FormData(e.target),d=Object.fromEntries(fd);d.active=fd.has('active');$('hs').disabled=true;$('e_ef').textContent='';
+    $('ef').onsubmit=async e=>{e.preventDefault();const fd=new FormData(e.target),d=Object.fromEntries(fd);d.active=fd.has('active');d.featured=fd.has('featured');$('hs').disabled=true;$('e_ef').textContent='';
       try{const saved=await api(h?'PUT':'POST',h?'/api/admin/hotels/'+h.id:'/api/admin/hotels',d);
         const img=$('hc_img').files[0],pdf=$('hc_pdf').files[0];
         if(img)await api('POST',`/api/admin/hotels/${saved.id}/image`,{data:await resizeImg(img)});

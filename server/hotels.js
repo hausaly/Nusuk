@@ -34,6 +34,7 @@ export function normalizeHotel(b = {}, defaults = {}) {
     markupPct: b.markupPct === '' || b.markupPct == null ? (defaults.markupPct ?? 0) : num(b.markupPct),
     markupFixed: b.markupFixed === '' || b.markupFixed == null ? (defaults.markupFixed ?? 0) : num(b.markupFixed),
     active: b.active === false || /^(false|no|0|off)$/i.test(String(b.active ?? '')) ? false : true,
+    featured: b.featured === true || /^(true|yes|1|on)$/i.test(String(b.featured ?? '')),
     offerPdf: str(b.offerPdf, 120),
   };
   if (!v.name) errors.name = 'Hotel name is required.';
@@ -106,7 +107,7 @@ const ALIAS = {
   hotel_name: 'name', name: 'name', hotel: 'name', city: 'city', destination: 'city', address: 'address', distance_m: 'distanceM', distance: 'distanceM', distance_to_haram: 'distanceM',
   stars: 'stars', star: 'stars', facilities: 'facilities', amenities: 'facilities', room_type: 'roomType', room: 'roomType', roomtype: 'roomType',
   rate_per_night: 'cost', rate: 'cost', price: 'cost', cost: 'cost', price_per_night: 'cost', currency: 'currency', capacity: 'capacity', max_guests: 'capacity',
-  image_url: 'imageUrl', image: 'imageUrl', valid_from: 'validFrom', valid_to: 'validTo', markup_pct: 'markupPct', markup: 'markupPct', markup_fixed: 'markupFixed',
+  featured: 'featured', image_url: 'imageUrl', image: 'imageUrl', valid_from: 'validFrom', valid_to: 'validTo', markup_pct: 'markupPct', markup: 'markupPct', markup_fixed: 'markupFixed',
 };
 export function templateXlsx() {
   return writeXlsx([TEMPLATE_COLUMNS,
@@ -143,4 +144,19 @@ export function upsertHotels(items) {
     else { map.set(key(it), records.create('hotels', it)); created++; }
   }
   return { created, updated };
+}
+
+/** Up to `limit` offers for the home of the booking page: hotels flagged "featured" first, then the cheapest. One card per hotel. */
+export function featuredHotels(limit = 3) {
+  const fx = Number(settings.all().fxRate) || 0, t = today(), seen = new Map();
+  for (const h of records.list('hotels')) {
+    if (!h.active || (h.validTo && h.validTo < t)) continue;
+    const p = nightlyNgn(h, fx); if (p == null) continue;
+    const k = (h.name + '|' + h.city).toLowerCase(), cur = seen.get(k);
+    if (!cur || p < cur.p) seen.set(k, { h, p });
+  }
+  return [...seen.values()]
+    .sort((a, b) => (b.h.featured ? 1 : 0) - (a.h.featured ? 1 : 0) || a.p - b.p)
+    .slice(0, limit)
+    .map(({ h, p }) => ({ id: h.id, name: h.name, city: h.city, address: h.address, distance: distanceLabel(h), stars: h.stars, facilities: h.facilities.slice(0, 4), roomType: h.roomType, image: h.imageUrl || '', perNight: p, featured: !!h.featured }));
 }

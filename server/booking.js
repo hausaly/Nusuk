@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { records, settings, db } from './db.js';
 import { config } from './config.js';
-import { parseStay, quoteHotel, searchHotels, normalizeHotel, parseRatesFile, upsertHotels, templateXlsx, validDate, today, CITIES } from './hotels.js';
+import { parseStay, quoteHotel, searchHotels, featuredHotels, normalizeHotel, parseRatesFile, upsertHotels, templateXlsx, validDate, today, CITIES } from './hotels.js';
 
 export const STATIONS = ['Makkah', 'Al-Sulimaniyah - Jeddah', 'Airport - Jeddah', 'KAEC'];
 export const VEHICLES = [
@@ -48,6 +48,7 @@ export function registerBooking(k) {
     const s = must(parseStay(q));
     return { stay: s, results: searchHotels(s) };
   });
+  route('GET', '/api/hotels/featured', ({ req }) => { limit(req, 'search', 120, 10 * 60e3); return { items: featuredHotels(3) }; });
   route('GET', '/api/media/:file', ({ params }) => {
     if (!/^[a-f0-9]{16}\.(jpg|png|webp)$/.test(params.file)) throw new HttpError(404, 'Not found');
     const p = path.join(config.dataDir, 'media', params.file);

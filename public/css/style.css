@@ -193,3 +193,58 @@ footer .copy{margin:34px 0 0;border-top:1px solid #3a3329;padding-top:18px;font-
 .vc{position:relative}.vc input{left:0;top:0;width:1px;height:1px}
 .adm .toolbar select{width:auto;min-width:160px;margin:0}.sb span b{display:inline;font-size:inherit}
 .infobn{background:#fdf6ea;border:1px solid #efd9b2;border-left:4px solid var(--g);color:#5b4a26;border-radius:10px;padding:10px 14px;font-size:.86rem;margin:6px 0 10px}
+
+/* ================= Polish round 2 ================= */
+/* --- dashboard: smaller, denser text --- */
+.adm .main{font-size:.84rem;line-height:1.5;padding:20px}
+.adm .main h2{font-size:1.3rem;margin-bottom:.25em}.adm .main h3{font-size:.95rem}.adm .main h4{font-size:.88rem}
+.adm .main p{font-size:.84rem}.adm table{font-size:.78rem}.adm th,.adm td{padding:7px 8px}.adm th{font-size:.72rem;letter-spacing:.02em}
+.adm .main label{font-size:.78rem}.adm .main input,.adm .main select,.adm .main textarea{font-size:.84rem;min-height:36px;padding:6px 10px}
+.adm .main textarea{min-height:0}.adm .btn.sm{min-height:30px;padding:4px 10px;font-size:.78rem}
+.adm .cards{grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px}.adm .cards div{padding:10px 12px;font-size:.78rem}.adm .cards b{font-size:1.25rem}
+.adm .pill{font-size:.7rem;padding:1px 8px}.adm small{font-size:.72rem}
+.adm .side{padding:12px}.adm .side button{font-size:.84rem;padding:9px 10px}.side .who{font-size:.74rem}
+.adm .callout{font-size:.8rem;padding:8px 10px}.adm .box{padding:16px}.adm .toast{font-size:.82rem}
+.adm .detail dl dt,.adm .detail dl dd{font-size:.8rem}.adm .slipwrap .slip{font-size:.9em}
+/* --- about --- */
+.ab-title{font-size:clamp(1.5rem,3vw,2rem);margin:0;letter-spacing:-.01em}
+.ab-sub{margin:2px 0 14px;color:var(--gd);font-weight:600;font-size:1rem;letter-spacing:.03em}
+.group{padding:0 0 34px}
+.gcard{display:flex;align-items:center;gap:28px;background:linear-gradient(135deg,#1d1a16,#2c261e);border:1px solid #3a3329;border-radius:18px;padding:26px 32px;box-shadow:0 10px 30px rgba(29,26,22,.18)}
+.gic{flex:none;display:flex;align-items:center;padding-right:28px;border-right:1px solid #4a4236}.gic img{height:58px;width:auto;display:block}
+.gcard p{margin:0;color:#e6dfd2;font-size:1.02rem;line-height:1.75}
+/* --- login --- */
+.lg-w{max-width:460px}.lg-head{text-align:center;margin-bottom:18px}.lg-head h1{font-size:clamp(1.6rem,4vw,2rem);margin:0 0 4px}.lg-head p{margin:0;color:var(--mu);font-size:.95rem}
+.lg-note{text-align:center;margin:16px 0 0;font-size:.74rem;color:#9c9384;line-height:1.5}
+/* --- booking: trust row, confidence card, featured offers --- */
+.trust{display:flex;flex-wrap:wrap;align-items:center;gap:10px 0;margin-top:20px;font-size:.92rem;color:#e6dfd2}
+.trust span{display:inline-flex;align-items:center;gap:8px}.trust svg{color:var(--g)}.trust b{color:#fff;font-weight:700}
+.trust i{width:4px;height:4px;border-radius:50%;background:#8a7a60;margin:0 16px}
+.conf{margin-top:34px;background:#fff;border:1px solid var(--bd);border-radius:16px;padding:26px 30px;box-shadow:0 3px 16px rgba(29,26,22,.05)}
+.conf h2{font-size:1.45rem;margin:0 0 6px;color:#1d1a16}.conf .cp{margin:0 0 20px;color:var(--mu);font-size:.95rem;max-width:880px;line-height:1.65}
+.cgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px}.ci{display:flex;gap:14px;align-items:flex-start;color:var(--gd)}.ci svg{flex:none;margin-top:2px}.ci b{display:block;color:var(--ink);font-size:1rem;margin-bottom:2px}.ci p{margin:0;color:var(--mu);font-size:.88rem;line-height:1.55}
+.fo-head{margin:34px 0 14px}.fo-head h2{font-size:1.45rem;margin:0}.fo-head p{margin:2px 0 0;color:var(--mu);font-size:.92rem}
+.fo{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.foc{background:#fff;border:1px solid var(--bd);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 3px 16px rgba(29,26,22,.06);transition:.2s}.foc:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(29,26,22,.12)}
+.foi{position:relative;aspect-ratio:16/10;background:#e9dfcd center/cover no-repeat}.foi.ph{display:grid;place-items:center;color:#fff;background:linear-gradient(135deg,#8a6a36,#DDB47E)}
+.fob{padding:14px 16px 16px;display:flex;flex-direction:column;gap:7px;flex:1}.fob h3{font-size:1.05rem;margin:0}
+.fof{margin-top:auto;padding-top:10px;display:flex;justify-content:space-between;align-items:flex-end;border-top:1px dashed var(--bd)}.fof small{color:var(--mu);font-size:.74rem;display:block}.fof b{font:700 1.3rem Cabin,Poppins,sans-serif;color:var(--ink);line-height:1.2}.fof div{display:flex;align-items:baseline;gap:5px;flex-wrap:wrap}.fof div small{display:inline}
+@media(max-width:900px){.cgrid,.fo{grid-template-columns:1fr}.gcard{flex-direction:column;align-items:flex-start;gap:16px;padding:22px}.gic{border-right:0;padding-right:0;border-bottom:1px solid #4a4236;padding-bottom:16px;width:100%}.fo{grid-template-columns:1fr}}
+@media(min-width:601px) and (max-width:900px){.fo{grid-template-columns:1fr 1fr}.cgrid{grid-template-columns:1fr}}
+/* --- mobile: smaller type --- */
+@media(max-width:600px){
+ html{font-size:14px}body{font-size:1rem;line-height:1.6}
+ h1{font-size:1.75rem}h2{font-size:1.3rem}h3{font-size:1rem}
+ .s{padding:44px 0}.w{padding:0 16px}
+ .topbar{font-size:.72rem}.tb-in svg.i{width:14px;height:14px}
+ .hero2{padding:56px 0 120px}.hero2 h1{font-size:clamp(1.75rem,8.2vw,2.15rem);margin-bottom:20px}.hero2 .lead{font-size:.92rem;padding-left:14px;line-height:1.65}.hero2 .badge{font-size:.72rem;padding:8px 12px}
+ .hero2 .btn{min-height:42px;padding:9px 16px;font-size:.88rem}.stats b{font-size:1.7rem}.stats span{font-size:.78rem}
+ .card .b p,.ev p{font-size:.84rem}.btn{min-height:42px;padding:9px 16px;font-size:.9rem}
+ .bk-hero{padding:40px 0 96px}.bk-hero h1{font-size:1.7rem}.bk-hero p{font-size:.92rem}.trust{font-size:.8rem;gap:8px 0}.trust i{margin:0 10px}
+ .bk-tabs button{font-size:.85rem}.fld label,.fld .lb{font-size:.64rem}.ctl{min-height:48px}.ctl input,.ctl select{font-size:.9rem;height:46px}
+ .hc-top h3{font-size:1rem}.hc-price b{font-size:1.4rem}.conf{padding:20px 18px}.conf h2,.fo-head h2{font-size:1.2rem}
+ .ab-title{font-size:1.45rem}.fbody h3{font-size:1.3rem}.fbody p{font-size:.92rem}.gcard p{font-size:.92rem}.sl-title h2{font-size:1.5rem}
+ .lg-head h1{font-size:1.5rem}
+ footer h3{font-size:1.1rem}footer .fl a,footer .fc li{font-size:.86rem}
+ .adm .main{padding:14px}.adm .main h2{font-size:1.15rem}
+}

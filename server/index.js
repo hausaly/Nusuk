@@ -1,7 +1,7 @@
 import http from 'node:http';
 import fs from 'node:fs';
 import path from 'node:path';
-import { config } from './config.js';
+import { config, BUILD } from './config.js';
 import { records, settings, db } from './db.js';
 import * as auth from './auth.js';
 import * as v from './validate.js';
@@ -85,7 +85,7 @@ const fail = (errors) => { throw new HttpError(422, 'Validation failed', { error
 const must = (r) => r.errors ? fail(r.errors) : r.value;
 
 // public
-route('GET', '/api/health', () => ({ ok: true }));
+route('GET', '/api/health', () => ({ ok: true, build: BUILD }));
 route('GET', '/api/public-settings', () => { const s = settings.all(); return { brochures: s.brochures || {}, youtube: s.youtube || {}, fxRate: s.fxRate ?? '' }; });
 route('POST', '/api/requests', async ({ req, body }) => {
   limit(req, 'submit', 10, 60 * 60e3);

@@ -362,3 +362,12 @@ test('eSIM inventory is gone', async () => {
   assert.equal((await call('GET', '/api/admin/esims', null, cookie)).status, 404);
   assert.ok(!('esims' in (await call('GET', '/api/admin/summary', null, cookie)).body));
 });
+
+test('build number is consistent (cache-busting): config, index.html, app.js, /api/health', async () => {
+  const { BUILD } = await import('../server/config.js');
+  const idx = fs.readFileSync(new URL('../public/index.html', import.meta.url), 'utf8');
+  const app = fs.readFileSync(new URL('../public/js/app.js', import.meta.url), 'utf8');
+  assert.match(idx, new RegExp(`css/style\\.css\\?v=${BUILD}`)); assert.match(idx, new RegExp(`js/app\\.js\\?v=${BUILD}`)); assert.match(idx, new RegExp(`Build ${BUILD}`));
+  assert.match(app, new RegExp(`const BUILD='${BUILD}'`));
+  assert.equal((await call('GET', '/api/health')).body.build, BUILD);
+});

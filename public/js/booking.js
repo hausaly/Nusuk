@@ -201,5 +201,5 @@ NC.mountSlip=async(id,token)=>{
     if($('spay'))$('spay').onclick=async e=>{e.currentTarget.disabled=true;try{const out=await api('POST',`api/orders/${encodeURIComponent(id)}/pay?t=${encodeURIComponent(token)}`,{});location.href=out.authorizationUrl}catch(err){e.currentTarget.disabled=false;alert(err.message)}};
   }catch(e){root.innerHTML=`<div class="w slp"><div class="sb bad">${ic('shield',26)}<div><b>Booking not found</b><span>Check the link, or <a href="#/booking">make a new booking</a>.</span></div></div></div>`}
 };
-const loadSlipJs=()=>window.NCSlip?Promise.resolve():new Promise((ok,no)=>{const s=document.createElement('script');s.src='js/slip.js';s.onload=ok;s.onerror=no;document.head.appendChild(s)});
+const loadSlipJs=()=>window.NCSlip?Promise.resolve():new Promise((ok,no)=>{const s=document.createElement('script');s.src='js/slip.js?v='+NC.v;s.onload=ok;s.onerror=no;document.head.appendChild(s)});
 })();

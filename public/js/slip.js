@@ -49,7 +49,7 @@ const loadJs=src=>mods[src]??=new Promise((ok,no)=>{const s=document.createEleme
 const dataUrl=async u=>{const b=await (await fetch(u)).blob();return new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)})};
 
 async function pdf(o){
-  await loadJs('js/vendor/jspdf.umd.min.js');
+  await loadJs('js/vendor/jspdf.umd.min.js?v='+(window.NC?NC.v:''));
   const {jsPDF}=window.jspdf, doc=new jsPDF({unit:'mm',format:'a4'}), W=210, M=16, [st,col]=status(o), S=sections(o);
   const GOLD=[221,180,126],INK=[29,26,22],MU=[107,100,90],LINE=[231,224,212];
   const logo=await dataUrl('img/logo.jpg').catch(()=>null);

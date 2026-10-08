@@ -79,7 +79,7 @@ function crud({title,base,fields,extra=[],pwd=false}){
 VIEWS.users=crud({title:'Users',base:'/api/admin/users',fields:[['name','Name'],['email','Email'],['role','Role','select',['staff','admin']]],extra:[['password','Password (min 10 characters)','password']]});
 
 // ---- DIY orders (hotels, HHR train, transfers)
-const loadSlip=()=>window.NCSlip?Promise.resolve():new Promise((ok,no)=>{const s=document.createElement('script');s.src='js/slip.js';s.onload=ok;s.onerror=no;document.head.appendChild(s)});
+const loadSlip=()=>window.NCSlip?Promise.resolve():new Promise((ok,no)=>{const s=document.createElement('script');s.src='js/slip.js?v='+NC.v;s.onload=ok;s.onerror=no;document.head.appendChild(s)});
 const TYPE={hotel:'Hotel',train:'HHR Train',transfer:'Transfer'};
 const oSum=o=>o.type=='hotel'?`${o.details.hotelName} · ${o.details.roomType} · ${o.details.checkIn} → ${o.details.checkOut} (${o.details.nights}n, ${o.details.rooms}r)`:o.type=='train'?`${o.details.from} → ${o.details.to} · ${o.details.date}`:`${o.details.vehicle} ×${o.details.quantity} · ${o.details.pickup} → ${o.details.dropoff} · ${o.details.date} ${o.details.time}`;
 const payPill=o=>o.paymentStatus=='paid'?'<span class="pill closed">Paid</span>':o.paymentStatus=='unpaid'?'<span class="pill new">Unpaid</span>':'<span class="pill">Request</span>';

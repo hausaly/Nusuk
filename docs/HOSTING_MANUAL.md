@@ -170,7 +170,7 @@ Keep the Passenger lines, the HTTPS redirect and the security rules, then contin
 | `/api/health` → 500/503 or "Incomplete response" | App crashed on start | Open `nusuk/stderr.log` and `nusuk/boot.log` in File Manager |
 | No `boot.log` appears | cPanel is not running `app.cjs` | Check startup file name, application root, app is Started |
 | Login works but you are logged out at once | `HTTPS=1` but visiting `http://` | Use `https://` |
-| Old design still showing | Browser cache | **Ctrl+Shift+R** |
+| Old design / old page still showing | Files not replaced, or a cached copy | Compare the **Build number** in the site footer (small text, bottom) with `/nusuk/api/health` (`"build"`). Same number = files are current → **Ctrl+Shift+R**. Different or missing = the upload didn't replace the files (re-do the update steps) or the Node app wasn't restarted |
 | `.htaccess` block comes back | Truehost regenerated it | Repeat Step 4 |
 | Node version list tops out below 22 | Plan limitation | Ask the host to enable Node 22, or use a VPS |
 

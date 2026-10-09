@@ -371,3 +371,10 @@ test('build number is consistent (cache-busting): config, index.html, app.js, /a
   assert.match(app, new RegExp(`const BUILD='${BUILD}'`));
   assert.equal((await call('GET', '/api/health')).body.build, BUILD);
 });
+
+test('brochure link for service 7 (Umrah Agent Bootcamp) is configurable and public', async () => {
+  const put = (b) => call('PUT', '/api/admin/settings', { fxRate: '400', markupPct: '10', markupFixed: '0', ...b }, cookie);
+  assert.equal((await put({ brochures: { 7: 'javascript:alert(1)' } })).status, 422);
+  assert.equal((await put({ brochures: { 7: 'https://example.com/bootcamp.pdf' } })).status, 200);
+  assert.equal((await call('GET', '/api/public-settings')).body.brochures[7], 'https://example.com/bootcamp.pdf');
+});

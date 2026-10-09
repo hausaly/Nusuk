@@ -54,7 +54,7 @@ export function settingsInput(b = {}) {
     if (!Number.isFinite(n) || n <= 0 || n > 1e6) errors.fxRate = 'FX rate must be a positive number (Naira per 1 Saudi Riyal).';
     else out.fxRate = Math.round(n * 100) / 100;
   }
-  for (const [group, keys] of [['brochures', [2, 3, 4, 5, 6]], ['youtube', [1, 2, 3]]]) {
+  for (const [group, keys] of [['brochures', [2, 3, 4, 5, 6, 7]], ['youtube', [1, 2, 3]]]) {
     for (const k of keys) {
       const u = url(b?.[group]?.[k]);
       if (u === null) errors[`${group}.${k}`] = 'Must be an http(s) URL.'; else out[group][k] = u;

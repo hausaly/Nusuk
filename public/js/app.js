@@ -21,9 +21,9 @@ const IMK={1:'S1',2:'S2',3:'S3',4:'S4',5:'S5',6:'S6',7:'S7'};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const link=(u,t,cls='btn o')=>u?`<a class="${cls}" href="${u}" target="_blank" rel="noopener">${t}</a>`:`<span class="${cls}" aria-disabled="true" title="Link will be added soon">${t}</span>`;
 function cards(){return `<div class="grid">${SV.map((s,i)=>{const n=i+1;
-if(n==7)return `<article class="card"><div class="b"><div class="ico">${sic(n)}</div><div class="num">SERVICE 7</div><h3>${esc(s[0])}</h3><p class="mu" style="margin:0">${esc(s[1])}</p>
+if(n==7)return `<article class="card"><div class="b"><div class="ico">${sic(n)}</div><div class="num">SERVICE 7</div><div class="kick">Online professional Training</div><h3>${esc(s[0])}</h3><p class="mu" style="margin:0">${esc(s[1])}</p>
 <ul class="meta"><li><b>Language:</b> Hausa</li><li><b>Duration:</b> 3 Total Hours</li><li><b>Sessions:</b> 10 sessions</li></ul>
-<div class="fee"><span class="amt"><b>Fee:</b> ₦100,000</span><span class="tg">Premium</span><span class="tg hot">Bestseller</span></div>
+<div class="fee"><span class="tg">Premium</span><span class="tg hot">Bestseller</span></div>
 <div class="row"><a class="btn" href="${SELAR}" target="_blank" rel="noopener">${esc(s[2])}</a>${link(BROCH[7],'Download Brochure')}</div></div></article>`;
 const href='#/interest/'+n;
 return `<article class="card"><div class="b"><div class="ico">${sic(n)}</div><div class="num">SERVICE ${n}</div><h3>${esc(s[0])}</h3><p class="mu" style="margin:0">${esc(s[1])}</p><div class="row"><a class="btn" href="${href}">${esc(s[2])}</a>${n>1?link(BROCH[n],'Download Brochure'):'<span class="btn" style="visibility:hidden" aria-hidden="true">&nbsp;</span>'}</div></div></article>`}).join('')}</div>`}

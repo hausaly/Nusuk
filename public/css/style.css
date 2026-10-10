@@ -280,4 +280,5 @@ footer .copy{margin:34px 0 0;border-top:1px solid #3a3329;padding-top:18px;font-
 .dlcard{display:flex;align-items:center;gap:16px;max-width:460px;margin-top:22px;padding:14px 20px;background:#fff;border:1px solid var(--bd);border-left:4px solid var(--g);border-radius:14px;color:var(--ink);text-decoration:none;box-shadow:0 6px 20px rgba(29,26,22,.07);transition:transform .15s,box-shadow .15s}
 .dlcard:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(29,26,22,.13)}.dli{display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:var(--ink);color:var(--g);flex:none}.dlt b{display:block;font-size:1.02rem}.dlt small{color:var(--mu);font-size:.8rem}
 @media(max-width:900px){.vgrid{grid-template-columns:1fr}.vsum{position:static;order:-1}}
-.vfacts{margin:0 0 14px;padding-left:20px;font-size:.92rem;color:var(--ink)}.vfacts li{margin:3px 0}.vfacts li::marker{color:var(--g)}
+.vfacts{display:flex;flex-wrap:wrap;gap:8px 26px;margin:0 0 16px;font-size:.92rem;color:var(--ink)}.vfacts span{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}.vfacts svg{color:var(--gd);flex:none}
+@media(max-width:600px){.vfacts span{white-space:normal}}

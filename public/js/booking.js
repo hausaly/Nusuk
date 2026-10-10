@@ -183,9 +183,9 @@ function visaPanel(){
   const row=(k,l,sub,min)=>`<div class="stp"><div><b>${l}</b><small>${sub}</small></div><div class="stc"><button type="button" data-vs="${k}" data-d="-1" aria-label="Fewer ${l}">−</button><span id="vc_${k}">${cnt[k]}</span><button type="button" data-vs="${k}" data-d="1" aria-label="More ${l}">+</button></div></div>`;
   p.innerHTML=`<form id="vf" novalidate><div class="vgrid"><div>
   <h3 class="vh">Umrah B2B eVisa – Group &amp; Individual</h3><p class="mu vsubt">Add the pilgrims in your group. Our team will collect passport of each pilgrim after you submit.</p>
-  <ul class="vfacts"><li><b>Processing Time:</b> Within 48 hours</li><li><b>Visa Type:</b> Multiple-Entry Umrah Visa</li></ul>
+  <div class="vfacts"><span>${ic('clock',18)}<b>Processing Time:</b> Within 48 hours</span><span>${ic('passport',18)}<b>Visa Type:</b> Multiple-Entry Umrah Visa</span></div>
   <div class="vcnt">${row('adults','Adult','12 years &amp; above')}${row('children','Children','2–12 years')}${row('infants','Infant','Under 2 years')}</div>
-  <h3 class="vh">Pilgrims Info</h3><p class="mu vsubt">Who should we contact about this request?</p>
+  <h3 class="vh">Contact Info</h3><p class="mu vsubt">Who should we contact about this request?</p>
   ${custFields('v_')}
   <label class="vtc"><input type="checkbox" id="v_terms"><span>I confirm that I have read, understood, and agreed to the <a href="#" id="v_tc">Terms and Conditions</a> for Umrah Visa Processing. I confirm that all information and documents submitted are correct.</span></label><div class="err" id="e_v_terms"></div>
   <div class="hp" aria-hidden="true"><input id="v_web" tabindex="-1" autocomplete="off"></div>

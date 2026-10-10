@@ -64,9 +64,9 @@ async function pdf(o){
   // header band
   doc.setFillColor(...GOLD);doc.rect(0,0,W,40,'F');
   if(logo){doc.addImage(logo,'PNG',M,8.5,48,48*LOGO_H/LOGO_W);}
-  doc.setTextColor(...INK);doc.setFont('helvetica','bold');doc.setFontSize(15);doc.text(CO.name,W-M,16,{align:'right'});
-  doc.setTextColor(91,68,32);doc.setFontSize(9);doc.text(CO.tag,W-M,21.5,{align:'right'});
-  doc.setTextColor(58,51,41);doc.setFont('helvetica','normal');doc.setFontSize(8);
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(15);doc.text(CO.name,W-M,16,{align:'right'});
+  doc.setFontSize(9);doc.text(CO.tag,W-M,21.5,{align:'right'});
+  doc.setTextColor(255,255,255);doc.setFont('helvetica','normal');doc.setFontSize(8);
   doc.text([CO.phone+'  |  '+CO.email,CO.web,CO.addr],W-M,27,{align:'right',lineHeightFactor:1.35});
   doc.setFillColor(138,106,54);doc.rect(0,40,W,1.6,'F');
   // title + id

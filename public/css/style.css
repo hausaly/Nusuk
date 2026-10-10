@@ -282,3 +282,33 @@ footer .copy{margin:34px 0 0;border-top:1px solid #3a3329;padding-top:18px;font-
 @media(max-width:900px){.vgrid{grid-template-columns:1fr}.vsum{position:static;order:-1}}
 .vfacts{display:flex;flex-wrap:wrap;gap:8px 26px;margin:0 0 16px;font-size:.92rem;color:var(--ink)}.vfacts span{display:inline-flex;align-items:center;gap:8px;white-space:nowrap}.vfacts svg{color:var(--gd);flex:none}
 @media(max-width:600px){.vfacts span{white-space:normal}}
+
+/* ================= Booking page: compact sizing ================= */
+.fld[hidden]{display:none}
+.bk-hero{padding:38px 0 92px}.bk-hero h1{font-size:clamp(1.65rem,3.6vw,2.4rem);margin-bottom:8px}.bk-hero p{font-size:.92rem;line-height:1.6;max-width:680px}.bk-hero .eyebrow{font-size:.72rem}
+.trust{font-size:.82rem;margin-top:14px}.trust i{margin:0 12px}
+.bk-wrap{margin-top:-62px;padding-bottom:44px}
+.bk-card{border-radius:14px}.bk-tabs{padding:7px;gap:4px;border-radius:14px 14px 0 0}
+.bk-tabs button{padding:9px 16px;font-size:.86rem;gap:7px;border-radius:9px}.bk-tabs button svg{width:18px;height:18px}
+.bk-panel{padding:16px 18px 18px}
+.fld label,.fld .lb{font-size:.64rem;margin-bottom:4px}
+.ctl{min-height:44px;padding:0 12px;border-radius:9px;gap:8px}.ctl input,.ctl select{height:42px;font-size:.88rem}.ctl>span{font-size:.88rem}.ctl svg{width:17px;height:17px}
+.hgrid,.tgrid,.cust{gap:11px}.veh{gap:10px}
+.fld.dual{border-radius:9px;padding:6px 4px 4px}.fld.dual .ctl{min-height:36px}
+.btn.go{min-height:44px;padding:9px 26px;font-size:.92rem}
+.pills{margin-bottom:12px}.pill{padding:5px 15px;font-size:.78rem;cursor:pointer;font-family:inherit}
+.sub{font-size:.92rem;margin:16px 0 8px;padding-top:12px}
+.vb{padding:10px 12px}.vb b{font-size:.88rem}
+.stp{padding:9px 0}.stp b{font-size:.88rem}.stc button{width:30px;height:30px}
+.pop{padding:6px 14px 14px}
+#bkr{margin-top:22px}.rs-head h2{font-size:1.25rem}.rs-head h2 span{font-size:.92rem}.rs-head p{font-size:.84rem;margin-bottom:12px}
+.hlist{gap:12px}.htl{grid-template-columns:210px 1fr 190px;border-radius:13px}.hc-img{min-height:160px}
+.hc-main{padding:13px 16px;gap:5px}.hc-top h3{font-size:1.02rem}.hc-city{font-size:.82rem}.hc-dist{font-size:.74rem;padding:2px 10px}.hc-room{font-size:.84rem}.hc-fac span{font-size:.7rem;padding:1px 8px}
+.hc-price{padding:13px}.hc-price b{font-size:1.35rem}.hc-price small{font-size:.74rem}.hc-price .btn{margin-top:8px;min-height:38px;padding:7px 14px;font-size:.84rem}
+.conf{margin-top:26px;padding:20px 24px;border-radius:13px}.conf h2,.fo-head h2{font-size:1.2rem}.conf .cp{font-size:.86rem;margin-bottom:14px}.cgrid{gap:16px}.ci b{font-size:.9rem}.ci p{font-size:.8rem}.ci svg{width:32px;height:32px}
+.fo-head{margin:26px 0 10px}.fo-head p{font-size:.84rem}.fo{gap:14px}.foc{border-radius:13px}.fob{padding:11px 13px 13px;gap:5px}.fob h3{font-size:.95rem}.fof b{font-size:1.1rem}
+.mbox{padding:20px 22px 18px;max-width:580px}.mbox h2{font-size:1.2rem}.osum th,.osum td{padding:6px 14px;font-size:.84rem}.otot b{font-size:1.3rem}
+.vh{font-size:1.02rem}.vsubt{font-size:.84rem}.vfacts{font-size:.84rem}.vcnt{padding:2px 14px}.vl{font-size:.84rem}.vtc{font-size:.82rem}
+.done h2{font-size:1.3rem}.did b{font-size:1.3rem}
+@media(max-width:900px){.htl{grid-template-columns:1fr}.hc-img{min-height:150px}}
+@media(max-width:600px){.bk-hero{padding:30px 0 84px}.bk-hero h1{font-size:1.5rem}.bk-tabs button{padding:8px 11px;font-size:.8rem}.bk-panel{padding:13px}.ctl{min-height:42px}.ctl input,.ctl select{height:40px}}

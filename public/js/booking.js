@@ -136,29 +136,34 @@ function orderFlow(h,stay){
 
 // ============ TRAIN ============
 function trainPanel(){
-  const S=cfg.stations,p=$('bkp');
-  p.innerHTML=`<form id="tf" novalidate><div class="pills"><span class="pill on">One way</span></div>
+  const S=cfg.stations,p=$('bkp');let trip='one-way';
+  p.innerHTML=`<form id="tf" novalidate><div class="pills" role="radiogroup" aria-label="Trip type"><button type="button" class="pill on" data-trip="one-way" role="radio" aria-checked="true">One way</button><button type="button" class="pill" data-trip="round-trip" role="radio" aria-checked="false">Round trip</button></div>
   <div class="tgrid"><div class="fld"><label for="t_from">FROM</label><div class="ctl">${ic('train',18)}<select id="t_from">${S.map(s=>`<option>${s}</option>`).join('')}</select></div><div class="err" id="e_t_from"></div></div>
   <button type="button" class="swp" id="t_sw" aria-label="Swap stations">${ic('swap',18)}</button>
-  <div class="fld"><label for="t_to">TO</label><div class="ctl">${ic('train',18)}<select id="t_to">${S.map(s=>`<option ${s=='Madinah'?'selected':''}>${s}</option>`).join('')}</select></div><div class="err" id="e_t_to"></div></div>
-  <div class="fld"><label for="t_date">DATE</label><div class="ctl">${ic('cal',18)}<input type="date" id="t_date" min="${cfg.today}"></div><div class="err" id="e_t_date"></div></div>
+  <div class="fld"><label for="t_to">TO</label><div class="ctl">${ic('train',18)}<select id="t_to">${S.map(s=>`<option ${s=='Madinah Station'?'selected':''}>${s}</option>`).join('')}</select></div><div class="err" id="e_t_to"></div></div>
+  <div class="fld"><label for="t_date">DEPARTURE DATE</label><div class="ctl">${ic('cal',18)}<input type="date" id="t_date" min="${cfg.today}"></div><div class="err" id="e_t_date"></div></div>
   <div class="fld"><label for="t_time">PREFERRED TIME <small>(optional)</small></label><div class="ctl">${ic('clock',18)}<input type="time" id="t_time"></div></div>
+  <div class="fld rt" hidden><label for="t_rdate">RETURN DATE</label><div class="ctl">${ic('cal',18)}<input type="date" id="t_rdate" min="${cfg.today}"></div><div class="err" id="e_t_returnDate"></div></div>
+  <div class="fld rt" hidden><label for="t_rtime">RETURN TIME <small>(optional)</small></label><div class="ctl">${ic('clock',18)}<input type="time" id="t_rtime"></div></div>
   <div class="fld"><label for="t_ad">ADULTS</label><div class="ctl">${ic('user',18)}<input type="number" id="t_ad" min="1" max="50" value="1"></div><div class="err" id="e_t_adults"></div></div>
   <div class="fld"><label for="t_ch">CHILDREN</label><div class="ctl">${ic('user',18)}<input type="number" id="t_ch" min="0" max="50" value="0"></div><div class="err" id="e_t_children"></div></div></div>
   <h4 class="sub">Your details</h4>${custFields('t_')}
   <div class="hp" aria-hidden="true"><input id="t_web" tabindex="-1" autocomplete="off"></div>
   <div class="gorow"><div class="err" id="e_t_all" role="alert"></div><button class="btn go" id="t_go">Request</button></div></form>`;
   $('t_sw').onclick=()=>{const a=$('t_from'),b=$('t_to'),x=a.value;a.value=b.value;b.value=x};
-  $('tf').onsubmit=async e=>{e.preventDefault();const b=$('t_go');b.disabled=true;errs('e_t_',{},['from','to','date','adults','children','fullName','phone','email','all']);
-    try{const out=await api('POST','api/orders/train',{from:$('t_from').value,to:$('t_to').value,date:$('t_date').value,time:$('t_time').value,adults:+$('t_ad').value,children:+$('t_ch').value,website:$('t_web').value,...custVals('t_')});
+  const setTrip=t=>{trip=t;p.querySelectorAll('[data-trip]').forEach(x=>{const on=x.dataset.trip==t;x.classList.toggle('on',on);x.setAttribute('aria-checked',on)});p.querySelectorAll('.rt').forEach(x=>x.hidden=t!='round-trip')};
+  p.querySelectorAll('[data-trip]').forEach(x=>x.onclick=()=>setTrip(x.dataset.trip));
+  $('t_date').onchange=e=>{const r=$('t_rdate');r.min=e.target.value||cfg.today;if(r.value&&r.value<r.min)r.value=r.min};
+  $('tf').onsubmit=async e=>{e.preventDefault();const b=$('t_go');b.disabled=true;errs('e_t_',{},['from','to','date','returnDate','adults','children','fullName','phone','email','all']);
+    try{const out=await api('POST','api/orders/train',{tripType:trip,from:$('t_from').value,to:$('t_to').value,date:$('t_date').value,time:$('t_time').value,returnDate:trip=='round-trip'?$('t_rdate').value:'',returnTime:trip=='round-trip'?$('t_rtime').value:'',adults:+$('t_ad').value,children:+$('t_ch').value,website:$('t_web').value,...custVals('t_')});
       requestDone(out,'HHR Train');}
-    catch(err){b.disabled=false;if(err.errors)errs('e_t_',err.errors,['from','to','date','adults','children','fullName','phone','email']);else $('e_t_all').textContent=err.message}};
+    catch(err){b.disabled=false;if(err.errors)errs('e_t_',err.errors,['from','to','date','returnDate','adults','children','fullName','phone','email']);else $('e_t_all').textContent=err.message}};
 }
 
 // ============ TRANSFERS ============
 function transferPanel(){
   const p=$('bkp');
-  const place=['Jeddah Airport (JED)','Madinah Airport (MED)','Makkah','Madinah','Jeddah','Al-Sulimaniyah Station - Jeddah','KAEC Station'];
+  const place=['Jeddah Airport (JED)','Madinah Airport (MED)','Makkah','Madinah','Jeddah','Jeddah Al-Sulaymaniyah Station','KAEC Station','Makkah Station','Madinah Station'];
   p.innerHTML=`<form id="rf" novalidate><div class="pills"><span class="pill on">One way</span></div>
   <div class="tgrid"><div class="fld"><label for="r_pu">PICK-UP</label><div class="ctl">${ic('pin',18)}<input id="r_pu" list="r_pl" placeholder="e.g. Jeddah Airport (JED)"></div><div class="err" id="e_r_pickup"></div></div>
   <span class="swp ph" aria-hidden="true">${ic('car',18)}</span>

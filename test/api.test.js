@@ -11,6 +11,7 @@ process.env.ADMIN_EMAIL = 'boss@example.com';
 process.env.ADMIN_PASSWORD = 'correct-horse-battery';
 process.env.PORT = '0';
 process.env.PAYMENT_SIMULATION = '1';
+process.env.ORDER_RATE_LIMIT = '200';
 delete process.env.PAYSTACK_SECRET_KEY;
 
 let base, server;
@@ -271,10 +272,10 @@ test('payment webhook requires a valid Paystack signature and a matching amount'
 
 test('HHR train and transfer requests', async () => {
   const cust = { fullName: 'Hauwa Musa', phone: '+2348131227047', email: 'h@example.com' };
-  assert.equal((await call('POST', '/api/orders/train', { from: 'Makkah', to: 'Makkah', date: dayStr(5), adults: 1, children: 0, ...cust })).status, 422);
+  assert.equal((await call('POST', '/api/orders/train', { from: 'Makkah Station', to: 'Makkah Station', date: dayStr(5), adults: 1, children: 0, ...cust })).status, 422);
   assert.equal((await call('POST', '/api/orders/train', { from: 'Medina', to: 'KAEC', date: dayStr(5), adults: 1, ...cust })).status, 422);
-  assert.equal((await call('POST', '/api/orders/train', { from: 'Makkah', to: 'Madinah', date: dayStr(5), adults: 1, ...cust })).status, 200);   // Madinah is a station
-  const t = await call('POST', '/api/orders/train', { from: 'Makkah', to: 'Airport - Jeddah', date: dayStr(5), time: '09:30', adults: 2, children: 1, ...cust });
+  assert.equal((await call('POST', '/api/orders/train', { from: 'Makkah Station', to: 'Madinah Station', date: dayStr(5), adults: 1, ...cust })).status, 200);   // Madinah Station is valid
+  const t = await call('POST', '/api/orders/train', { from: 'Makkah Station', to: 'Jeddah Airport', date: dayStr(5), time: '09:30', adults: 2, children: 1, ...cust });
   assert.equal(t.status, 200); assert.match(t.body.bookingId, /^NC-T-/);
   assert.equal((await call('POST', '/api/orders/transfer', { pickup: 'Jeddah Airport', dropoff: 'Makkah', date: dayStr(5), time: '25:00', vehicle: 'sedan', quantity: 1, ...cust })).status, 422);
   assert.equal((await call('POST', '/api/orders/transfer', { pickup: 'Jeddah Airport', dropoff: 'Makkah', date: dayStr(5), time: '10:00', vehicle: 'rocket', quantity: 1, ...cust })).status, 422);
@@ -283,7 +284,7 @@ test('HHR train and transfer requests', async () => {
   const slip = (await call('GET', `/api/orders/${r.body.bookingId}/slip?t=${r.body.token}`)).body.order;
   assert.equal(slip.details.vehicle, 'Coaster'); assert.equal(slip.details.capacity, '18 Pax + 25 Luggage'); assert.equal(slip.status, 'Pending');
   const cfg = (await call('GET', '/api/booking-config')).body;
-  assert.deepEqual(cfg.stations, ['Makkah', 'Madinah', 'Al-Sulimaniyah - Jeddah', 'Airport - Jeddah', 'KAEC']);
+  assert.deepEqual(cfg.stations, ['Makkah Station', 'Madinah Station', 'Jeddah Airport', 'Jeddah Al-Sulaymaniyah', 'KAEC Station']);
   assert.deepEqual(cfg.vehicles.map(v => v.name), ['Sedan', 'SUV', 'GMC', 'HiAce', 'Coaster', 'Bus']);
   const csv = await call('GET', '/api/admin/orders.csv', null, cookie); assert.match(csv.body, /NC-T-/);
 });
@@ -385,7 +386,7 @@ test('Umrah visa: fees from settings, server-side total, terms required, admin c
   assert.equal((await set({ adult: '300000', child: '200000', infant: '', service: '5000' })).status, 200);
   const cfg = (await call('GET', '/api/booking-config')).body;
   assert.deepEqual(cfg.visa, { adult: 300000, child: 200000, infant: 300000, service: 5000 });   // blank infant = adult fee
-  assert.ok(cfg.stations.includes('Madinah'));
+  assert.ok(cfg.stations.includes('Madinah Station'));
   const cust = { fullName: 'Aisha Bello', phone: '+2348131227047', email: 'a@b.ng' };
   let r = await call('POST', '/api/orders/visa', { adults: 2, children: 1, infants: 0, ...cust });
   assert.equal(r.status, 422); assert.ok(r.body.errors.terms);                                   // terms must be accepted
@@ -409,4 +410,21 @@ test('About-page showcase PDF is downloadable and served as a PDF', async () => 
   const r = await fetch(base + '/downloads/NUSUK-CONSULT-Platform-Showcase.pdf');
   assert.equal(r.status, 200); assert.equal(r.headers.get('content-type'), 'application/pdf');
   assert.equal(Buffer.from(await r.arrayBuffer()).subarray(0, 5).toString(), '%PDF-');
+});
+
+test('HHR train: one way vs round trip', async () => {
+  const cust = { fullName: 'Hauwa Musa', phone: '+2348131227047', email: 'h@example.com' }, base = { from: 'Makkah Station', to: 'Madinah Station', date: dayStr(5), adults: 1, ...cust };
+  const ow = await call('POST', '/api/orders/train', { ...base, tripType: 'one-way', returnDate: dayStr(9) });       // return ignored on one way
+  assert.equal(ow.status, 200);
+  const o1 = (await call('GET', `/api/orders/${ow.body.bookingId}/slip?t=${ow.body.token}`)).body.order.details;
+  assert.equal(o1.tripType, 'one-way'); assert.equal(o1.returnDate, ''); assert.equal(o1.service, 'HHR Train (one-way)');
+  let r = await call('POST', '/api/orders/train', { ...base, tripType: 'round-trip' });
+  assert.equal(r.status, 422); assert.ok(r.body.errors.returnDate);                                                   // return date required
+  r = await call('POST', '/api/orders/train', { ...base, tripType: 'round-trip', returnDate: dayStr(4) });
+  assert.equal(r.status, 422);                                                                                         // before departure
+  r = await call('POST', '/api/orders/train', { ...base, tripType: 'round-trip', returnDate: dayStr(9), returnTime: '16:00' });
+  assert.equal(r.status, 200);
+  const d = (await call('GET', `/api/orders/${r.body.bookingId}/slip?t=${r.body.token}`)).body.order.details;
+  assert.equal(d.tripType, 'round-trip'); assert.equal(d.returnDate, dayStr(9)); assert.equal(d.service, 'HHR Train (round trip)');
+  assert.equal((await call('POST', '/api/orders/train', { ...base, tripType: 'zigzag' })).status, 422);
 });

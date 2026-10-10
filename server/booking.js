@@ -5,7 +5,7 @@ import { records, settings, db } from './db.js';
 import { config } from './config.js';
 import { parseStay, quoteHotel, searchHotels, featuredHotels, normalizeHotel, parseRatesFile, upsertHotels, templateXlsx, validDate, today, CITIES } from './hotels.js';
 
-export const STATIONS = ['Makkah', 'Madinah', 'Al-Sulimaniyah - Jeddah', 'Airport - Jeddah', 'KAEC'];
+export const STATIONS = ['Makkah Station', 'Madinah Station', 'Jeddah Airport', 'Jeddah Al-Sulaymaniyah', 'KAEC Station'];
 export const VEHICLES = [
   { id: 'sedan', name: 'Sedan', cap: '3 Pax + 2 Luggage + 1 Hand carry' },
   { id: 'suv', name: 'SUV', cap: '5 Pax + 4 Luggage + 2 Hand carry' },
@@ -14,6 +14,7 @@ export const VEHICLES = [
   { id: 'coaster', name: 'Coaster', cap: '18 Pax + 25 Luggage' },
   { id: 'bus', name: 'Bus', cap: '45 Pax + 40 Luggage' },
 ];
+const ORDER_LIMIT = Number(process.env.ORDER_RATE_LIMIT) || 20;   // orders/requests per IP per hour (tests raise it)
 export const ORDER_STATUSES = ['Awaiting payment', 'Pending', 'Fulfilled', 'Cancelled'];
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/, PHONE = /^\+?[0-9\s\-()]{7,18}$/;
 const str = (v, max = 200) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
@@ -94,7 +95,7 @@ export function registerBooking(k) {
   }
 
   route('POST', '/api/orders/hotel', async ({ req, body }) => {
-    limit(req, 'order', 20, 60 * 60e3);
+    limit(req, 'order', ORDER_LIMIT, 60 * 60e3);
     const stay = must(parseStay(body));
     const q = quoteHotel(String(body.hotelId || ''), stay);
     if (!q) throw new HttpError(409, 'Sorry, this room is no longer available for your dates. Please search again.');
@@ -114,7 +115,7 @@ export function registerBooking(k) {
   });
 
   route('POST', '/api/orders/:id/pay', async ({ req, params }) => {
-    limit(req, 'order', 20, 60 * 60e3);
+    limit(req, 'order', ORDER_LIMIT, 60 * 60e3);
     const t = new URL(req.url, 'http://x').searchParams.get('t') || '';
     const o = byId(params.id);
     if (!o || !safeEq(o.token, t)) throw new HttpError(404, 'Booking not found');
@@ -123,24 +124,27 @@ export function registerBooking(k) {
   });
 
   route('POST', '/api/orders/train', async ({ req, body }) => {
-    limit(req, 'order', 20, 60 * 60e3);
+    limit(req, 'order', ORDER_LIMIT, 60 * 60e3);
     if (body.website) return { ok: true };
     const e = {}, from = str(body.from), to = str(body.to), date = str(body.date, 10), time = str(body.time, 5);
+    const roundTrip = body.tripType === 'round-trip', returnDate = roundTrip ? str(body.returnDate, 10) : '', returnTime = roundTrip ? str(body.returnTime, 5) : '';
+    if (body.tripType !== undefined && !['one-way', 'round-trip'].includes(body.tripType)) e.tripType = 'Choose one way or round trip.';
     const adults = intIn(body.adults, 1, 50, 1), children = intIn(body.children, 0, 50, 0);
     if (!STATIONS.includes(from)) e.from = 'Choose the departure station.';
     if (!STATIONS.includes(to)) e.to = 'Choose the arrival station.';
     if (STATIONS.includes(from) && from === to) e.to = 'Departure and arrival must be different.';
     if (!validDate(date) || date < today()) e.date = 'Choose a travel date (today or later).';
+    if (roundTrip && (!validDate(returnDate) || returnDate < date)) e.returnDate = 'Choose a return date on or after the departure date.';
     if (Number.isNaN(adults)) e.adults = 'Adults must be 1–50.'; if (Number.isNaN(children)) e.children = 'Children must be 0–50.';
     const { c, e: ce } = customerOf(body); Object.assign(e, ce);
     if (Object.keys(e).length) fail(e);
-    const o = records.create('orders', { type: 'train', bookingId: bookingId('T'), token: crypto.randomBytes(18).toString('base64url'), status: 'Pending', paymentStatus: 'n/a', amount: 0, currency: 'NGN', customer: { fullName: c.fullName, phone: c.phone, email: c.email, address: '' }, notes: '', payment: {}, details: { service: 'HHR Train (one-way)', from, to, date, time, adults, children } });
-    notify('HHR Train request', { service: `${from} → ${to} · ${date}`, name: c.fullName, email: c.email, phone: c.phone });
+    const o = records.create('orders', { type: 'train', bookingId: bookingId('T'), token: crypto.randomBytes(18).toString('base64url'), status: 'Pending', paymentStatus: 'n/a', amount: 0, currency: 'NGN', customer: { fullName: c.fullName, phone: c.phone, email: c.email, address: '' }, notes: '', payment: {}, details: { service: `HHR Train (${roundTrip ? 'round trip' : 'one-way'})`, tripType: roundTrip ? 'round-trip' : 'one-way', from, to, date, time, returnDate, returnTime, adults, children } });
+    notify('HHR Train request', { service: `${roundTrip ? 'Round trip' : 'One way'} · ${from} → ${to} · ${date}${roundTrip ? ` (return ${returnDate})` : ''}`, name: c.fullName, email: c.email, phone: c.phone });
     return { bookingId: o.bookingId, token: o.token };
   });
 
   route('POST', '/api/orders/transfer', async ({ req, body }) => {
-    limit(req, 'order', 20, 60 * 60e3);
+    limit(req, 'order', ORDER_LIMIT, 60 * 60e3);
     if (body.website) return { ok: true };
     const e = {}, pickup = str(body.pickup, 150), dropoff = str(body.dropoff, 150), date = str(body.date, 10), time = str(body.time, 5), notes = str(body.notes, 500);
     const vehicle = VEHICLES.find(v => v.id === body.vehicle), qty = intIn(body.quantity, 1, 50, 1);
@@ -156,7 +160,7 @@ export function registerBooking(k) {
   });
 
   route('POST', '/api/orders/visa', async ({ req, body }) => {
-    limit(req, 'order', 20, 60 * 60e3);
+    limit(req, 'order', ORDER_LIMIT, 60 * 60e3);
     if (body.website) return { ok: true };
     const e = {}, adults = intIn(body.adults, 1, 50, 1), children = intIn(body.children, 0, 50, 0), infants = intIn(body.infants, 0, 50, 0);
     if (Number.isNaN(adults)) e.adults = 'Adults must be 1–50.'; if (Number.isNaN(children)) e.children = 'Children must be 0–50.'; if (Number.isNaN(infants)) e.infants = 'Infants must be 0–50.';
@@ -234,7 +238,7 @@ export function registerBooking(k) {
   const csvCols = [['bookingId', 'Booking ID'], ['createdAt', 'Created'], ['type', 'Type'], ['status', 'Status'], ['paymentStatus', 'Payment'], ['amount', 'Amount (NGN)'], ['fullName', 'Client'], ['phone', 'Phone'], ['email', 'Email'], ['address', 'Address'], ['summary', 'Details']];
   const summary = o => o.type === 'hotel' ? `${o.details.hotelName} (${o.details.city}) · ${o.details.roomType} · ${o.details.checkIn} → ${o.details.checkOut} · ${o.details.nights} night(s) · ${o.details.rooms} room(s)`
     : o.type === 'visa' ? `Umrah Visa · ${o.details.adults} adult(s), ${o.details.children} child(ren), ${o.details.infants} infant(s)`
-    : o.type === 'train' ? `${o.details.from} → ${o.details.to} · ${o.details.date} · ${o.details.adults}A/${o.details.children}C` : `${o.details.vehicle} x${o.details.quantity} · ${o.details.pickup} → ${o.details.dropoff} · ${o.details.date} ${o.details.time}`;
+    : o.type === 'train' ? `${o.details.tripType === 'round-trip' ? 'Round trip' : 'One way'} · ${o.details.from} → ${o.details.to} · ${o.details.date}${o.details.returnDate ? ` (return ${o.details.returnDate})` : ''} · ${o.details.adults}A/${o.details.children}C` : `${o.details.vehicle} x${o.details.quantity} · ${o.details.pickup} → ${o.details.dropoff} · ${o.details.date} ${o.details.time}`;
   route('GET', '/api/admin/orders', A, () => ({ items: records.list('orders'), statuses: ORDER_STATUSES }));
   route('GET', '/api/admin/orders.csv', A, () => ({
     csv: [csvCols.map(c => `"${c[1]}"`).join(','), ...records.list('orders').map(o => csvCols.map(([key]) => { let v = key === 'summary' ? summary(o) : ['fullName', 'phone', 'email', 'address'].includes(key) ? o.customer[key] : o[key]; v = String(v ?? ''); if (/^[=+\-@\t\r]/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }).join(','))].join('\r\n'),

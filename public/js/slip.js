@@ -30,7 +30,7 @@ function sections(o){
     else pay=[['Pricing','Our team will confirm the visa fee and payment details.']];
     if(o.paymentStatus!='paid')pay.push(['Next step','Our team will contact you to collect one passport per pilgrim and payment details.']);
   }else if(o.type=='train'){
-    book=[['Service',d.service],['From',d.from],['To',d.to],['Travel date',dt(d.date)+(d.time?`, ${d.time}`:'')],['Passengers',guests(d)]];
+    book=[['Service',d.service],['From',d.from],['To',d.to],['Travel date',dt(d.date)+(d.time?`, ${d.time}`:'')]]; if(d.returnDate)book.push(['Return date',dt(d.returnDate)+(d.returnTime?`, ${d.returnTime}`:'')]); book.push(['Passengers',guests(d)]);
     pay=[['Pricing','Our team will contact you with the fare and payment details.']];
   }else{
     book=[['Service',d.service],['Pick-up',d.pickup],['Drop-off',d.dropoff],['Date',dt(d.date)],['Pick-up time',d.time],['Vehicle',`${d.vehicle} — ${d.capacity}`],['Number of vehicles',String(d.quantity)]]; if(d.notes)book.push(['Notes',d.notes]);

@@ -5,7 +5,7 @@ import { records, settings, db } from './db.js';
 import { config } from './config.js';
 import { parseStay, quoteHotel, searchHotels, featuredHotels, normalizeHotel, parseRatesFile, upsertHotels, templateXlsx, validDate, today, CITIES } from './hotels.js';
 
-export const STATIONS = ['Makkah', 'Al-Sulimaniyah - Jeddah', 'Airport - Jeddah', 'KAEC'];
+export const STATIONS = ['Makkah', 'Madinah', 'Al-Sulimaniyah - Jeddah', 'Airport - Jeddah', 'KAEC'];
 export const VEHICLES = [
   { id: 'sedan', name: 'Sedan', cap: '3 Pax + 2 Luggage + 1 Hand carry' },
   { id: 'suv', name: 'SUV', cap: '5 Pax + 4 Luggage + 2 Hand carry' },
@@ -22,6 +22,17 @@ const ALPHA = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const rand = n => Array.from(crypto.randomBytes(n), b => ALPHA[b % ALPHA.length]).join('');
 const bookingId = t => { for (;;) { const id = `NC-${t}-${rand(6)}`; if (!db.prepare("SELECT 1 FROM records WHERE collection='orders' AND json_extract(data,'$.bookingId')=?").get(id)) return id; } };
 const safeEq = (a, b) => { const x = Buffer.from(String(a)), y = Buffer.from(String(b)); return x.length === y.length && crypto.timingSafeEqual(x, y); };
+
+/** Umrah visa fees (₦) set in Dashboard → Settings. Blank child/infant fee = same as the adult fee. */
+export const visaFees = () => {
+  const v = settings.all().visa || {}, n = x => (Number(x) > 0 ? Number(x) : 0), opt = x => (x === '' || x == null ? null : n(x));
+  const adult = n(v.adult);
+  return { adult, child: opt(v.child) ?? adult, infant: opt(v.infant) ?? adult, service: n(v.service) };
+};
+export const visaQuote = (adults, children, infants) => {
+  const f = visaFees(), visa = adults * f.adult + children * f.child + infants * f.infant;
+  return { fees: f, priced: f.adult > 0, visaTotal: visa, total: f.adult > 0 ? visa + f.service : 0 };
+};
 
 export const paymentMode = () => (process.env.PAYSTACK_SECRET_KEY ? 'paystack' : process.env.PAYMENT_SIMULATION === '1' ? 'simulation' : 'off');
 
@@ -41,7 +52,7 @@ export function registerBooking(k) {
   const byRef = ref => { const r = db.prepare("SELECT id FROM records WHERE collection='orders' AND json_extract(data,'$.payment.reference')=?").get(String(ref)); return r && records.get('orders', r.id); };
 
   // ---------- public: config + search ----------
-  route('GET', '/api/booking-config', () => ({ stations: STATIONS, vehicles: VEHICLES, cities: CITIES, payment: paymentMode(), today: today() }));
+  route('GET', '/api/booking-config', () => ({ stations: STATIONS, vehicles: VEHICLES, cities: CITIES, visa: visaFees(), payment: paymentMode(), today: today() }));
   route('GET', '/api/hotels/search', ({ req }) => {
     limit(req, 'search', 120, 10 * 60e3);
     const u = new URL(req.url, 'http://x'); const q = Object.fromEntries(u.searchParams);
@@ -144,6 +155,21 @@ export function registerBooking(k) {
     return { bookingId: o.bookingId, token: o.token };
   });
 
+  route('POST', '/api/orders/visa', async ({ req, body }) => {
+    limit(req, 'order', 20, 60 * 60e3);
+    if (body.website) return { ok: true };
+    const e = {}, adults = intIn(body.adults, 1, 50, 1), children = intIn(body.children, 0, 50, 0), infants = intIn(body.infants, 0, 50, 0);
+    if (Number.isNaN(adults)) e.adults = 'Adults must be 1–50.'; if (Number.isNaN(children)) e.children = 'Children must be 0–50.'; if (Number.isNaN(infants)) e.infants = 'Infants must be 0–50.';
+    if (body.acceptTerms !== true) e.terms = 'Please read and accept the Terms and Conditions to continue.';
+    const { c, e: ce } = customerOf(body); Object.assign(e, ce);
+    if (Object.keys(e).length) fail(e);
+    const q = visaQuote(adults, children, infants);
+    const o = records.create('orders', { type: 'visa', bookingId: bookingId('V'), token: crypto.randomBytes(18).toString('base64url'), status: 'Awaiting payment', paymentStatus: 'unpaid', amount: q.total, currency: 'NGN', customer: { fullName: c.fullName, phone: c.phone, email: c.email, address: '' }, notes: '', payment: { provider: 'manual', reference: null, attempts: 0 },
+      details: { service: 'Umrah Visa', adults, children, infants, priced: q.priced, adultFee: q.fees.adult, childFee: q.fees.child, infantFee: q.fees.infant, serviceFee: q.fees.service, visaTotal: q.visaTotal, termsAcceptedAt: new Date().toISOString() } });
+    notify('Umrah visa request', { service: `${adults} adult(s)${children ? `, ${children} child(ren)` : ''}${infants ? `, ${infants} infant(s)` : ''}${q.priced ? ` · ₦${q.total.toLocaleString('en-NG')}` : ''}`, name: c.fullName, email: c.email, phone: c.phone });
+    return { bookingId: o.bookingId, token: o.token };
+  });
+
   // ---------- public: slip ----------
   route('GET', '/api/orders/:id/slip', ({ req, params }) => {
     limit(req, 'slip', 120, 10 * 60e3);
@@ -207,6 +233,7 @@ export function registerBooking(k) {
   // ---------- admin: orders ----------
   const csvCols = [['bookingId', 'Booking ID'], ['createdAt', 'Created'], ['type', 'Type'], ['status', 'Status'], ['paymentStatus', 'Payment'], ['amount', 'Amount (NGN)'], ['fullName', 'Client'], ['phone', 'Phone'], ['email', 'Email'], ['address', 'Address'], ['summary', 'Details']];
   const summary = o => o.type === 'hotel' ? `${o.details.hotelName} (${o.details.city}) · ${o.details.roomType} · ${o.details.checkIn} → ${o.details.checkOut} · ${o.details.nights} night(s) · ${o.details.rooms} room(s)`
+    : o.type === 'visa' ? `Umrah Visa · ${o.details.adults} adult(s), ${o.details.children} child(ren), ${o.details.infants} infant(s)`
     : o.type === 'train' ? `${o.details.from} → ${o.details.to} · ${o.details.date} · ${o.details.adults}A/${o.details.children}C` : `${o.details.vehicle} x${o.details.quantity} · ${o.details.pickup} → ${o.details.dropoff} · ${o.details.date} ${o.details.time}`;
   route('GET', '/api/admin/orders', A, () => ({ items: records.list('orders'), statuses: ORDER_STATUSES }));
   route('GET', '/api/admin/orders.csv', A, () => ({
@@ -218,7 +245,7 @@ export function registerBooking(k) {
     if (body.notes !== undefined) patch.notes = String(body.notes).slice(0, 2000);
     if (body.paymentStatus !== undefined) {
       const cur = records.get('orders', params.id); if (!cur) throw new HttpError(404, 'Not found');
-      if (cur.type !== 'hotel' || !['paid', 'unpaid'].includes(body.paymentStatus)) fail({ paymentStatus: 'Payment status can only be paid or unpaid on hotel orders.' });
+      if (!['hotel', 'visa'].includes(cur.type) || !['paid', 'unpaid'].includes(body.paymentStatus)) fail({ paymentStatus: 'Payment status can only be paid or unpaid on hotel and visa orders.' });
       patch.paymentStatus = body.paymentStatus;
       patch.payment = { ...(cur.payment || {}), paidAt: body.paymentStatus === 'paid' ? new Date().toISOString() : null, channel: body.paymentStatus === 'paid' ? (cur.payment?.channel || 'manual') : '' };
       if (body.paymentStatus === 'paid' && cur.status === 'Awaiting payment' && body.status === undefined) patch.status = 'Pending';

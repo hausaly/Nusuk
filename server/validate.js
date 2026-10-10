@@ -54,6 +54,13 @@ export function settingsInput(b = {}) {
     if (!Number.isFinite(n) || n <= 0 || n > 1e6) errors.fxRate = 'FX rate must be a positive number (Naira per 1 Saudi Riyal).';
     else out.fxRate = Math.round(n * 100) / 100;
   }
+  out.visa = {};
+  for (const [key, label, optional] of [['adult', 'Adult visa fee', false], ['child', 'Child visa fee', true], ['infant', 'Infant visa fee', true], ['service', 'Service fee', false]]) {
+    const r = String(b?.visa?.[key] ?? '').trim();
+    if (!r) { out.visa[key] = optional ? '' : 0; continue; }
+    const n = Number(r);
+    if (!Number.isFinite(n) || n < 0 || n > 1e8) { errors[`visa.${key}`] = `${label} must be ₦0–100,000,000.`; out.visa[key] = optional ? '' : 0; } else out.visa[key] = Math.round(n * 100) / 100;
+  }
   for (const [group, keys] of [['brochures', [2, 3, 4, 5, 6, 7]], ['youtube', [1, 2, 3]]]) {
     for (const k of keys) {
       const u = url(b?.[group]?.[k]);

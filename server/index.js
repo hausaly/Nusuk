@@ -13,7 +13,7 @@ let payHandler = (req, res) => { res.writeHead(404); res.end(); };   // set by r
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8',
   '.jpg': 'image/jpeg', '.png': 'image/png', '.svg': 'image/svg+xml', '.ico': 'image/x-icon',
-  '.json': 'application/json', '.txt': 'text/plain; charset=utf-8', '.webmanifest': 'application/manifest+json',
+  '.json': 'application/json', '.pdf': 'application/pdf', '.txt': 'text/plain; charset=utf-8', '.webmanifest': 'application/manifest+json',
 };
 const CSP = "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
   "font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self'";
@@ -133,10 +133,10 @@ for (const [coll, label, statuses, cols] of [
   route('DELETE', `/api/admin/${coll}/:id`, A, ({ params }) => { if (!records.remove(coll, params.id)) throw new HttpError(404, 'Not found'); return { ok: true }; });
 }
 
-route('GET', '/api/admin/settings', ADMIN, () => { const s = settings.all(); return { brochures: s.brochures || {}, youtube: s.youtube || {}, fxRate: s.fxRate ?? '', markupPct: s.markupPct ?? 0, markupFixed: s.markupFixed ?? 0, payment: paymentMode() }; });
+route('GET', '/api/admin/settings', ADMIN, () => { const s = settings.all(); return { brochures: s.brochures || {}, youtube: s.youtube || {}, fxRate: s.fxRate ?? '', markupPct: s.markupPct ?? 0, markupFixed: s.markupFixed ?? 0, visa: { adult: '', child: '', infant: '', service: '', ...(s.visa || {}) }, payment: paymentMode() }; });
 route('PUT', '/api/admin/settings', ADMIN, ({ body }) => {
   const s = must(v.settingsInput(body));
-  settings.set('brochures', s.brochures); settings.set('youtube', s.youtube); settings.set('fxRate', s.fxRate); settings.set('markupPct', s.markupPct); settings.set('markupFixed', s.markupFixed);
+  settings.set('brochures', s.brochures); settings.set('youtube', s.youtube); settings.set('fxRate', s.fxRate); settings.set('markupPct', s.markupPct); settings.set('markupFixed', s.markupFixed); settings.set('visa', s.visa);
   return s;
 });
 

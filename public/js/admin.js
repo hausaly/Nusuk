@@ -80,17 +80,17 @@ VIEWS.users=crud({title:'Users',base:'/api/admin/users',fields:[['name','Name'],
 
 // ---- DIY orders (hotels, HHR train, transfers)
 const loadSlip=()=>window.NCSlip?Promise.resolve():new Promise((ok,no)=>{const s=document.createElement('script');s.src='js/slip.js?v='+NC.v;s.onload=ok;s.onerror=no;document.head.appendChild(s)});
-const TYPE={hotel:'Hotel',train:'HHR Train',transfer:'Transfer'};
-const oSum=o=>o.type=='hotel'?`${o.details.hotelName} · ${o.details.roomType} · ${o.details.checkIn} → ${o.details.checkOut} (${o.details.nights}n, ${o.details.rooms}r)`:o.type=='train'?`${o.details.from} → ${o.details.to} · ${o.details.date}`:`${o.details.vehicle} ×${o.details.quantity} · ${o.details.pickup} → ${o.details.dropoff} · ${o.details.date} ${o.details.time}`;
+const TYPE={hotel:'Hotel',train:'HHR Train',transfer:'Transfer',visa:'Umrah Visa'};
+const oSum=o=>o.type=='hotel'?`${o.details.hotelName} · ${o.details.roomType} · ${o.details.checkIn} → ${o.details.checkOut} (${o.details.nights}n, ${o.details.rooms}r)`:o.type=='visa'?`${o.details.adults}A${o.details.children?` · ${o.details.children}C`:''}${o.details.infants?` · ${o.details.infants}I`:''} visa application`:o.type=='train'?`${o.details.from} → ${o.details.to} · ${o.details.date}`:`${o.details.vehicle} ×${o.details.quantity} · ${o.details.pickup} → ${o.details.dropoff} · ${o.details.date} ${o.details.time}`;
 const payPill=o=>o.paymentStatus=='paid'?'<span class="pill closed">Paid</span>':o.paymentStatus=='unpaid'?'<span class="pill new">Unpaid</span>':'<span class="pill">Request</span>';
 VIEWS.orders=async mn=>{
   const {items,statuses}=await api('GET','/api/admin/orders'); await loadSlip().catch(()=>{});
   let q='',ft='',fs='',open=null;
   const draw=()=>{
     const R=items.filter(o=>(!ft||o.type==ft)&&(!fs||o.status==fs)&&JSON.stringify(o).toLowerCase().includes(q));
-    mn.innerHTML=`<h2>DIY Orders</h2><p class="mu">${items.length} total · hotel bookings, HHR train and transfer requests</p>
+    mn.innerHTML=`<h2>DIY Orders</h2><p class="mu">${items.length} total · hotel bookings, HHR train, transfer and Umrah visa requests</p>
     <div class="toolbar"><input id="q" placeholder="Search ID, name, phone, hotel…" value="${esc(q)}" aria-label="Search"><select id="ft" aria-label="Type"><option value="">All types</option>${Object.entries(TYPE).map(([k,v])=>`<option value="${k}" ${ft==k?'selected':''}>${v}</option>`).join('')}</select><select id="fs" aria-label="Status"><option value="">All statuses</option>${statuses.map(s=>`<option ${fs==s?'selected':''}>${s}</option>`).join('')}</select><a class="btn sm o" href="api/admin/orders.csv">Export CSV</a></div>
-    <div class="tw"><table><tr><th>Booking ID</th><th>Created</th><th>Type</th><th>Client</th><th>Details</th><th>Amount</th><th>Payment</th><th>Status</th><th></th></tr>${R.map(o=>`<tr><td><b>${esc(o.bookingId)}</b></td><td>${esc(fmt(o.createdAt))}</td><td>${TYPE[o.type]}</td><td>${esc(o.customer.fullName)}<br><small>${esc(o.customer.phone)}</small></td><td style="min-width:230px">${esc(oSum(o))}</td><td>${o.type=='hotel'?'₦'+Number(o.amount).toLocaleString('en-NG'):'—'}</td><td>${payPill(o)}</td>
+    <div class="tw"><table><tr><th>Booking ID</th><th>Created</th><th>Type</th><th>Client</th><th>Details</th><th>Amount</th><th>Payment</th><th>Status</th><th></th></tr>${R.map(o=>`<tr><td><b>${esc(o.bookingId)}</b></td><td>${esc(fmt(o.createdAt))}</td><td>${TYPE[o.type]}</td><td>${esc(o.customer.fullName)}<br><small>${esc(o.customer.phone)}</small></td><td style="min-width:230px">${esc(oSum(o))}</td><td>${o.type=='hotel'||(o.type=='visa'&&o.amount)?'₦'+Number(o.amount).toLocaleString('en-NG'):'—'}</td><td>${payPill(o)}</td>
       <td><select data-s="${o.id}" aria-label="Status">${statuses.map(s=>`<option ${s==o.status?'selected':''}>${s}</option>`).join('')}</select></td>
       <td style="white-space:nowrap"><button class="btn sm o" data-v="${o.id}">View</button> <button class="btn sm o" data-p="${o.id}">Slip PDF</button>${user.role=='admin'?` <button class="btn sm o" data-x="${o.id}">Delete</button>`:''}</td></tr>`).join('')||'<tr><td colspan="9">No orders yet.</td></tr>'}</table></div><div id="dt"></div>`;
     const qi=$('q');qi.oninput=e=>{q=e.target.value.toLowerCase();const p=qi.selectionStart;draw();$('q').focus();$('q').setSelectionRange(p,p)};
@@ -102,7 +102,7 @@ VIEWS.orders=async mn=>{
     if(open)detail()};
   const detail=()=>{const o=open;
     $('dt').innerHTML=`<div class="box detail"><h3>Order ${esc(o.bookingId)}</h3><div class="slipwrap">${window.NCSlip?NCSlip.html(o):''}</div>
-    <label style="margin-top:14px;display:block">Internal notes<textarea id="nt" rows="3" maxlength="2000">${esc(o.notes||'')}</textarea></label><div class="row"><button class="btn sm" id="sv">Save notes</button><button class="btn sm" id="dp">Download slip (PDF)</button>${o.type=='hotel'?`<button class="btn sm ${o.paymentStatus=='paid'?'o':''}" id="mp">${o.paymentStatus=='paid'?'Mark as unpaid':'Mark as PAID'}</button>`:''}<button class="btn sm o" id="cl">Close</button></div></div>`;
+    <label style="margin-top:14px;display:block">Internal notes<textarea id="nt" rows="3" maxlength="2000">${esc(o.notes||'')}</textarea></label><div class="row"><button class="btn sm" id="sv">Save notes</button><button class="btn sm" id="dp">Download slip (PDF)</button>${o.type=='hotel'||o.type=='visa'?`<button class="btn sm ${o.paymentStatus=='paid'?'o':''}" id="mp">${o.paymentStatus=='paid'?'Mark as unpaid':'Mark as PAID'}</button>`:''}<button class="btn sm o" id="cl">Close</button></div></div>`;
     if($('mp'))$('mp').onclick=async()=>{try{Object.assign(o,await api('PATCH','/api/admin/orders/'+o.id,{paymentStatus:o.paymentStatus=='paid'?'unpaid':'paid'}));toast(o.paymentStatus=='paid'?'Marked as paid':'Marked as unpaid');draw()}catch(e){toast(errText(e))}};
     $('sv').onclick=async()=>{try{Object.assign(o,await api('PATCH','/api/admin/orders/'+o.id,{notes:$('nt').value}));toast('Notes saved')}catch(e){toast(errText(e))}};
     $('dp').onclick=()=>NCSlip.pdf(o);$('cl').onclick=()=>{open=null;$('dt').innerHTML=''};$('dt').scrollIntoView({behavior:'smooth',block:'nearest'})};
@@ -179,6 +179,9 @@ VIEWS.settings=async mn=>{
   <h3>Hotel mark-up (profit) defaults</h3><p class="mu">Applied automatically to every hotel rate you upload or add (you can override it per upload or per hotel). Selling price = rate × FX rate × (1 + %) + fixed ₦.</p>
   <div class="f2"><div><label>Default mark-up %<input name="markupPct" type="number" step="0.01" min="0" max="500" value="${esc(s.markupPct??0)}"></label></div><div><label>Default fixed mark-up per night (₦)<input name="markupFixed" type="number" step="1" min="0" value="${esc(s.markupFixed??0)}"></label></div></div>
   <p class="mu">Payments: <b>${esc({paystack:'Paystack (online)',simulation:'Test mode (simulated)',off:'Manual — clients reserve, your team collects payment'}[s.payment]||'')}</b> ${s.payment=='paystack'?'<button type="button" class="btn sm o" id="pchk" style="margin-left:8px">Check Paystack connection</button>':''}</p><div id="pchkr" role="status"></div>
+  <h3>Umrah visa fees</h3><p class="mu">Shown to clients on the booking page (Umrah Visa tab) and used to total each visa request. All amounts in ₦. Leave the child or infant fee blank to charge the adult fee. If the adult fee is blank, clients see "fees confirmed by our team".</p>
+  <div class="f2"><div><label>Adult visa fee (₦)<input name="visa.adult" type="number" step="0.01" min="0" value="${esc(s.visa?.adult??'')}"></label></div><div><label>Service fee (₦, per application)<input name="visa.service" type="number" step="0.01" min="0" value="${esc(s.visa?.service??'')}"></label></div></div>
+  <div class="f2"><div><label>Child visa fee (₦, optional)<input name="visa.child" type="number" step="0.01" min="0" value="${esc(s.visa?.child??'')}"></label></div><div><label>Infant visa fee (₦, optional)<input name="visa.infant" type="number" step="0.01" min="0" value="${esc(s.visa?.infant??'')}"></label></div></div>
   <h3>Platform FX rate</h3><div><label>Naira (₦) per 1 Saudi Riyal (SAR) — shown in the top bar; leave blank to hide<input name="fxRate" type="number" step="0.01" min="0" inputmode="decimal" placeholder="e.g. 410.50" value="${esc(s.fxRate??'')}"></label></div>
   <h3>Brochures</h3>${[[2,'Company Registration'],[3,'UEA O.1 Capacity Building'],[4,'Operations Masterclass'],[5,'Saudi Partner Contracting'],[6,'Package Development'],[7,'Umrah Agent Bootcamp']].map(([k,l])=>row('brochures',k,l)).join('')}
   <h3>Session videos (YouTube)</h3>${[[1,'UEA O.1 — Kano'],[2,'UEA O.1 — Abuja'],[3,'SSP 3rd Edition']].map(([k,l])=>row('youtube',k,l)).join('')}
@@ -186,7 +189,7 @@ VIEWS.settings=async mn=>{
   if($('pchk'))$('pchk').onclick=async e=>{const b=e.currentTarget;b.disabled=true;$('pchkr').innerHTML='<p class="mu">Checking…</p>';
     try{const r=await api('GET','/api/admin/payments/check');$('pchkr').innerHTML=`<div class="callout ${r.ok?'':'r'}" style="margin:8px 0"><div><b>${r.ok?'✔ Working':'✖ Problem'}</b> — ${esc(r.message)}</div></div>`}
     catch(err){$('pchkr').innerHTML=`<p class="err">${esc(errText(err))}</p>`}finally{b.disabled=false}};
-  $('sf').onsubmit=async e=>{e.preventDefault();const out={brochures:{},youtube:{},fxRate:'',markupPct:'',markupFixed:''};
+  $('sf').onsubmit=async e=>{e.preventDefault();const out={brochures:{},youtube:{},visa:{},fxRate:'',markupPct:'',markupFixed:''};
     for(const [n,v] of new FormData(e.target)){if(n=='fxRate'||n=='markupPct'||n=='markupFixed'){out[n]=v;continue}const [g,k]=n.split('.');out[g][k]=v}
     const say=m=>{const el=$('e_sf');if(el)el.textContent=m};
     try{await api('PUT','/api/admin/settings',out);say('');toast('Settings saved')}catch(err){say(errText(err))}}};

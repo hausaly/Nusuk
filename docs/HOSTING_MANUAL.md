@@ -124,7 +124,7 @@ Keep the Passenger lines, the HTTPS redirect and the security rules, then contin
 1. **Users** → change your password; add staff accounts if needed (`staff` cannot see Users/Settings).
 2. **Settings → Platform FX rate** → enter Naira per 1 Saudi Riyal (shown in the top bar; hidden until set).
 3. **Settings → Brochures / YouTube** → add the links (buttons stay disabled until filled).
-4. Replace the **Privacy Policy** placeholder text before launch (`public/js/app.js`, `privacy` view).
+4. **Settings → Umrah visa fees** → enter the adult visa fee and service fee (₦); child/infant fees are optional (blank = adult fee). Until the adult fee is set, clients see "fees confirmed by our team".
 
 ---
 
@@ -170,7 +170,7 @@ Keep the Passenger lines, the HTTPS redirect and the security rules, then contin
 | `/api/health` → 500/503 or "Incomplete response" | App crashed on start | Open `nusuk/stderr.log` and `nusuk/boot.log` in File Manager |
 | No `boot.log` appears | cPanel is not running `app.cjs` | Check startup file name, application root, app is Started |
 | Login works but you are logged out at once | `HTTPS=1` but visiting `http://` | Use `https://` |
-| Old design / old page still showing | Files not replaced, or a cached copy | Compare the **Build number** in the site footer (small text, bottom) with `/nusuk/api/health` (`"build"`). Same number = files are current → **Ctrl+Shift+R**. Different or missing = the upload didn't replace the files (re-do the update steps) or the Node app wasn't restarted |
+| Old design / old page still showing | Files not replaced, or a cached copy | Open `/nusuk/api/health` and note `"build"`; then open `/nusuk/js/app.js` — its first line says `const BUILD='…'`. Same number = files are current → **Ctrl+Shift+R**. Different = the upload didn't replace the files (re-do the update steps) or the Node app wasn't restarted |
 | `.htaccess` block comes back | Truehost regenerated it | Repeat Step 4 |
 | Node version list tops out below 22 | Plan limitation | Ask the host to enable Node 22, or use a VPS |
 

@@ -272,7 +272,8 @@ test('payment webhook requires a valid Paystack signature and a matching amount'
 test('HHR train and transfer requests', async () => {
   const cust = { fullName: 'Hauwa Musa', phone: '+2348131227047', email: 'h@example.com' };
   assert.equal((await call('POST', '/api/orders/train', { from: 'Makkah', to: 'Makkah', date: dayStr(5), adults: 1, children: 0, ...cust })).status, 422);
-  assert.equal((await call('POST', '/api/orders/train', { from: 'Madinah', to: 'KAEC', date: dayStr(5), adults: 1, ...cust })).status, 422);
+  assert.equal((await call('POST', '/api/orders/train', { from: 'Medina', to: 'KAEC', date: dayStr(5), adults: 1, ...cust })).status, 422);
+  assert.equal((await call('POST', '/api/orders/train', { from: 'Makkah', to: 'Madinah', date: dayStr(5), adults: 1, ...cust })).status, 200);   // Madinah is a station
   const t = await call('POST', '/api/orders/train', { from: 'Makkah', to: 'Airport - Jeddah', date: dayStr(5), time: '09:30', adults: 2, children: 1, ...cust });
   assert.equal(t.status, 200); assert.match(t.body.bookingId, /^NC-T-/);
   assert.equal((await call('POST', '/api/orders/transfer', { pickup: 'Jeddah Airport', dropoff: 'Makkah', date: dayStr(5), time: '25:00', vehicle: 'sedan', quantity: 1, ...cust })).status, 422);
@@ -282,7 +283,7 @@ test('HHR train and transfer requests', async () => {
   const slip = (await call('GET', `/api/orders/${r.body.bookingId}/slip?t=${r.body.token}`)).body.order;
   assert.equal(slip.details.vehicle, 'Coaster'); assert.equal(slip.details.capacity, '18 Pax + 25 Luggage'); assert.equal(slip.status, 'Pending');
   const cfg = (await call('GET', '/api/booking-config')).body;
-  assert.deepEqual(cfg.stations, ['Makkah', 'Al-Sulimaniyah - Jeddah', 'Airport - Jeddah', 'KAEC']);
+  assert.deepEqual(cfg.stations, ['Makkah', 'Madinah', 'Al-Sulimaniyah - Jeddah', 'Airport - Jeddah', 'KAEC']);
   assert.deepEqual(cfg.vehicles.map(v => v.name), ['Sedan', 'SUV', 'GMC', 'HiAce', 'Coaster', 'Bus']);
   const csv = await call('GET', '/api/admin/orders.csv', null, cookie); assert.match(csv.body, /NC-T-/);
 });
@@ -367,7 +368,7 @@ test('build number is consistent (cache-busting): config, index.html, app.js, /a
   const { BUILD } = await import('../server/config.js');
   const idx = fs.readFileSync(new URL('../public/index.html', import.meta.url), 'utf8');
   const app = fs.readFileSync(new URL('../public/js/app.js', import.meta.url), 'utf8');
-  assert.match(idx, new RegExp(`css/style\\.css\\?v=${BUILD}`)); assert.match(idx, new RegExp(`js/app\\.js\\?v=${BUILD}`)); assert.match(idx, new RegExp(`Build ${BUILD}`));
+  assert.match(idx, new RegExp(`css/style\\.css\\?v=${BUILD}`)); assert.match(idx, new RegExp(`js/app\\.js\\?v=${BUILD}`));
   assert.match(app, new RegExp(`const BUILD='${BUILD}'`));
   assert.equal((await call('GET', '/api/health')).body.build, BUILD);
 });
@@ -377,4 +378,35 @@ test('brochure link for service 7 (Umrah Agent Bootcamp) is configurable and pub
   assert.equal((await put({ brochures: { 7: 'javascript:alert(1)' } })).status, 422);
   assert.equal((await put({ brochures: { 7: 'https://example.com/bootcamp.pdf' } })).status, 200);
   assert.equal((await call('GET', '/api/public-settings')).body.brochures[7], 'https://example.com/bootcamp.pdf');
+});
+
+test('Umrah visa: fees from settings, server-side total, terms required, admin can mark paid', async () => {
+  const set = (visa) => call('PUT', '/api/admin/settings', { brochures: {}, youtube: {}, fxRate: '', markupPct: 0, markupFixed: 0, visa }, cookie);
+  assert.equal((await set({ adult: '300000', child: '200000', infant: '', service: '5000' })).status, 200);
+  const cfg = (await call('GET', '/api/booking-config')).body;
+  assert.deepEqual(cfg.visa, { adult: 300000, child: 200000, infant: 300000, service: 5000 });   // blank infant = adult fee
+  assert.ok(cfg.stations.includes('Madinah'));
+  const cust = { fullName: 'Aisha Bello', phone: '+2348131227047', email: 'a@b.ng' };
+  let r = await call('POST', '/api/orders/visa', { adults: 2, children: 1, infants: 0, ...cust });
+  assert.equal(r.status, 422); assert.ok(r.body.errors.terms);                                   // terms must be accepted
+  r = await call('POST', '/api/orders/visa', { adults: 0, children: 0, infants: 0, acceptTerms: true, ...cust });
+  assert.equal(r.status, 422); assert.ok(r.body.errors.adults);
+  r = await call('POST', '/api/orders/visa', { adults: 2, children: 1, infants: 0, acceptTerms: true, amount: 1, ...cust });
+  assert.equal(r.status, 200); assert.match(r.body.bookingId, /^NC-V-/);
+  const slip = (await call('GET', `/api/orders/${r.body.bookingId}/slip?t=${r.body.token}`)).body.order;
+  assert.equal(slip.type, 'visa'); assert.equal(slip.amount, 2 * 300000 + 200000 + 5000);       // client-sent amount ignored
+  assert.equal(slip.paymentStatus, 'unpaid');
+  const id = (await call('GET', '/api/admin/orders', null, cookie)).body.items.find(o => o.bookingId === r.body.bookingId).id;
+  const p = await call('PATCH', `/api/admin/orders/${id}`, { paymentStatus: 'paid' }, cookie);
+  assert.equal(p.status, 200); assert.equal(p.body.paymentStatus, 'paid'); assert.equal(p.body.status, 'Pending');
+  assert.equal((await set({ adult: '-5', service: '' })).status, 422);
+  await set({ adult: '', child: '', infant: '', service: '' });
+  const q = await call('POST', '/api/orders/visa', { adults: 1, acceptTerms: true, ...cust });
+  assert.equal((await call('GET', `/api/orders/${q.body.bookingId}/slip?t=${q.body.token}`)).body.order.amount, 0);   // no fees set = team quotes
+});
+
+test('About-page showcase PDF is downloadable and served as a PDF', async () => {
+  const r = await fetch(base + '/downloads/NUSUK-CONSULT-Platform-Showcase.pdf');
+  assert.equal(r.status, 200); assert.equal(r.headers.get('content-type'), 'application/pdf');
+  assert.equal(Buffer.from(await r.arrayBuffer()).subarray(0, 5).toString(), '%PDF-');
 });

@@ -5,10 +5,11 @@ const num=n=>Number(n||0).toLocaleString('en-NG');
 const dt=d=>d?new Date(d+(d.length==10?'T00:00:00':'')).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'';
 const dtm=d=>d?new Date(d).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'';
 const guests=d=>`${d.adults} adult${d.adults==1?'':'s'}${d.children?`, ${d.children} child${d.children==1?'':'ren'}`:''}`;
-const TYPE={hotel:'Hotel booking',train:'HHR Train request',transfer:'Transfer request'};
+const TYPE={hotel:'Hotel booking',train:'HHR Train request',transfer:'Transfer request',visa:'Umrah visa request'};
 
 function status(o){
   if(o.type=='hotel'){ if(o.status=='Cancelled')return['CANCELLED','red']; if(o.paymentStatus=='paid')return[o.status=='Fulfilled'?'CONFIRMED · FULFILLED':'CONFIRMED · PAID','green']; return[o.payment?.mode=='manual'?'RESERVED · PAYMENT PENDING':'AWAITING PAYMENT','amber']; }
+  if(o.type=='visa'){ if(o.status=='Cancelled')return['CANCELLED','red']; if(o.paymentStatus=='paid')return[o.status=='Fulfilled'?'FULFILLED':'PAID','green']; return['REQUEST RECEIVED · PAYMENT PENDING','amber']; }
   return o.status=='Fulfilled'?['FULFILLED','green']:o.status=='Cancelled'?['CANCELLED','red']:['REQUEST RECEIVED','amber'];
 }
 function sections(o){
@@ -22,6 +23,12 @@ function sections(o){
     if(o.payment?.reference)pay.push(['Payment reference',o.payment.reference]);
     if(o.payment?.paidAt)pay.push(['Paid on',dtm(o.payment.paidAt)]);
     if(o.paymentStatus!='paid'&&o.payment?.mode=='manual')pay.push(['Next step','Our team will contact you with payment details. Your room is confirmed once payment is received.']);
+  }else if(o.type=='visa'){
+    book=[['Service','Umrah Visa'],['Adults',String(d.adults)]]; if(d.children)book.push(['Children',String(d.children)]); if(d.infants)book.push(['Infants',String(d.infants)]);
+    book.push(['Terms accepted',dtm(d.termsAcceptedAt)||'Yes']);
+    if(d.priced){ pay=[]; if(d.adults)pay.push([`${d.adults} × Adult visa`,`NGN ${num(d.adults*d.adultFee)}`]); if(d.children)pay.push([`${d.children} × Child visa`,`NGN ${num(d.children*d.childFee)}`]); if(d.infants)pay.push([`${d.infants} × Infant visa`,`NGN ${num(d.infants*d.infantFee)}`]); pay.push(['Service charges',`NGN ${num(d.serviceFee)}`]); pay.push(['Payment status',o.paymentStatus=='paid'?'Paid':'Pending']); }
+    else pay=[['Pricing','Our team will confirm the visa fee and payment details.']];
+    if(o.paymentStatus!='paid')pay.push(['Next step','Our team will contact you to collect one passport per pilgrim and payment details.']);
   }else if(o.type=='train'){
     book=[['Service',d.service],['From',d.from],['To',d.to],['Travel date',dt(d.date)+(d.time?`, ${d.time}`:'')],['Passengers',guests(d)]];
     pay=[['Pricing','Our team will contact you with the fare and payment details.']];
@@ -40,7 +47,7 @@ function html(o){
   <div class="sl-head"><img src="img/logo.jpg" alt="NUSUK CONSULT"><div><b>${CO.name}</b><span>${CO.tag}</span><small>${esc(CO.phone)} · ${esc(CO.email)}<br>${esc(CO.web)}</small></div></div>
   <div class="sl-title"><div><div class="eyebrow">${TYPE[o.type]}</div><h2>BOOKING SLIP</h2><small>Issued ${dtm(o.createdAt)}</small></div><div class="sl-id"><small>BOOKING ID</small><b>${esc(o.bookingId)}</b><span class="chip ${col}">${st}</span></div></div>
   <div class="sl-grid"><section><h4>Client information</h4>${tbl(S.client)}</section><section><h4>Booking details</h4>${tbl(S.book)}</section></div>
-  <section><h4>${o.type=='hotel'?'Payment summary':'Pricing'}</h4>${tbl(S.pay)}${o.type=='hotel'?`<div class="sl-total"><span>TOTAL ${o.paymentStatus=='paid'?'PAID':'DUE'}</span><b>₦${num(o.amount)}</b></div>`:''}</section>
+  <section><h4>${o.type=='hotel'||(o.type=='visa'&&o.details.priced)?'Payment summary':'Pricing'}</h4>${tbl(S.pay)}${o.type=='hotel'||(o.type=='visa'&&o.details.priced)?`<div class="sl-total"><span>TOTAL ${o.paymentStatus=='paid'?'PAID':'DUE'}</span><b>₦${num(o.amount)}</b></div>`:''}</section>
   <div class="sl-foot">Keep this slip and quote your Booking ID when contacting us.<br>${esc(CO.addr)}</div></div>`;
 }
 
@@ -87,8 +94,9 @@ async function pdf(o){
   };
   section('Client information',S.client);
   section('Booking details',S.book);
-  section(o.type=='hotel'?'Payment summary':'Pricing',S.pay);
-  if(o.type=='hotel'){
+  const priced=o.type=='hotel'||(o.type=='visa'&&o.details.priced);
+  section(priced?'Payment summary':'Pricing',S.pay);
+  if(priced){
     need(18);doc.setFillColor(...INK);doc.roundedRect(M,y,W-2*M,15,2.5,2.5,'F');
     doc.setTextColor(...GOLD);doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text('TOTAL '+(o.paymentStatus=='paid'?'PAID':'DUE'),M+6,y+9);
     doc.setTextColor(255,255,255);doc.setFontSize(16);doc.text('NGN '+num(o.amount),W-M-6,y+9.8,{align:'right'});y+=20;

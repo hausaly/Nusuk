@@ -18,7 +18,7 @@ const IC={
  headset:'<path d="M4 14v-2a8 8 0 0 1 16 0v2M4 14h3v5H5a1 1 0 0 1-1-1zM20 14h-3v5h2a1 1 0 0 0 1-1zM17 19a4 4 0 0 1-4 2"/>',
  tag:'<path d="M3 12V4h8l10 10-8 8z"/><circle cx="7.5" cy="8.5" r="1.2"/><path d="M10 15l4-4"/>',
  help:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2zM15 3a6 6 0 0 1 6 6M15 7a2 2 0 0 1 2 2"/>',
- calpay:'<path d="M3 5h18v16H3zM3 10h18M8 3v4M16 3v4"/><path d="M12 12.5v5M14 13.5c-.4-.5-1-.7-2-.7-1.2 0-2 .6-2 1.4s.8 1.2 2 1.4 2 .6 2 1.4-.8 1.4-2 1.4c-1 0-1.7-.3-2-.8"/>', bus:'<rect x="4" y="3" width="16" height="15" rx="2"/><path d="M4 11h16M7 21v-3M17 21v-3M8 15h.01M16 15h.01"/>'
+ calpay:'<path d="M3 5h18v16H3zM3 10h18M8 3v4M16 3v4"/><path d="M12 12.5v5M14 13.5c-.4-.5-1-.7-2-.7-1.2 0-2 .6-2 1.4s.8 1.2 2 1.4 2 .6 2 1.4-.8 1.4-2 1.4c-1 0-1.7-.3-2-.8"/>', passport:'<rect x="5" y="2.5" width="14" height="19" rx="2"/><circle cx="12" cy="10" r="3"/><path d="M8.5 16.5h7"/>', bus:'<rect x="4" y="3" width="16" height="15" rx="2"/><path d="M4 11h16M7 21v-3M17 21v-3M8 15h.01M16 15h.01"/>'
 };
 const ic=(n,s)=>svg(IC[n],s);
 const stars=n=>n>0?'★'.repeat(n)+'<span class="off">'+'★'.repeat(5-n)+'</span>':'';
@@ -36,10 +36,10 @@ NC.mountBooking=async()=>{
   const root=$('bk'); if(!root)return;
   try{cfg??=await api('GET','api/booking-config')}catch(e){root.innerHTML=`<div class="w" style="padding:40px 20px"><p class="err">Could not load booking options (${e.status?'server error '+e.status:'no connection'}). Please refresh. If it keeps happening, contact us.</p></div>`;return}
   st.checkIn||(st.checkIn='');
-  root.innerHTML=`<section class="bk-hero"><div class="w"><div class="eyebrow">DIY BOOKING</div><h1>One Shop, Multiple deals</h1><p>Hotels in Makkah &amp; Madinah, the Haramain train and airport transfers — choose, book and get your booking slip instantly. No account needed.</p>
+  root.innerHTML=`<section class="bk-hero"><div class="w"><div class="eyebrow">DIY BOOKING</div><h1>One Shop, Multiple deals</h1><p>Hotels in Makkah &amp; Madinah, the Haramain train, airport transfers and Umrah visa — choose, book and get your booking slip instantly. No account needed.</p>
   <div class="trust"><span>${ic('shield',18)}<b>IATA</b> Certified</span><i></i><span>${ic('medal',18)}<b>NCAA</b> Certified</span><i></i><span>${ic('card',18)}<b>Flexible</b> Payment</span><i></i><span>${ic('headset',18)}<b>24/7</b> Support</span></div></div></section>
   <section class="w bk-wrap"><div class="bk-card"><div class="bk-tabs" role="tablist">
-  ${[['hotels','Hotels','hotel'],['train','HHR Train','train'],['transfers','Transfers','car']].map(t=>`<button role="tab" data-tab="${t[0]}" class="${tab==t[0]?'on':''}">${ic(t[2],22)}<span>${t[1]}</span></button>`).join('')}</div>
+  ${[['hotels','Hotels','hotel'],['train','HHR Train','train'],['transfers','Transfers','car'],['visa','Umrah Visa','passport']].map(t=>`<button role="tab" data-tab="${t[0]}" class="${tab==t[0]?'on':''}">${ic(t[2],22)}<span>${t[1]}</span></button>`).join('')}</div>
   <div class="bk-panel" id="bkp"></div></div><div id="bkr"></div>
   <div class="conf"><h2>Book with Confidence.</h2><p class="cp">All service providers on Nusuk are officially licensed and approved by the Ministry of Hajj and Umrah to ensure safety, reliability, and quality service for every pilgrim.</p>
   <div class="cgrid"><div class="ci">${ic('tag',38)}<div><b>Get Your Discount</b><p>Save up to 20% on each booking.</p></div></div><div class="ci">${ic('help',38)}<div><b>Get Real Help, 24/7</b><p>Skip the bots. Talk to a real travel expert.</p></div></div><div class="ci">${ic('calpay',38)}<div><b>Reserve Now, Pay Later</b><p>Convenient options online and 24/7 global concierge.</p></div></div></div></div>
@@ -48,7 +48,7 @@ NC.mountBooking=async()=>{
   panel();
   featured();
 };
-const panel=()=>({hotels:hotelsPanel,train:trainPanel,transfers:transferPanel}[tab])();
+const panel=()=>({hotels:hotelsPanel,train:trainPanel,transfers:transferPanel,visa:visaPanel}[tab])();
 
 // ============ FEATURED OFFERS ============
 async function featured(){
@@ -140,7 +140,7 @@ function trainPanel(){
   p.innerHTML=`<form id="tf" novalidate><div class="pills"><span class="pill on">One way</span></div>
   <div class="tgrid"><div class="fld"><label for="t_from">FROM</label><div class="ctl">${ic('train',18)}<select id="t_from">${S.map(s=>`<option>${s}</option>`).join('')}</select></div><div class="err" id="e_t_from"></div></div>
   <button type="button" class="swp" id="t_sw" aria-label="Swap stations">${ic('swap',18)}</button>
-  <div class="fld"><label for="t_to">TO</label><div class="ctl">${ic('train',18)}<select id="t_to">${S.map((s,i)=>`<option ${i==2?'selected':''}>${s}</option>`).join('')}</select></div><div class="err" id="e_t_to"></div></div>
+  <div class="fld"><label for="t_to">TO</label><div class="ctl">${ic('train',18)}<select id="t_to">${S.map(s=>`<option ${s=='Madinah'?'selected':''}>${s}</option>`).join('')}</select></div><div class="err" id="e_t_to"></div></div>
   <div class="fld"><label for="t_date">DATE</label><div class="ctl">${ic('cal',18)}<input type="date" id="t_date" min="${cfg.today}"></div><div class="err" id="e_t_date"></div></div>
   <div class="fld"><label for="t_time">PREFERRED TIME <small>(optional)</small></label><div class="ctl">${ic('clock',18)}<input type="time" id="t_time"></div></div>
   <div class="fld"><label for="t_ad">ADULTS</label><div class="ctl">${ic('user',18)}<input type="number" id="t_ad" min="1" max="50" value="1"></div><div class="err" id="e_t_adults"></div></div>
@@ -177,6 +177,51 @@ function transferPanel(){
       requestDone(out,'Transfer');}
     catch(err){b.disabled=false;if(err.errors)errs('e_r_',err.errors,['pickup','dropoff','date','time','quantity','vehicle','fullName','phone','email']);else $('e_r_all').textContent=err.message}};
 }
+// ============ UMRAH VISA ============
+function visaPanel(){
+  const p=$('bkp'),F=cfg.visa||{},priced=F.adult>0,cnt={adults:1,children:0,infants:0};
+  const row=(k,l,sub,min)=>`<div class="stp"><div><b>${l}</b><small>${sub}</small></div><div class="stc"><button type="button" data-vs="${k}" data-d="-1" aria-label="Fewer ${l}">−</button><span id="vc_${k}">${cnt[k]}</span><button type="button" data-vs="${k}" data-d="1" aria-label="More ${l}">+</button></div></div>`;
+  p.innerHTML=`<form id="vf" novalidate><div class="vgrid"><div>
+  <h3 class="vh">Who is travelling?</h3><p class="mu vsubt">Add the pilgrims in your group.</p>
+  <div class="vcnt">${row('adults','Adult','12 years &amp; above')}${row('children','Children','2–12 years')}${row('infants','Infant','Under 2 years')}</div>
+  <h3 class="vh">Pilgrims Info</h3><p class="mu vsubt">Add the pilgrims in your group. Our team will collect one passport for each pilgrim after you submit.</p>
+  ${custFields('v_')}
+  <label class="vtc"><input type="checkbox" id="v_terms"><span>I confirm that I have read, understood, and agreed to the <a href="#" id="v_tc">Terms and Conditions</a> for Umrah Visa Processing. I confirm that all information and documents submitted are correct.</span></label><div class="err" id="e_v_terms"></div>
+  <div class="hp" aria-hidden="true"><input id="v_web" tabindex="-1" autocomplete="off"></div>
+  <div class="gorow"><div class="err" id="e_v_all" role="alert"></div><button class="btn go" id="v_go">Submit request</button></div></div>
+  <aside class="vsum" aria-live="polite"><div class="vsh">Price Summary</div><div id="vsb"></div></aside></div></form>`;
+  const draw=()=>{
+    const a=cnt.adults,c=cnt.children,i=cnt.infants,L=[];
+    for(const k of Object.keys(cnt))$('vc_'+k).textContent=cnt[k];
+    if(!priced){$('vsb').innerHTML=`<p class="vnote">${a} adult${a>1?'s':''}${c?`, ${c} child${c>1?'ren':''}`:''}${i?`, ${i} infant${i>1?'s':''}`:''}</p><p class="vnote">Visa fees are confirmed by our team after you submit your request.</p>`;return}
+    if(a)L.push([`${a}× Adult Visa`,a*F.adult]);if(c)L.push([`${c}× Child Visa`,c*F.child]);if(i)L.push([`${i}× Infant Visa`,i*F.infant]);
+    L.push(['Service charges',F.service]);
+    const tot=L.reduce((t,x)=>t+x[1],0);
+    $('vsb').innerHTML=L.map(x=>`<div class="vl"><span>${x[0]}</span><b>${NGN(x[1])}</b></div>`).join('')+`<div class="vl vt"><span>Amount to be paid</span><b>${NGN(tot)}</b></div>`;
+  };
+  p.querySelectorAll('[data-vs]').forEach(b=>b.onclick=()=>{const k=b.dataset.vs,min=k=='adults'?1:0;cnt[k]=Math.min(50,Math.max(min,cnt[k]+ +b.dataset.d));draw()});
+  $('v_tc').onclick=e=>{e.preventDefault();termsModal()};
+  draw();
+  $('vf').onsubmit=async e=>{e.preventDefault();const b=$('v_go');b.disabled=true;errs('e_v_',{},['fullName','phone','email','terms','all']);
+    try{const out=await api('POST','api/orders/visa',{...cnt,acceptTerms:$('v_terms').checked,website:$('v_web').value,...custVals('v_')});requestDone(out,'Umrah Visa')}
+    catch(err){b.disabled=false;if(err.errors){errs('e_v_',err.errors,['fullName','phone','email','terms']);const x=err.errors;$('e_v_all').textContent=x.adults||x.children||x.infants||''}else $('e_v_all').textContent=err.message}};
+}
+let tcLoad=null;
+const loadTerms=()=>window.NC_VISA_TERMS?Promise.resolve():(tcLoad??=new Promise((ok,no)=>{const s=document.createElement('script');s.src='js/visa-terms.js?v='+NC.v;s.onload=ok;s.onerror=()=>{tcLoad=null;no()};document.head.appendChild(s)}));
+async function termsModal(){
+  try{await loadTerms()}catch{alert('Could not load the Terms and Conditions. Please try again.');return}
+  const lines=window.NC_VISA_TERMS.split('\n');let h='',list=false;
+  for(const l of lines){const b=l.startsWith('* ');if(list&&!b){h+='</ul>';list=false}
+    if(l.startsWith('## '))h+=`<h4>${esc(l.slice(3))}</h4>`;else if(b){if(!list){h+='<ul>';list=true}h+=`<li>${esc(l.slice(2))}</li>`}else h+=`<p>${esc(l)}</p>`}
+  if(list)h+='</ul>';
+  const m=document.createElement('div');m.className='modal tcm';m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');m.setAttribute('aria-label','Umrah Visa Terms and Conditions');
+  m.innerHTML=`<div class="tcb"><div class="tch"><h3>Terms &amp; Conditions</h3><button class="mx" aria-label="Close">×</button></div><div class="tcs" tabindex="0">${h}</div><div class="tcf"><button class="btn" id="tc_ok">Got it!</button></div></div>`;
+  document.body.appendChild(m);document.body.style.overflow='hidden';
+  const close=()=>{m.remove();document.body.style.overflow='';document.removeEventListener('keydown',esc_)};
+  const esc_=e=>{if(e.key=='Escape')close()};document.addEventListener('keydown',esc_);
+  m.onclick=e=>{if(e.target==m)close()};m.querySelector('.mx').onclick=close;$('tc_ok').onclick=close;$('tc_ok').focus();
+}
+
 function requestDone(out,kind){
   $('bkp').innerHTML=`<div class="done">${ic('check',44)}<h2>${kind} request received</h2><p>Our team will contact you shortly with the price and payment details.</p><div class="did"><small>BOOKING ID</small><b>${esc(out.bookingId)}</b></div>
   <div class="mact"><a class="btn" href="#/slip/${out.bookingId}/${out.token}">${ic('dl',18)} View &amp; download slip</a><button class="btn o" id="nr">Make another request</button></div></div>`;

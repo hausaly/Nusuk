@@ -175,8 +175,8 @@ footer .copy{margin:34px 0 0;border-top:1px solid #3a3329;padding-top:18px;font-
 .sb.ok{background:#eef7f0;border-color:#b9dcc4;color:#1f5a38}.sb.wait{background:#fdf6ea;border-color:#efd9b2;color:#8a6a36}.sb.bad{background:#fdeeed;border-color:#efc2bf;color:#b3261e}
 .slact{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
 .slip{background:#fff;border:1px solid var(--bd);border-radius:16px;box-shadow:0 8px 34px rgba(29,26,22,.1);overflow:hidden}
-.sl-head{display:flex;align-items:center;justify-content:space-between;gap:18px;background:var(--ink);color:#fff;padding:20px 26px;border-bottom:4px solid var(--g)}
-.sl-head img{height:52px;background:#fff;border-radius:8px;padding:6px 12px}.sl-head div{text-align:right;line-height:1.5}.sl-head b{display:block;font-size:1.2rem}.sl-head span{color:var(--g);font-weight:600;font-size:.88rem;display:block}.sl-head small{color:#d7d0c2;font-size:.78rem}
+.sl-head{display:flex;align-items:center;justify-content:space-between;gap:18px;background:var(--g);color:var(--ink);padding:18px 26px;border-bottom:4px solid var(--gd)}
+.sl-head img{height:50px;width:auto}.sl-head div{text-align:right;line-height:1.5}.sl-head b{display:block;font-size:1.2rem}.sl-head span{color:#5b4420;font-weight:600;font-size:.88rem;display:block}.sl-head small{color:#3a3329;font-size:.78rem}
 .sl-title{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;padding:22px 26px 6px;flex-wrap:wrap}.sl-title h2{margin:0;font-size:1.9rem;letter-spacing:-.02em}.sl-title small{color:var(--mu)}
 .sl-id{text-align:right}.sl-id small{display:block;letter-spacing:.14em;font-weight:700;font-size:.68rem}.sl-id b{font:700 1.45rem Consolas,monospace;display:block}
 .chip{display:inline-block;border-radius:99px;padding:3px 14px;font-weight:700;font-size:.74rem;letter-spacing:.05em;margin-top:6px}.chip.green{background:#def1e4;color:#1f5a38}.chip.amber{background:#fbeed7;color:#8a6a36}.chip.red{background:#fdeae8;color:#b3261e}
@@ -312,3 +312,9 @@ footer .copy{margin:34px 0 0;border-top:1px solid #3a3329;padding-top:18px;font-
 .done h2{font-size:1.3rem}.did b{font-size:1.3rem}
 @media(max-width:900px){.htl{grid-template-columns:1fr}.hc-img{min-height:150px}}
 @media(max-width:600px){.bk-hero{padding:30px 0 84px}.bk-hero h1{font-size:1.5rem}.bk-tabs button{padding:8px 11px;font-size:.8rem}.bk-panel{padding:13px}.ctl{min-height:42px}.ctl input,.ctl select{height:40px}}
+
+/* Booking page: gold buttons + gold slip/summary headers */
+.btn.go{background:var(--g);border-color:var(--g);color:var(--ink);box-shadow:0 6px 16px rgba(221,180,126,.45)}.btn.go:hover{background:#e8c797;border-color:#e8c797}
+.pill.on{background:var(--g);border-color:var(--g);color:var(--ink)}.pill{cursor:pointer}
+.vsh{background:var(--g);color:var(--ink)}
+.gic img{height:50px}

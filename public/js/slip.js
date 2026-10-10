@@ -1,6 +1,7 @@
 // Booking slip: HTML preview + PDF download. Shared by the public site and the admin dashboard.
 (()=>{
 const CO={name:'NUSUK CONSULT',tag:'Beyond Compliance',phone:'+2348131227047',email:'nusuk@hausaly.com',web:'www.hausaly.com/nusuk',addr:'Bosso Plaza, Along Gombe Road, Biu, Borno State, Nigeria'};
+const LOGO_W=503,LOGO_H=172;   // public/img/logo-white.png size (for the PDF aspect ratio)
 const num=n=>Number(n||0).toLocaleString('en-NG');
 const dt=d=>d?new Date(d+(d.length==10?'T00:00:00':'')).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'';
 const dtm=d=>d?new Date(d).toLocaleString('en-GB',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'';
@@ -44,7 +45,7 @@ function html(o){
   const [st,col]=status(o),S=sections(o);
   const tbl=r=>`<table class="sl-t">${r.map(x=>`<tr><th>${esc(x[0])}</th><td>${esc(x[1])}</td></tr>`).join('')}</table>`;
   return `<div class="slip" id="slipCard">
-  <div class="sl-head"><img src="img/logo.jpg" alt="NUSUK CONSULT"><div><b>${CO.name}</b><span>${CO.tag}</span><small>${esc(CO.phone)} · ${esc(CO.email)}<br>${esc(CO.web)}</small></div></div>
+  <div class="sl-head"><img src="img/logo-white.png" alt="NUSUK CONSULT"><div><b>${CO.name}</b><span>${CO.tag}</span><small>${esc(CO.phone)} · ${esc(CO.email)}<br>${esc(CO.web)}</small></div></div>
   <div class="sl-title"><div><div class="eyebrow">${TYPE[o.type]}</div><h2>BOOKING SLIP</h2><small>Issued ${dtm(o.createdAt)}</small></div><div class="sl-id"><small>BOOKING ID</small><b>${esc(o.bookingId)}</b><span class="chip ${col}">${st}</span></div></div>
   <div class="sl-grid"><section><h4>Client information</h4>${tbl(S.client)}</section><section><h4>Booking details</h4>${tbl(S.book)}</section></div>
   <section><h4>${o.type=='hotel'||(o.type=='visa'&&o.details.priced)?'Payment summary':'Pricing'}</h4>${tbl(S.pay)}${o.type=='hotel'||(o.type=='visa'&&o.details.priced)?`<div class="sl-total"><span>TOTAL ${o.paymentStatus=='paid'?'PAID':'DUE'}</span><b>₦${num(o.amount)}</b></div>`:''}</section>
@@ -59,15 +60,15 @@ async function pdf(o){
   await loadJs('js/vendor/jspdf.umd.min.js?v='+(window.NC?NC.v:''));
   const {jsPDF}=window.jspdf, doc=new jsPDF({unit:'mm',format:'a4'}), W=210, M=16, [st,col]=status(o), S=sections(o);
   const GOLD=[221,180,126],INK=[29,26,22],MU=[107,100,90],LINE=[231,224,212];
-  const logo=await dataUrl('img/logo.jpg').catch(()=>null);
+  const logo=await dataUrl('img/logo-white.png').catch(()=>null);
   // header band
-  doc.setFillColor(...INK);doc.rect(0,0,W,40,'F');
-  if(logo){doc.setFillColor(255,255,255);doc.roundedRect(M,9,46,22,2,2,'F');doc.addImage(logo,'JPEG',M+2,10.5,42,19);}
-  doc.setTextColor(255,255,255);doc.setFont('helvetica','bold');doc.setFontSize(15);doc.text(CO.name,W-M,16,{align:'right'});
-  doc.setTextColor(...GOLD);doc.setFontSize(9);doc.text(CO.tag,W-M,21.5,{align:'right'});
-  doc.setTextColor(215,208,194);doc.setFont('helvetica','normal');doc.setFontSize(8);
+  doc.setFillColor(...GOLD);doc.rect(0,0,W,40,'F');
+  if(logo){doc.addImage(logo,'PNG',M,8.5,48,48*LOGO_H/LOGO_W);}
+  doc.setTextColor(...INK);doc.setFont('helvetica','bold');doc.setFontSize(15);doc.text(CO.name,W-M,16,{align:'right'});
+  doc.setTextColor(91,68,32);doc.setFontSize(9);doc.text(CO.tag,W-M,21.5,{align:'right'});
+  doc.setTextColor(58,51,41);doc.setFont('helvetica','normal');doc.setFontSize(8);
   doc.text([CO.phone+'  |  '+CO.email,CO.web,CO.addr],W-M,27,{align:'right',lineHeightFactor:1.35});
-  doc.setFillColor(...GOLD);doc.rect(0,40,W,1.6,'F');
+  doc.setFillColor(138,106,54);doc.rect(0,40,W,1.6,'F');
   // title + id
   let y=54;
   doc.setTextColor(...MU);doc.setFont('helvetica','bold');doc.setFontSize(8);doc.text(TYPE[o.type].toUpperCase(),M,y);

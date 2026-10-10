@@ -1,14 +1,6 @@
 // Booking slip: HTML preview + PDF download. Shared by the public site and the admin dashboard.
 (()=>{
 const CO={name:'NUSUK CONSULT',tag:'Beyond Compliance',phone:'+2348131227047',email:'nusuk@hausaly.com',web:'www.hausaly.com/nusuk',addr:'Bosso Plaza, Along Gombe Road, Biu, Borno State, Nigeria'};
-const ICO={
- phone:'<path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1 1 .4 1.9.7 2.8a2 2 0 0 1-.5 2.1L8.1 9.9a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.8.7a2 2 0 0 1 1.7 2z"/>',
- mail:'<rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="m3 7 9 6.5L21 7"/>',
- globe:'<circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19M12 2.5c2.8 2.7 4.2 5.9 4.2 9.5s-1.4 6.8-4.2 9.5c-2.8-2.7-4.2-5.9-4.2-9.5S9.2 5.2 12 2.5z"/>',
- pin:'<path d="M12 21.5s-7-6.2-7-11.5a7 7 0 0 1 14 0c0 5.3-7 11.5-7 11.5z"/><circle cx="12" cy="10" r="2.6"/>'};
-const icoSvg=(n,color,s)=>`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="${s}" height="${s}" fill="none" stroke="${color}" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">${ICO[n]}</svg>`;
-const icoPng=n=>new Promise(ok=>{const im=new Image();im.onload=()=>{const c=document.createElement('canvas');c.width=c.height=96;c.getContext('2d').drawImage(im,0,0,96,96);ok(c.toDataURL('image/png'))};im.onerror=()=>ok(null);im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(icoSvg(n,'#8a6a36',96))});
-const INFO=[['phone',()=>CO.phone],['mail',()=>CO.email],['globe',()=>CO.web],['pin',()=>CO.addr]];
 const LOGO_W=503,LOGO_H=172;   // public/img/logo-white.png size (for the PDF aspect ratio)
 const num=n=>Number(n||0).toLocaleString('en-NG');
 const dt=d=>d?new Date(d+(d.length==10?'T00:00:00':'')).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'';
@@ -53,7 +45,7 @@ function html(o){
   const [st,col]=status(o),S=sections(o);
   const tbl=r=>`<table class="sl-t">${r.map(x=>`<tr><th>${esc(x[0])}</th><td>${esc(x[1])}</td></tr>`).join('')}</table>`;
   return `<div class="slip" id="slipCard">
-  <div class="sl-head"><div class="slh-brand"><img src="img/logo-white.png" alt="NUSUK CONSULT"><em>${CO.tag}</em></div><ul class="slh-info">${INFO.map(([n,f])=>`<li><i>${icoSvg(n,'#8a6a36',15)}</i><span>${esc(f())}</span></li>`).join('')}</ul></div>
+  <div class="sl-head"><img src="img/logo-white.png" alt="NUSUK CONSULT"><div><b>${CO.name}</b><span>${CO.tag}</span><small>${esc(CO.phone)} · ${esc(CO.email)}<br>${esc(CO.web)}</small></div></div>
   <div class="sl-title"><div><div class="eyebrow">${TYPE[o.type]}</div><h2>BOOKING SLIP</h2><small>Issued ${dtm(o.createdAt)}</small></div><div class="sl-id"><small>BOOKING ID</small><b>${esc(o.bookingId)}</b><span class="chip ${col}">${st}</span></div></div>
   <div class="sl-grid"><section><h4>Client information</h4>${tbl(S.client)}</section><section><h4>Booking details</h4>${tbl(S.book)}</section></div>
   <section><h4>${o.type=='hotel'||(o.type=='visa'&&o.details.priced)?'Payment summary':'Pricing'}</h4>${tbl(S.pay)}${o.type=='hotel'||(o.type=='visa'&&o.details.priced)?`<div class="sl-total"><span>TOTAL ${o.paymentStatus=='paid'?'PAID':'DUE'}</span><b>₦${num(o.amount)}</b></div>`:''}</section>
@@ -71,11 +63,11 @@ async function pdf(o){
   const logo=await dataUrl('img/logo-white.png').catch(()=>null);
   // header band
   doc.setFillColor(...GOLD);doc.rect(0,0,W,40,'F');
-  if(logo){doc.addImage(logo,'PNG',M,10,48,48*LOGO_H/LOGO_W);}
-  doc.setTextColor(91,68,32);doc.setFont('helvetica','bold');doc.setFontSize(9);doc.text(CO.tag,M,29);
-  const icons=await Promise.all(INFO.map(([n])=>icoPng(n))), X0=W-M-90;
-  INFO.forEach(([n,f],i)=>{const cy=9.5+i*7.2;doc.setFillColor(255,255,255);doc.circle(X0+2.6,cy,2.6,'F');if(icons[i])doc.addImage(icons[i],'PNG',X0+0.9,cy-1.7,3.4,3.4);
-    doc.setTextColor(...INK);doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.text(f(),X0+7.2,cy+1);});
+  if(logo){doc.addImage(logo,'PNG',M,8.5,48,48*LOGO_H/LOGO_W);}
+  doc.setTextColor(...INK);doc.setFont('helvetica','bold');doc.setFontSize(15);doc.text(CO.name,W-M,16,{align:'right'});
+  doc.setTextColor(91,68,32);doc.setFontSize(9);doc.text(CO.tag,W-M,21.5,{align:'right'});
+  doc.setTextColor(58,51,41);doc.setFont('helvetica','normal');doc.setFontSize(8);
+  doc.text([CO.phone+'  |  '+CO.email,CO.web,CO.addr],W-M,27,{align:'right',lineHeightFactor:1.35});
   doc.setFillColor(138,106,54);doc.rect(0,40,W,1.6,'F');
   // title + id
   let y=54;

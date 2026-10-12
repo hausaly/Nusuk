@@ -349,6 +349,19 @@ test('manual payment mode (no Paystack): reservation → pending slip → admin 
   } finally { process.env.PAYMENT_SIMULATION = '1'; }
 });
 
+test('hotel pay options: Pay Now goes to Paystack, Pay Later is a manual reservation', async () => {
+  const stay = { city: 'Makkah', checkIn: dayStr(40), checkOut: dayStr(42), adults: 2, children: 0, rooms: 1 };
+  const customer = { fullName: 'Hauwa Sani', phone: '+2348131227047', email: 'h@example.com', address: 'Kano' };
+  const now = await call('POST', '/api/orders/hotel', { ...stay, hotelId, customer, payMode: 'now' });
+  assert.equal(now.status, 200); assert.ok(now.body.authorizationUrl); assert.ok(!now.body.manual);
+  const later = await call('POST', '/api/orders/hotel', { ...stay, hotelId, customer, payMode: 'later' });
+  assert.equal(later.status, 200); assert.equal(later.body.manual, true); assert.ok(!later.body.authorizationUrl);
+  const slip = (await call('GET', `/api/orders/${later.body.bookingId}/slip?t=${later.body.token}`)).body.order;
+  assert.equal(slip.payment.mode, 'manual'); assert.equal(slip.paymentStatus, 'unpaid');
+  assert.equal((await call('POST', `/api/orders/${later.body.bookingId}/pay?t=${later.body.token}`, {})).status, 409);
+  assert.equal((await call('POST', '/api/orders/hotel', { ...stay, hotelId, customer, payMode: 'bogus' })).status, 422);
+});
+
 test('featured offers: flagged hotels first, max 3, one card per hotel', async () => {
   const list = (await call('GET', '/api/admin/hotels', null, cookie)).body.items;
   const target = list.find(h => h.name === 'Madinah Stay');

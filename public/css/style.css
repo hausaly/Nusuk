@@ -168,6 +168,7 @@ footer .copy{margin:34px 0 0;border-top:1px solid #3a3329;padding-top:18px;font-
 .mbox .mact{margin-top:18px;justify-content:flex-end}.mbox .cust{grid-template-columns:1fr 1fr}.mbox .cust .fld:first-child{grid-column:1/-1}.mbox form .fld{margin-bottom:12px}
 .osm{background:var(--bg2);border:1px solid var(--bd);border-radius:10px;padding:9px 14px;margin-bottom:14px;font-size:.88rem}
 .testbn{background:#fdeeed;border:1px solid #efc2bf;color:#b3261e;font-weight:700;border-radius:10px;padding:9px 14px;font-size:.85rem;margin:6px 0 10px}
+.paychoice{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0 10px}.paychoice .pc{border:1.5px solid var(--bd,#e7e0d4);border-radius:12px;padding:10px 12px;background:#faf7f2}.paychoice .pc.now{border-color:var(--g);background:#fdf6ea}.paychoice .pc b{display:flex;align-items:center;gap:6px;font-size:.92rem}.paychoice .pc span{display:block;font-size:.78rem;line-height:1.45;color:var(--mu);margin-top:4px}@media(max-width:560px){.paychoice{grid-template-columns:1fr}.mbox .mact .btn{flex:1 1 140px}}
 .secure{display:flex;gap:6px;align-items:center;font-size:.78rem;color:var(--mu);margin:12px 0 0}
 /* slip page */
 .slp{padding-top:34px;padding-bottom:56px;max-width:860px}

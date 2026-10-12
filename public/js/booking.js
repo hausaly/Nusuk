@@ -120,16 +120,18 @@ function orderFlow(h,stay){
     shell('Your details',2,`<div class="osm">${esc(h.name)} · ${esc(h.roomType)} · ${stay.nights} night${stay.nights>1?'s':''} · <b>${NGN(h.total)}</b></div>
     <form id="of" novalidate>${custFields('o_')}<div class="fld"><label for="o_address">Address *</label><div class="ctl"><input id="o_address" autocomplete="street-address"></div><div class="err" id="e_o_address"></div></div>
     ${cfg.payment=='simulation'?'<div class="testbn">TEST MODE — payments are simulated. No real money is charged.</div>':''}
-    ${cfg.payment=='off'?'<div class="infobn">No payment is needed now. Our team will contact you on WhatsApp / email with payment details — your room is confirmed once payment is received.</div>':''}
-    <div class="err" id="e_o_all" role="alert"></div><div class="mact"><button type="button" class="btn o" id="mb">Back</button><button class="btn" id="mp">${ic('shield',18)} ${cfg.payment=='off'?'Confirm booking':'Continue to payment'}</button></div>
-    <p class="secure">${ic('shield',14)} ${cfg.payment=='off'?'Your booking slip with your Booking ID is generated right away.':'Secure payment powered by Paystack. Your booking slip is generated right after payment.'}</p></form>`);
+    ${cfg.payment=='off'?'<div class="infobn">No payment is needed now. Our team will contact you on WhatsApp / email with payment details — your room is confirmed once payment is received.</div>':`<div class="paychoice"><div class="pc now"><b>${ic('shield',18)} Pay Now</b><span>Pay instantly and securely with Paystack (card, bank transfer or USSD). Your room is confirmed as soon as payment succeeds.</span></div><div class="pc later"><b>${ic('clock',18)} Pay Later</b><span>Reserve now. Our team will contact you on WhatsApp / email to collect payment. Your room is confirmed once payment is received.</span></div></div>`}
+    <div class="err" id="e_o_all" role="alert"></div><div class="mact"><button type="button" class="btn o" id="mb">Back</button>${cfg.payment=='off'?`<button type="submit" class="btn" id="mp" data-mode="later">${ic('shield',18)} Confirm booking</button>`:`<button type="button" class="btn o" id="ml" data-mode="later">${ic('clock',18)} Pay Later</button><button type="submit" class="btn" id="mp" data-mode="now">${ic('shield',18)} Pay Now</button>`}</div>
+    <p class="secure">${ic('shield',14)} ${cfg.payment=='off'?'Your booking slip with your Booking ID is generated right away.':'Pay Now is secured by Paystack. Your booking slip with your Booking ID is generated right away with either option.'}</p></form>`);
     $('mb').onclick=review;
-    $('of').onsubmit=async e=>{e.preventDefault();const b=$('mp');b.disabled=true;errs('e_o_',{},['fullName','phone','email','address','all']);
+    const submit=async mode=>{const btns=[$('mp'),$('ml')].filter(Boolean);btns.forEach(x=>x.disabled=true);errs('e_o_',{},['fullName','phone','email','address','all']);
       const c=custVals('o_');c.address=$('o_address').value.trim();
-      try{const out=await api('POST','api/orders/hotel',{hotelId:h.id,city:stay.city,checkIn:stay.checkIn,checkOut:stay.checkOut,adults:stay.adults,children:stay.children,rooms:stay.rooms,customer:c});
+      try{const out=await api('POST','api/orders/hotel',{hotelId:h.id,city:stay.city,checkIn:stay.checkIn,checkOut:stay.checkOut,adults:stay.adults,children:stay.children,rooms:stay.rooms,customer:c,payMode:cfg.payment=='off'?'later':mode});
         if(out.manual){close();location.hash=`#/slip/${out.bookingId}/${out.token}`;return}
         shell('Redirecting to payment…',3,'<div class="bk-load"><i></i><i></i><i></i></div><p class="secure">Please wait — do not close this page.</p>');location.href=out.authorizationUrl}
-      catch(err){b.disabled=false;if(err.errors){const x=err.errors;for(const k of ['fullName','phone','email','address'])$('e_o_'+k).textContent=x[k]||'';$('e_o_all').textContent=x.city||x.checkIn||x.checkOut||x.adults||x.rooms||''}else $('e_o_all').textContent=err.message}};
+      catch(err){btns.forEach(x=>x.disabled=false);if(err.errors){const x=err.errors;for(const k of ['fullName','phone','email','address'])$('e_o_'+k).textContent=x[k]||'';$('e_o_all').textContent=x.city||x.checkIn||x.checkOut||x.adults||x.rooms||''}else $('e_o_all').textContent=err.message}};
+    $('of').onsubmit=e=>{e.preventDefault();submit(cfg.payment=='off'?'later':'now')};
+    if($('ml'))$('ml').onclick=()=>submit('later');
   };
   review();
 }

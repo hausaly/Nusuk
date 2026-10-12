@@ -101,12 +101,14 @@ export function registerBooking(k) {
     if (!q) throw new HttpError(409, 'Sorry, this room is no longer available for your dates. Please search again.');
     const { c, e } = customerOf(body.customer); if (c.address.length < 3) e.address = 'Address is required.';
     if (Object.keys(e).length) fail(e);
+    if (body.payMode !== undefined && !['now', 'later'].includes(body.payMode)) throw new HttpError(422, 'Choose Pay Now or Pay Later.');
+    const manual = paymentMode() === 'off' || body.payMode === 'later';   // Pay Later (or payments not set up): reservation first, our team collects payment
     const o = records.create('orders', {
       type: 'hotel', bookingId: bookingId('H'), token: crypto.randomBytes(18).toString('base64url'), status: 'Awaiting payment', paymentStatus: 'unpaid',
-      amount: q.total, currency: 'NGN', customer: c, notes: '', payment: { provider: paymentMode() === 'off' ? 'manual' : paymentMode(), reference: null, attempts: 0 },
+      amount: q.total, currency: 'NGN', customer: c, notes: '', payment: { provider: manual ? 'manual' : paymentMode(), reference: null, attempts: 0 },
       details: { hotelId: q.id, hotelName: q.name, city: q.city, address: q.address, distance: q.distance, stars: q.stars, facilities: q.facilities, roomType: q.roomType, checkIn: stay.checkIn, checkOut: stay.checkOut, nights: stay.nights, rooms: stay.rooms, adults: stay.adults, children: stay.children, perNight: q.perNight },
     });
-    if (paymentMode() === 'off') {      // manual payment: reservation first, our team collects payment
+    if (manual) {
       notify('hotel reservation (payment pending)', { service: `${o.details.hotelName} · ${o.details.checkIn} → ${o.details.checkOut} · ₦${o.amount.toLocaleString('en-NG')}`, name: o.customer.fullName, email: o.customer.email, phone: o.customer.phone });
       return { bookingId: o.bookingId, token: o.token, manual: true };
     }

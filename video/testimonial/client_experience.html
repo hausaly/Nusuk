@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hausaly EduTravels - Client Experience, 1 Oct 2026 Umrah Group (TikTok overlay)</title>
+<style>
+  :root{ --teal:#68C8C7; --teal-deep:#1F7F7E; --teal-dark:#14605F; --tan:#9C7648; --tan-soft:#C9A878; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1080px;height:1920px;overflow:hidden;background:transparent;font-family:'Inter',sans-serif}
+  #stage{position:relative;width:1080px;height:1920px;overflow:hidden;background:transparent}
+  .abs{position:absolute;left:0;width:1080px;text-align:center;will-change:transform,opacity}
+  .shadow{text-shadow:0 3px 18px rgba(10,60,60,.55),0 1px 3px rgba(10,60,60,.5)}
+
+  /* footage legibility scrims, brand-tinted */
+  #scrimTop{position:absolute;left:0;top:0;width:1080px;height:480px;background:linear-gradient(rgba(14,84,83,.72),rgba(14,84,83,.4) 55%,rgba(14,84,83,0))}
+  #scrimBot{position:absolute;left:0;bottom:0;width:1080px;height:980px;background:linear-gradient(rgba(14,84,83,0),rgba(14,84,83,.62) 40%,rgba(14,84,83,.9))}
+  #logo{top:64px;display:flex;justify-content:center}#logo img{height:104px;filter:drop-shadow(0 2px 8px rgba(10,60,60,.4))}
+
+  /* intro lower third */
+  #intro .pill{display:inline-block;background:#fff;color:var(--teal-deep);border-radius:60px;padding:14px 44px;font-weight:900;font-size:38px;letter-spacing:7px}
+  #i1{top:1060px;display:flex;justify-content:center}
+  #i2{top:1150px;color:#fff;font-size:136px;font-weight:900;letter-spacing:-4px;line-height:1}
+  #i3{top:1308px;color:#fff;font-size:88px;font-weight:900;letter-spacing:-2px;line-height:1}
+  #i4{top:1428px;color:#fff;font-size:50px;font-weight:700;letter-spacing:.5px}
+  #i5{top:1510px;display:flex;justify-content:center}
+  #i5 span{display:inline-block;background:var(--tan);color:#fff;border-radius:16px;padding:14px 34px;font-weight:900;font-size:40px;letter-spacing:4px;box-shadow:0 10px 30px rgba(10,60,60,.35)}
+
+  /* captions */
+  .cap{top:1370px;color:#fff;font-size:78px;font-weight:900;letter-spacing:-2px;line-height:1.05;padding:0 30px;white-space:nowrap}
+  .capbar{top:1330px;height:8px}.capbar i{display:block;width:150px;height:8px;margin:0 auto;border-radius:4px;background:var(--tan-soft)}
+  .capsub{top:1500px;color:#fff;font-size:36px;font-weight:700;letter-spacing:6px;opacity:.95}
+
+  /* end card */
+  #end{position:absolute;inset:0;background:var(--teal);visibility:hidden;overflow:hidden;color:#fff}
+  .orb{position:absolute;border-radius:50%;background:#fff;opacity:.09}
+  #e1{top:110px;display:flex;justify-content:center}#e1 img{height:170px}
+  #e2{top:330px;display:flex;justify-content:center}
+  #e2 span{display:inline-block;border:3px solid #fff;border-radius:60px;padding:14px 44px;font-weight:800;font-size:36px;letter-spacing:7px}
+  #e3{top:425px;font-size:132px;font-weight:900;letter-spacing:-4px;line-height:1}
+  #e4{top:580px;font-size:84px;font-weight:900;letter-spacing:-2px;line-height:1}
+  #e5{top:700px;font-size:50px;font-weight:700}
+  #e6{top:790px;display:flex;justify-content:center}
+  #e6 span{display:inline-block;background:#fff;color:var(--teal-deep);border-radius:60px;padding:20px 54px;font-weight:900;font-size:46px;letter-spacing:3px;box-shadow:0 16px 40px rgba(20,96,95,.3)}
+  #e7{top:938px;font-size:34px;font-weight:800;letter-spacing:7px;color:#fff;opacity:.95}
+  #ecard{position:absolute;left:60px;width:900px;top:1010px;height:610px;border-radius:50px;background:#fff;color:var(--teal-dark);box-shadow:0 24px 60px rgba(20,96,95,.32)}
+  .crow{position:absolute;left:44px;right:36px;display:flex;align-items:center;gap:30px;text-align:left}
+  .crow .ic{flex:0 0 96px;height:96px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center}
+  .crow .ic svg{width:50px;height:50px;fill:none;stroke:#fff;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
+  .crow small{display:block;font-size:24px;font-weight:800;letter-spacing:5px;color:var(--tan);margin-bottom:5px}
+  .crow .v{font-weight:900;line-height:1.18;color:var(--teal-dark)}
+  #c1{top:44px}#c1 .v{font-size:56px}
+  #c2{top:228px}#c2 .v{font-size:46px}
+  #c3{top:412px}#c3 .v{font-size:35px;font-weight:800}
+  #e8{top:1665px;font-size:44px;font-weight:900}
+  #e9{top:1730px;font-size:26px;font-weight:700;letter-spacing:4px;opacity:.9}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="scrimTop"></div><div id="scrimBot"></div>
+  <div id="logo" class="abs"><img src="assets/logo_white.png" alt="Hausaly EduTravels"></div>
+
+  <div id="intro">
+    <div id="i1" class="abs"><span class="pill">CLIENT EXPERIENCE</span></div>
+    <div id="i2" class="abs shadow">UMRAH GROUP</div>
+    <div id="i3" class="abs shadow">1 OCTOBER 2026</div>
+    <div id="i4" class="abs shadow">Lagos · Kano ✈ Jeddah, Saudi Arabia</div>
+    <div id="i5" class="abs"><span>14 DAYS ECONOMY PACKAGE</span></div>
+  </div>
+
+  <div id="caps"></div>
+
+  <div id="end">
+    <div class="orb" style="width:760px;height:760px;left:-300px;top:-330px"></div>
+    <div class="orb" style="width:560px;height:560px;right:-240px;bottom:140px"></div>
+    <div id="e1" class="abs"><img src="assets/logo_white.png" alt=""></div>
+    <div id="e2" class="abs"><span>CLIENT EXPERIENCE</span></div>
+    <div id="e3" class="abs">UMRAH GROUP</div>
+    <div id="e4" class="abs">1 OCTOBER 2026</div>
+    <div id="e5" class="abs">Lagos · Kano ✈ Jeddah, Saudi Arabia</div>
+    <div id="e6" class="abs"><span>14 DAYS ECONOMY PACKAGE</span></div>
+    <div id="e7" class="abs">JOIN OUR NEXT UMRAH GROUP</div>
+    <div id="ecard">
+      <div class="crow" id="c1"><div class="ic"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></div><div><small>CONTACT</small><div class="v">+234 813 122 7047</div></div></div>
+      <div class="crow" id="c2"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></div><div><small>EMAIL</small><div class="v">contact@hausaly.com</div></div></div>
+      <div class="crow" id="c3"><div class="ic"><svg viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div><div><small>OFFICE</small><div class="v">Bosso Plaza, Along Gombe Road,<br>Biu, Borno, Nigeria</div></div></div>
+    </div>
+    <div id="e8" class="abs">Hausaly EduTravels Ltd.</div>
+    <div id="e9" class="abs">IATA No: 96200801 &nbsp;·&nbsp; RC: 8334167</div>
+  </div>
+</div>
+
+<script>
+/* timeline (seconds) - segment starts mirror client_footage.py */
+const T = {introIn:.35, introOut:3.2, endIn:14.0, end:20.4,
+           caps:[{a:3.5,b:5.4,t:'A journey of faith'},{a:5.7,b:9.6,t:'Every step, together'},{a:10.0,b:13.7,t:'Moments to remember'}]};
+window.CLIENT_DURATION = T.end;
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const prog=(t,a,d)=>clamp((t-a)/d);
+const outCubic=p=>1-Math.pow(1-p,3);
+const outBack=p=>{const c=1.70158,k=c+1;return 1+k*Math.pow(p-1,3)+c*Math.pow(p-1,2)};
+const $=s=>document.querySelector(s);
+
+// build caption elements
+const capEls=T.caps.map(c=>{
+  const w=document.createElement('div');
+  w.innerHTML=`<div class="abs capbar"><i></i></div><div class="abs cap shadow">${c.t}</div><div class="abs capsub shadow">1 OCT 2026 UMRAH GROUP</div>`;
+  $('#caps').appendChild(w); return [...w.children];
+});
+
+function show(els,t,a,b,{inD=.5,outD=.45,dy=36,stagger=.1}={}){
+  els.forEach((e,i)=>{
+    const pin=outCubic(prog(t,a+i*stagger,inD)), pout=prog(t,b,outD);
+    e.style.opacity=pin*(1-pout);
+    e.style.transform=`translateY(${(1-pin)*dy-pout*dy*0.8}px)`;
+  });
+}
+function render(t){
+  const endP=outCubic(prog(t,T.endIn,.5));
+  // scrims + logo are there for the footage part only
+  const foot=1-endP;
+  $('#scrimTop').style.opacity=foot*clamp(prog(t,0,.5));
+  $('#scrimBot').style.opacity=foot*clamp(prog(t,0,.6));
+  const lg=$('#logo'); lg.style.opacity=foot*outCubic(prog(t,.15,.6)); lg.style.transform=`translateY(${(1-outCubic(prog(t,.15,.6)))*-24}px)`;
+
+  // intro lower third
+  const ie=['#i1','#i2','#i3','#i4','#i5'].map($);
+  ie.forEach((e,i)=>{
+    const pin=outCubic(prog(t,T.introIn+i*.14,.55)), pout=prog(t,T.introOut+i*.05,.45);
+    e.style.opacity=pin*(1-pout)*foot;
+    e.style.transform=(i===1?`scale(${.9+.1*outBack(prog(t,T.introIn+i*.14,.6))})`:'')+` translateY(${(1-pin)*44-pout*40}px)`;
+  });
+  // captions
+  T.caps.forEach((c,i)=>show(capEls[i],t,c.a,c.b));
+  capEls.forEach(g=>g.forEach(e=>e.style.opacity=parseFloat(e.style.opacity)*foot));
+
+  // end card
+  const end=$('#end'); end.style.visibility=endP>0?'visible':'hidden'; end.style.opacity=endP;
+  const L=t-T.endIn;
+  const rv=(sel,a,d=.55,dy=34)=>{const e=$(sel),p=outCubic(prog(L,a,d));e.style.opacity=p;e.style.transform=`translateY(${(1-p)*dy}px)`;};
+  rv('#e1',.15);rv('#e2',.4);rv('#e3',.6);rv('#e4',.8);rv('#e5',1.0);
+  const e6=$('#e6'),p6=outBack(prog(L,1.3,.6)); e6.style.opacity=clamp(p6*2); e6.style.transform=`scale(${.7+.3*p6})`;
+  rv('#e7',1.9,.5,20);
+  const card=$('#ecard'),pc=outBack(prog(L,2.0,.7)); card.style.opacity=clamp(pc*2); card.style.transform=`translateY(${(1-pc)*80}px) scale(${.94+.06*clamp(pc)})`;
+  ['#c1','#c2','#c3'].forEach((s,i)=>{const e=$(s),p=outCubic(prog(L,2.5+i*.45,.5));e.style.opacity=p;e.style.transform=`translateX(${-(1-p)*60}px)`;});
+  rv('#e8',4.0,.6,20);rv('#e9',4.3,.6,14);
+  const pulse=prog(L,4.2,1.8); const v=$('#c1 .v'); v.style.transformOrigin='left center'; v.style.transform=`scale(${1+.05*Math.sin(pulse*Math.PI)})`;
+}
+window.render=render;
+</script>
+</body>
+</html>

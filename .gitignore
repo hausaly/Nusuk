@@ -3,3 +3,5 @@ data/*
 !data/.gitkeep
 .env
 boot.log
+video/testimonial/build/
+video/testimonial/stills/

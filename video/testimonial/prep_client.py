@@ -2,7 +2,7 @@
 Makes 1080x1920 proxies of the raw 4K clips (kept in git) and a JPEG of the HEIC photo."""
 import glob, subprocess, sys, os
 raw = sys.argv[1]
-for n in ("4119", "4128", "4116", "4117"):
+for n in ("4119", "4128", "4116", "4117", "4111"):
     src = glob.glob(os.path.join(raw, f"*IMG_{n}.MOV"))[0]
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", src, "-vf", "scale=1080:1920:flags=lanczos,fps=60,format=yuv420p",
                     "-c:v", "libx264", "-preset", "slow", "-crf", "22", "-c:a", "aac", "-b:a", "128k", "-ar", "48000",

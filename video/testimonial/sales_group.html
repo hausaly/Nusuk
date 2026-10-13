@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hausaly EduTravels - Umrah Group Package Sales (TikTok overlay)</title>
+<style>
+  :root{ --teal:#68C8C7; --teal-deep:#1F7F7E; --teal-dark:#14605F; --tan:#9C7648; --tan-soft:#C9A878; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1080px;height:1920px;overflow:hidden;background:transparent;font-family:'Inter',sans-serif}
+  #stage{position:relative;width:1080px;height:1920px;overflow:hidden;background:transparent}
+  .abs{position:absolute;left:0;width:1080px;text-align:center;will-change:transform,opacity}
+  .shadow{text-shadow:0 3px 18px rgba(10,60,60,.55),0 1px 3px rgba(10,60,60,.5)}
+  .orb{position:absolute;border-radius:50%;background:#fff;opacity:.09}
+
+  /* over the footage */
+  #scrimTop{position:absolute;left:0;top:0;width:1080px;height:480px;background:linear-gradient(rgba(14,84,83,.72),rgba(14,84,83,.4) 55%,rgba(14,84,83,0))}
+  #scrimBot{position:absolute;left:0;bottom:0;width:1080px;height:980px;background:linear-gradient(rgba(14,84,83,0),rgba(14,84,83,.62) 40%,rgba(14,84,83,.9))}
+  #logo{top:64px;display:flex;justify-content:center}#logo img{height:104px;filter:drop-shadow(0 2px 8px rgba(10,60,60,.4))}
+  #i1{top:1060px;display:flex;justify-content:center}
+  #i1 .pill{display:inline-block;background:#fff;color:var(--teal-deep);border-radius:60px;padding:14px 44px;font-weight:900;font-size:38px;letter-spacing:7px}
+  #i2{top:1150px;color:#fff;font-size:136px;font-weight:900;letter-spacing:-4px;line-height:1}
+  #i3{top:1308px;color:#fff;font-size:88px;font-weight:900;letter-spacing:-2px;line-height:1}
+  #i4{top:1428px;color:#fff;font-size:50px;font-weight:700}
+  #i5{top:1510px;display:flex;justify-content:center}
+  #i5 span{display:inline-block;background:var(--tan);color:#fff;border-radius:16px;padding:14px 34px;font-weight:900;font-size:40px;letter-spacing:4px;box-shadow:0 10px 30px rgba(10,60,60,.35)}
+  .capbar{top:1330px;height:8px}.capbar i{display:block;width:150px;height:8px;margin:0 auto;border-radius:4px;background:var(--tan-soft)}
+  #cap{top:1370px;color:#fff;font-size:78px;font-weight:900;letter-spacing:-2px;line-height:1.05;white-space:nowrap}
+  #capsub{top:1490px;color:#fff;font-size:36px;font-weight:700;letter-spacing:6px}
+
+  /* opaque scenes */
+  .scene{position:absolute;inset:0;background:var(--teal);color:#fff;visibility:hidden;overflow:hidden}
+  .pill2{display:inline-block;border:3px solid #fff;border-radius:60px;padding:14px 44px;font-weight:800;font-size:38px;letter-spacing:7px}
+  .logo2{display:flex;justify-content:center}
+  #s2 .logo2{top:110px}#s2 .logo2 img{height:170px}
+  #p1{top:335px;display:flex;justify-content:center}
+  #p2{top:440px;font-size:122px;font-weight:900;letter-spacing:-4px;line-height:1}
+  #p3{top:700px;font-size:50px;font-weight:700}
+  #p4{top:800px;display:flex;justify-content:center}
+  #p4 span{display:inline-block;background:#fff;color:var(--teal-deep);border-radius:60px;padding:20px 54px;font-weight:900;font-size:46px;letter-spacing:3px;box-shadow:0 16px 40px rgba(20,96,95,.3)}
+  #p5{top:960px;display:flex;justify-content:center;gap:16px}
+  #p5 span{display:inline-block;border:3px solid #fff;border-radius:44px;padding:12px 28px;font-weight:800;font-size:36px;letter-spacing:2px}
+  #p6{top:1100px;display:flex;justify-content:center}
+  #p6 span{display:inline-block;background:#fff;color:var(--teal-dark);border-radius:60px;padding:26px 56px;font-size:54px;font-weight:900;letter-spacing:-.5px;box-shadow:0 16px 40px rgba(20,96,95,.3)}
+  #crescent{position:absolute;left:390px;top:1330px;width:300px;height:300px}
+  .star{position:absolute;width:30px;height:30px}
+
+  #s3 .logo2{top:130px}#s3 .logo2 img{height:190px}
+  #q1{top:390px;display:flex;justify-content:center}
+  #card{position:absolute;left:60px;width:900px;top:520px;height:730px;border-radius:54px;background:#fff;color:var(--teal-dark);box-shadow:0 24px 60px rgba(20,96,95,.3)}
+  .crow{position:absolute;left:44px;right:36px;display:flex;align-items:center;gap:32px;text-align:left}
+  .crow .ic{flex:0 0 104px;height:104px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center}
+  .crow .ic svg{width:54px;height:54px;fill:none;stroke:#fff;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
+  .crow small{display:block;font-size:26px;font-weight:800;letter-spacing:5px;color:var(--tan);margin-bottom:6px}
+  .crow .v{font-weight:900;line-height:1.18;color:var(--teal-dark)}
+  #c1{top:62px}#c1 .v{font-size:60px}#c2{top:292px}#c2 .v{font-size:50px}#c3{top:522px}#c3 .v{font-size:38px;font-weight:800}
+  #q2{top:1340px;font-size:52px;font-weight:900}
+  #q3{top:1420px;font-size:29px;font-weight:700;letter-spacing:4px;opacity:.9}
+  #fade{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="scrimTop"></div><div id="scrimBot"></div>
+  <div id="logo" class="abs"><img src="assets/logo_white.png" alt="Hausaly EduTravels"></div>
+  <div id="i1" class="abs"><span class="pill">UMRAH GROUP PACKAGE</span></div>
+  <div id="i2" class="abs shadow">UMRAH GROUP</div>
+  <div id="i3" class="abs shadow">1 OCTOBER 2026</div>
+  <div id="i4" class="abs shadow">Lagos · Kano ✈ Jeddah, Saudi Arabia</div>
+  <div id="i5" class="abs"><span>14 DAYS ECONOMY PACKAGE</span></div>
+  <div class="abs capbar" id="capbar"><i></i></div>
+  <div id="cap" class="abs shadow">Join our next Umrah group</div>
+  <div id="capsub" class="abs shadow">HAUSALY EDUTRAVELS LTD</div>
+
+  <div id="s2" class="scene">
+    <div class="orb" style="width:760px;height:760px;left:-300px;top:-330px"></div>
+    <div class="orb" style="width:560px;height:560px;right:-240px;bottom:140px"></div>
+    <div id="l2" class="abs logo2"><img src="assets/logo_white.png" alt=""></div>
+    <div id="p1" class="abs"><span class="pill2">NOW BOOKING</span></div>
+    <div id="p2" class="abs">Umrah Group<br>Package</div>
+    <div id="p3" class="abs">Lagos · Kano ✈ Jeddah, Saudi Arabia</div>
+    <div id="p4" class="abs"><span>14 DAYS ECONOMY PACKAGE</span></div>
+    <div id="p5" class="abs"><span>Visa</span><span>Flights</span><span>Hotel</span><span>Transport</span></div>
+    <div id="p6" class="abs"><span>Slots are limited. Book early!</span></div>
+    <svg id="crescent" viewBox="0 0 150 150"><defs><mask id="cm"><rect width="150" height="150" fill="#fff"/><circle cx="102" cy="58" r="52" fill="#000"/></mask></defs><circle cx="70" cy="76" r="62" fill="#fff" mask="url(#cm)"/></svg>
+  </div>
+
+  <div id="s3" class="scene">
+    <div class="orb" style="width:760px;height:760px;left:-300px;top:-330px"></div>
+    <div class="orb" style="width:560px;height:560px;right:-240px;bottom:140px"></div>
+    <div id="l3" class="abs logo2"><img src="assets/logo_white.png" alt=""></div>
+    <div id="q1" class="abs"><span class="pill2">JOIN OUR NEXT UMRAH GROUP</span></div>
+    <div id="card">
+      <div class="crow" id="c1"><div class="ic"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></div><div><small>CONTACT</small><div class="v">+234 813 122 7047</div></div></div>
+      <div class="crow" id="c2"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></div><div><small>EMAIL</small><div class="v">contact@hausaly.com</div></div></div>
+      <div class="crow" id="c3"><div class="ic"><svg viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div><div><small>OFFICE</small><div class="v">Bosso Plaza, Along Gombe Road,<br>Biu, Borno, Nigeria</div></div></div>
+    </div>
+    <div id="q2" class="abs">Hausaly EduTravels Ltd.</div>
+    <div id="q3" class="abs">IATA No: 96200801 &nbsp;·&nbsp; RC: 8334167</div>
+  </div>
+  <div id="fade"></div>
+</div>
+<script>
+const T={intro:.4,introOut:3.6,capA:3.95,capB:5.9,s2:6.0,s3:11.2,end:18.0};
+window.SALES_DURATION=T.end;
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const prog=(t,a,d)=>clamp((t-a)/d);
+const outCubic=p=>1-Math.pow(1-p,3);
+const outBack=p=>{const c=1.70158,k=c+1;return 1+k*Math.pow(p-1,3)+c*Math.pow(p-1,2)};
+const $=s=>document.querySelector(s);
+const stars=[[170,1300,1],[830,1400,.8],[250,1620,.7],[790,1650,1],[540,1260,.6],[70,330,.6],[980,560,.8]].map(([x,y,sc],i)=>{
+  const e=document.createElementNS('http://www.w3.org/2000/svg','svg');e.setAttribute('viewBox','0 0 24 24');e.setAttribute('class','star');e.style.left=x+'px';e.style.top=y+'px';
+  e.innerHTML='<path fill="#fff" d="M12 0l2.6 9.4L24 12l-9.4 2.6L12 24l-2.6-9.4L0 12l9.4-2.6z"/>';$('#s2').appendChild(e);e._sc=sc;e._i=i;return e;});
+
+function render(t){
+  // ---- over the footage
+  const s2p=outCubic(prog(t,T.s2,.5)), foot=1-s2p;
+  $('#scrimTop').style.opacity=foot*clamp(prog(t,0,.5)); $('#scrimBot').style.opacity=foot*clamp(prog(t,0,.6));
+  const lg=$('#logo'),lp=outCubic(prog(t,.15,.6)); lg.style.opacity=foot*lp; lg.style.transform=`translateY(${(1-lp)*-24}px)`;
+  ['#i1','#i2','#i3','#i4','#i5'].map($).forEach((e,i)=>{
+    const pin=outCubic(prog(t,T.intro+i*.14,.55)),pout=prog(t,T.introOut+i*.05,.45);
+    e.style.opacity=pin*(1-pout)*foot;
+    e.style.transform=(i===1?`scale(${.9+.1*outBack(prog(t,T.intro+i*.14,.6))})`:'')+` translateY(${(1-pin)*44-pout*40}px)`;
+  });
+  ['#capbar','#cap','#capsub'].map($).forEach((e,i)=>{
+    const pin=outCubic(prog(t,T.capA+i*.1,.5)),pout=prog(t,T.capB,.4);
+    e.style.opacity=pin*(1-pout)*foot; e.style.transform=`translateY(${(1-pin)*36-pout*28}px)`;
+  });
+
+  // ---- scene 2: now booking
+  const a=$('#s2'); a.style.visibility=(t>=T.s2&&t<T.s3+.5)?'visible':'hidden'; a.style.opacity=s2p;
+  const L=t-T.s2, rv=(sel,s,d=.55,dy=34)=>{const e=$(sel),p=outCubic(prog(L,s,d));e.style.opacity=p;e.style.transform=`translateY(${(1-p)*dy}px)`;};
+  rv('#l2',.1,.6);rv('#p1',.35);rv('#p2',.55,.65);rv('#p3',.95);
+  const p4=outBack(prog(L,1.2,.6));$('#p4').style.opacity=clamp(p4*2);$('#p4').style.transform=`scale(${.7+.3*p4})`;
+  rv('#p5',1.6);
+  const p6=outBack(prog(L,2.0,.6));$('#p6').style.opacity=clamp(p6*2);$('#p6').style.transform=`scale(${(.7+.3*p6)*(1+.025*Math.sin(L*5)*clamp(p6))})`;
+  const cr=$('#crescent'),cp=outBack(prog(L,.8,.9));cr.style.opacity=clamp(cp*2);cr.style.transform=`translateY(${Math.sin(L*1.4)*8}px) rotate(${-12+Math.sin(L*.9)*3}deg) scale(${.4+.6*cp})`;
+  stars.forEach(e=>{const tw=.55+.45*Math.sin(L*3+e._i*1.7);e.style.opacity=clamp(prog(L,.9+e._i*.12,.4))*tw;e.style.transform=`scale(${e._sc*(.8+.4*tw)}) rotate(${L*20}deg)`;});
+
+  // ---- scene 3: contact
+  const b=$('#s3'),s3p=outCubic(prog(t,T.s3,.5)); b.style.visibility=t>=T.s3?'visible':'hidden'; b.style.opacity=s3p;
+  const M=t-T.s3, rv3=(sel,s,d=.55,dy=34)=>{const e=$(sel),p=outCubic(prog(M,s,d));e.style.opacity=p;e.style.transform=`translateY(${(1-p)*dy}px)`;};
+  rv3('#l3',.1,.6);rv3('#q1',.4);
+  const cc=outBack(prog(M,.7,.8)),card=$('#card');card.style.opacity=clamp(cc*2);card.style.transform=`translateY(${(1-cc)*80}px) scale(${.94+.06*clamp(cc)})`;
+  ['#c1','#c2','#c3'].forEach((s,i)=>{const e=$(s),p=outCubic(prog(M,1.2+i*.5,.5));e.style.opacity=p;e.style.transform=`translateX(${-(1-p)*60}px)`;});
+  rv3('#q2',2.7,.6,20);rv3('#q3',3.0,.6,14);
+  const v=$('#c1 .v');v.style.transformOrigin='left center';v.style.transform=`scale(${1+.05*Math.sin(prog(M,3.4,2.2)*Math.PI)})`;
+  $('#fade').style.opacity=clamp((t-(T.end-.5))/.5);
+}
+window.render=render;
+</script>
+</body>
+</html>

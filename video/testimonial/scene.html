@@ -197,7 +197,7 @@ function render(t){
   reveal($('#footer'),prog(t,SWAP+2.2,0.6),20);
 }
 window.render=render;
-window.loadSpec=async()=>{SPEC=await (await fetch('assets/spectrum.json')).json();};
+window.loadSpec=async()=>{SPEC=await (await fetch(`assets/spectrum_${new URLSearchParams(location.search).get('n')||1}.json`)).json();};
 </script>
 </body>
 </html>

@@ -3,7 +3,7 @@ Writes build/fatko_footage.mp4 (video only, 1080x1920@30). Cut times mirror T.cu
 import subprocess
 TOTAL = 22.0
 SRC = "assets/stock/fatko.mp4"
-SHOTS = [(10.1, 2.6), (25.3, 2.4), (56.0, 2.6), (66.0, 2.6), (18.0, 2.4)]      # (start, duration)
+SHOTS = [(10.1, 2.6), (25.3, 2.4), (31.6, 2.6), (66.0, 2.6), (18.0, 2.4)]      # (start, duration); 3rd = empty courtyard (the selfie shot was removed)
 inputs, fl = [], []
 for i, (ss, d) in enumerate(SHOTS):
     inputs += ["-ss", str(ss), "-t", str(d), "-i", SRC]

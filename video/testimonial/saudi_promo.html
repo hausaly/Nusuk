@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hausaly EduTravels - Umrah Sales Promo, Nov and Dec 2026 (TikTok overlay)</title>
+<style>
+  :root{ --teal:#68C8C7; --teal-deep:#1F7F7E; --teal-dark:#14605F; --tan:#9C7648; --tan-soft:#C9A878; }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{width:1080px;height:1920px;overflow:hidden;background:transparent;font-family:'Inter',sans-serif}
+  #stage{position:relative;width:1080px;height:1920px;overflow:hidden;background:transparent}
+  .abs{position:absolute;left:0;width:1080px;text-align:center;will-change:transform,opacity}
+  .shadow{text-shadow:0 3px 18px rgba(10,60,60,.55),0 1px 3px rgba(10,60,60,.5)}
+  .orb{position:absolute;border-radius:50%;background:#fff;opacity:.09}
+
+  /* over the footage */
+  #scrimTop{position:absolute;left:0;top:0;width:1080px;height:480px;background:linear-gradient(rgba(14,84,83,.72),rgba(14,84,83,.4) 55%,rgba(14,84,83,0))}
+  #scrimBot{position:absolute;left:0;bottom:0;width:1080px;height:980px;background:linear-gradient(rgba(14,84,83,0),rgba(14,84,83,.62) 40%,rgba(14,84,83,.9))}
+  #logo{top:64px;display:flex;justify-content:center}#logo img{height:104px;filter:drop-shadow(0 2px 8px rgba(10,60,60,.4))}
+  #flash{position:absolute;inset:0;background:#fff;opacity:0}
+  .beat{position:absolute;left:0;width:1080px;bottom:250px;display:flex;flex-direction:column;align-items:center;gap:6px;will-change:opacity}
+  .beat>div{will-change:transform,opacity;text-align:center;color:#fff;text-shadow:0 4px 22px rgba(10,60,60,.6),0 1px 3px rgba(10,60,60,.5)}
+  .ln-pill span{display:inline-block;background:#fff;color:var(--teal-deep);border-radius:60px;padding:14px 44px;font-weight:900;font-size:38px;letter-spacing:7px;text-shadow:none}
+  .ln-chip span{display:inline-block;background:var(--tan);color:#fff;border-radius:18px;padding:16px 38px;font-weight:900;font-size:42px;letter-spacing:4px;box-shadow:0 12px 34px rgba(10,60,60,.4);text-shadow:none;margin-top:14px}
+  .ln-xl{font-size:230px;font-weight:900;letter-spacing:-9px;line-height:.95}
+  .ln-l{font-size:140px;font-weight:900;letter-spacing:-6px;line-height:1}
+  .ln-m{font-size:120px;font-weight:900;letter-spacing:-4px;line-height:1}
+  .ln-sub{font-size:36px;font-weight:700;letter-spacing:7px;margin-top:10px}
+  .ln-price span{display:inline-block;background:#fff;color:var(--teal-deep);border-radius:60px;padding:20px 60px 34px;font-size:200px;font-weight:900;letter-spacing:-8px;line-height:1;box-shadow:0 24px 56px rgba(10,60,60,.35);text-shadow:none;min-width:620px}
+
+  /* opaque scenes */
+  .scene{position:absolute;inset:0;background:var(--teal);color:#fff;visibility:hidden;overflow:hidden}
+  .pill2{display:inline-block;border:3px solid #fff;border-radius:60px;padding:14px 44px;font-weight:800;font-size:38px;letter-spacing:7px}
+  .logo2{display:flex;justify-content:center}
+  #s2 .logo2{top:110px}#s2 .logo2 img{height:170px}
+  #p1{top:335px;display:flex;justify-content:center}
+  #p2{top:440px;font-size:122px;font-weight:900;letter-spacing:-4px;line-height:1}
+  #p3{top:700px;font-size:50px;font-weight:700}
+  #p4{top:800px;display:flex;justify-content:center}
+  #p4 span{display:inline-block;background:#fff;color:var(--teal-deep);border-radius:60px;padding:20px 54px;font-weight:900;font-size:46px;letter-spacing:3px;box-shadow:0 16px 40px rgba(20,96,95,.3)}
+  #p5{top:1075px;display:flex;justify-content:center;gap:16px}
+  #p5 span{display:inline-block;border:3px solid #fff;border-radius:44px;padding:12px 28px;font-weight:800;font-size:36px;letter-spacing:2px}
+  #p6{top:1200px;display:flex;justify-content:center}
+  #p6 span{display:inline-block;background:#fff;color:var(--teal-dark);border-radius:60px;padding:26px 56px;font-size:54px;font-weight:900;letter-spacing:-.5px;box-shadow:0 16px 40px rgba(20,96,95,.3)}
+  #p7{top:955px;font-size:44px;font-weight:700}
+  #crescent{position:absolute;left:390px;top:1390px;width:300px;height:300px}
+  .star{position:absolute;width:30px;height:30px}
+
+  #s3 .logo2{top:130px}#s3 .logo2 img{height:190px}
+  #q1{top:390px;display:flex;justify-content:center}
+  #card{position:absolute;left:60px;width:900px;top:520px;height:730px;border-radius:54px;background:#fff;color:var(--teal-dark);box-shadow:0 24px 60px rgba(20,96,95,.3)}
+  .crow{position:absolute;left:44px;right:36px;display:flex;align-items:center;gap:32px;text-align:left}
+  .crow .ic{flex:0 0 104px;height:104px;border-radius:50%;background:var(--teal);display:flex;align-items:center;justify-content:center}
+  .crow .ic svg{width:54px;height:54px;fill:none;stroke:#fff;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
+  .crow small{display:block;font-size:26px;font-weight:800;letter-spacing:5px;color:var(--tan);margin-bottom:6px}
+  .crow .v{font-weight:900;line-height:1.18;color:var(--teal-dark)}
+  #c1{top:62px}#c1 .v{font-size:60px}#c2{top:292px}#c2 .v{font-size:50px}#c3{top:522px}#c3 .v{font-size:38px;font-weight:800}
+  #q2{top:1340px;font-size:52px;font-weight:900}
+  #q3{top:1420px;font-size:29px;font-weight:700;letter-spacing:4px;opacity:.9}
+  #fade{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="scrimTop"></div><div id="scrimBot"></div>
+  <div id="logo" class="abs"><img src="assets/logo_white.png" alt="Hausaly EduTravels"></div>
+  <div id="beats"></div>
+  <div id="flash"></div>
+
+  <div id="s2" class="scene">
+    <div class="orb" style="width:760px;height:760px;left:-300px;top:-330px"></div>
+    <div class="orb" style="width:560px;height:560px;right:-240px;bottom:140px"></div>
+    <div id="l2" class="abs logo2"><img src="assets/logo_white.png" alt=""></div>
+    <div id="p1" class="abs"><span class="pill2">NOW BOOKING</span></div>
+    <div id="p2" class="abs">Nov &amp; Dec<br>2026</div>
+    <div id="p3" class="abs">Kano · Abuja · Lagos ✈ Jeddah</div>
+    <div id="p4" class="abs"><span>14 DAYS · ₦2.5M ECONOMY</span></div>
+    <div id="p7" class="abs">Departing 10 Nov &amp; 10 Dec 2026</div>
+    <div id="p5" class="abs"><span>Visa</span><span>Flights</span><span>Hotel</span><span>Transport</span></div>
+    <div id="p6" class="abs"><span>Slots are limited. Book early!</span></div>
+    <svg id="crescent" viewBox="0 0 150 150"><defs><mask id="cm"><rect width="150" height="150" fill="#fff"/><circle cx="102" cy="58" r="52" fill="#000"/></mask></defs><circle cx="70" cy="76" r="62" fill="#fff" mask="url(#cm)"/></svg>
+  </div>
+
+  <div id="s3" class="scene">
+    <div class="orb" style="width:760px;height:760px;left:-300px;top:-330px"></div>
+    <div class="orb" style="width:560px;height:560px;right:-240px;bottom:140px"></div>
+    <div id="l3" class="abs logo2"><img src="assets/logo_white.png" alt=""></div>
+    <div id="q1" class="abs"><span class="pill2">JOIN OUR NEXT GROUP</span></div>
+    <div id="card">
+      <div class="crow" id="c1"><div class="ic"><svg viewBox="0 0 24 24"><path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/></svg></div><div><small>CONTACT</small><div class="v">+234 813 122 7047</div></div></div>
+      <div class="crow" id="c2"><div class="ic"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg></div><div><small>EMAIL</small><div class="v">contact@hausaly.com</div></div></div>
+      <div class="crow" id="c3"><div class="ic"><svg viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg></div><div><small>OFFICE</small><div class="v">Bosso Plaza, Along Gombe Road,<br>Biu, Borno, Nigeria</div></div></div>
+    </div>
+    <div id="q2" class="abs">Hausaly EduTravels Ltd.</div>
+    <div id="q3" class="abs">IATA No: 96200801 &nbsp;·&nbsp; RC: 8334167</div>
+  </div>
+  <div id="fade"></div>
+</div>
+<script>
+const T={s2:20.4,s3:24.8,end:30.4,cuts:[2.2,4.2,5.6,7.0,8.4,12.0,14.2,16.4]};
+window.SAUDI_DURATION=T.end;
+const BEATS=[
+ {a:.25,b:3.9,lines:[['pill','UMRAH 2026'],['l','YOUR UMRAH'],['l','STARTS HERE'],['chip','NOV &amp; DEC 2026 GROUPS']]},
+ {a:4.25,b:5.5,lines:[['xl','VISA'],['sub','HAUSALY EDUTRAVELS LTD']]},
+ {a:5.65,b:6.9,lines:[['xl','FLIGHTS'],['sub','HAUSALY EDUTRAVELS LTD']]},
+ {a:7.05,b:8.3,lines:[['xl','ARRIVAL'],['sub','HAUSALY EDUTRAVELS LTD']]},
+ {a:8.5,b:11.8,lines:[['xl','10 DAYS'],['m','MADINAH'],['sub','HAUSALY EDUTRAVELS LTD']]},
+ {a:12.1,b:16.2,lines:[['xl','4 DAYS'],['m','MAKKAH'],['sub','HAUSALY EDUTRAVELS LTD']]},
+ {a:16.5,b:20.2,lines:[['pill','PRICE'],['price','₦0.0M'],['m','ECONOMY'],['chip','14 DAYS · GROUP PACKAGE']]}];
+const clamp=(x,a=0,b=1)=>Math.min(b,Math.max(a,x));
+const prog=(t,a,d)=>clamp((t-a)/d);
+const outCubic=p=>1-Math.pow(1-p,3);
+const outBack=p=>{const c=1.70158,k=c+1;return 1+k*Math.pow(p-1,3)+c*Math.pow(p-1,2)};
+const $=s=>document.querySelector(s);
+const beatEls=BEATS.map(b=>{const c=document.createElement('div');c.className='beat';
+  const ls=b.lines.map(([k,t])=>{const d=document.createElement('div');d.className='ln-'+k;d.innerHTML=(k==='pill'||k==='chip'||k==='price')?`<span>${t}</span>`:t;c.appendChild(d);return d;});
+  $('#beats').appendChild(c);return {c,ls,b};});
+const priceEl=document.querySelector('.ln-price span');
+const stars=[[170,1370,1],[830,1450,.8],[250,1650,.7],[790,1680,1],[540,1340,.6],[70,330,.6],[980,560,.8]].map(([x,y,sc],i)=>{
+  const e=document.createElementNS('http://www.w3.org/2000/svg','svg');e.setAttribute('viewBox','0 0 24 24');e.setAttribute('class','star');e.style.left=x+'px';e.style.top=y+'px';
+  e.innerHTML='<path fill="#fff" d="M12 0l2.6 9.4L24 12l-9.4 2.6L12 24l-2.6-9.4L0 12l9.4-2.6z"/>';$('#s2').appendChild(e);e._sc=sc;e._i=i;return e;});
+
+function render(t){
+  // ---- over the footage: scrims, logo, kinetic text beats, white flash on every cut
+  const s2p=outCubic(prog(t,T.s2,.5)), foot=1-s2p;
+  $('#scrimTop').style.opacity=foot*clamp(prog(t,0,.4)); $('#scrimBot').style.opacity=foot*clamp(prog(t,0,.5));
+  const lg=$('#logo'),lp=outCubic(prog(t,.1,.5)); lg.style.opacity=foot*lp; lg.style.transform=`translateY(${(1-lp)*-24}px)`;
+  beatEls.forEach(({c,ls,b})=>{
+    const pout=prog(t,b.b,.3); c.style.opacity=(1-pout)*foot; c.style.visibility=(t>=b.a&&t<b.b+.32)?'visible':'hidden';
+    ls.forEach((d,i)=>{const p=outBack(prog(t,b.a+i*.1,.3)); d.style.opacity=clamp(p*3); d.style.transform=`scale(${1.35-.35*p}) translateY(${-pout*30}px)`;});
+  });
+  const pb=beatEls[6].b; priceEl.textContent='₦'+(2.5*outCubic(prog(t,pb.a+.3,.9))).toFixed(1)+'M';
+  let f=0;T.cuts.forEach(c=>{const d=t-c;if(d>=0&&d<.14)f=Math.max(f,.5*(1-d/.14));}); $('#flash').style.opacity=f;
+
+  // ---- scene 2: now booking
+  const a=$('#s2'); a.style.visibility=(t>=T.s2&&t<T.s3+.5)?'visible':'hidden'; a.style.opacity=s2p;
+  const L=t-T.s2, rv=(sel,s,d=.55,dy=34)=>{const e=$(sel),p=outCubic(prog(L,s,d));e.style.opacity=p;e.style.transform=`translateY(${(1-p)*dy}px)`;};
+  rv('#l2',.1,.6);rv('#p1',.35);rv('#p2',.55,.65);rv('#p3',.95);
+  const p4=outBack(prog(L,1.2,.6));$('#p4').style.opacity=clamp(p4*2);$('#p4').style.transform=`scale(${.7+.3*p4})`;
+  rv('#p7',1.5);rv('#p5',1.8);
+  const p6=outBack(prog(L,2.3,.6));$('#p6').style.opacity=clamp(p6*2);$('#p6').style.transform=`scale(${(.7+.3*p6)*(1+.025*Math.sin(L*5)*clamp(p6))})`;
+  const cr=$('#crescent'),cp=outBack(prog(L,.8,.9));cr.style.opacity=clamp(cp*2);cr.style.transform=`translateY(${Math.sin(L*1.4)*8}px) rotate(${-12+Math.sin(L*.9)*3}deg) scale(${.4+.6*cp})`;
+  stars.forEach(e=>{const tw=.55+.45*Math.sin(L*3+e._i*1.7);e.style.opacity=clamp(prog(L,.9+e._i*.12,.4))*tw;e.style.transform=`scale(${e._sc*(.8+.4*tw)}) rotate(${L*20}deg)`;});
+
+  // ---- scene 3: contact
+  const b=$('#s3'),s3p=outCubic(prog(t,T.s3,.5)); b.style.visibility=t>=T.s3?'visible':'hidden'; b.style.opacity=s3p;
+  const M=t-T.s3, rv3=(sel,s,d=.55,dy=34)=>{const e=$(sel),p=outCubic(prog(M,s,d));e.style.opacity=p;e.style.transform=`translateY(${(1-p)*dy}px)`;};
+  rv3('#l3',.1,.6);rv3('#q1',.4);
+  const cc=outBack(prog(M,.7,.8)),card=$('#card');card.style.opacity=clamp(cc*2);card.style.transform=`translateY(${(1-cc)*80}px) scale(${.94+.06*clamp(cc)})`;
+  ['#c1','#c2','#c3'].forEach((s,i)=>{const e=$(s),p=outCubic(prog(M,1.2+i*.5,.5));e.style.opacity=p;e.style.transform=`translateX(${-(1-p)*60}px)`;});
+  rv3('#q2',2.7,.6,20);rv3('#q3',3.0,.6,14);
+  const v=$('#c1 .v');v.style.transformOrigin='left center';v.style.transform=`scale(${1+.05*Math.sin(prog(M,3.4,2.2)*Math.PI)})`;
+  $('#fade').style.opacity=clamp((t-(T.end-.5))/.5);
+}
+window.render=render;
+</script>
+</body>
+</html>

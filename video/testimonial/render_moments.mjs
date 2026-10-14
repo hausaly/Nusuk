@@ -42,10 +42,11 @@ if (mode === 'stills') {
   const out = args[0] || join(ROOT, 'hausaly_group_moments_nov_dec_tiktok.mp4');
   const total = Math.round(DURATION * FPS);
   const audio = join(ROOT, 'build/moments_mix.wav');
-  execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', MUSIC, '-i', join(ROOT, 'build/moments_ambience.wav'), '-filter_complex',
-    `[0:a]loudnorm=I=-16:TP=-1.5:LRA=7,apad[m];[1:a]highpass=f=60,volume=1.5[n];` +
+  // music looped twice with a cross-fade (the track is shorter than the video), plus the clips' own sound
+  execFileSync('ffmpeg', ['-y', '-v', 'error', '-i', MUSIC, '-i', MUSIC, '-i', join(ROOT, 'build/moments_ambience.wav'), '-filter_complex',
+    `[0:a][1:a]acrossfade=d=1:c1=tri:c2=tri,loudnorm=I=-16:TP=-1.5:LRA=7,atrim=0:${DURATION}[m];[2:a]highpass=f=60,volume=1.5[n];` +
     `[m][n]amix=inputs=2:normalize=0:duration=longest,atrim=0:${DURATION},alimiter=limit=0.95,afade=t=in:d=0.6,afade=t=out:st=${(DURATION - 1.4).toFixed(2)}:d=1.4[a]`,
-    '-map', '[a]', '-ar', '48000', '-ac', '2', audio]);
+    '-map', '[a]', '-ar', '48000', '-ac', '2', '-t', String(DURATION), audio]);
   const ff = spawn('ffmpeg', ['-y', '-v', 'error', '-f', 'image2pipe', '-framerate', String(FPS), '-i', '-',
     '-i', join(ROOT, 'build/moments_footage.mp4'), '-i', audio,
     '-filter_complex', '[1:v][0:v]overlay=format=auto:shortest=1[v]', '-map', '[v]', '-map', '2:a', '-t', DURATION.toFixed(3),

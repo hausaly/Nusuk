@@ -112,7 +112,7 @@ test('settings and public links', async () => {
   await call('PUT', '/api/admin/settings', { brochures: { 2: 'https://example.com/b.pdf' }, youtube: { 1: 'https://youtu.be/x' }, fxRate: '412.456' }, cookie);
   assert.equal((await call('GET', '/api/public-settings')).body.fxRate, 412.46);
   const pub = await call('GET', '/api/public-settings');
-  assert.equal(pub.body.brochures[2], 'https://example.com/b.pdf');
+  assert.equal(pub.body.brochures[2], true);          // link itself is released only after an email is given
 });
 
 test('users: staff role is restricted, last admin protected, password change revokes sessions', async () => {
@@ -391,7 +391,22 @@ test('brochure link for service 7 (Umrah Agent Bootcamp) is configurable and pub
   const put = (b) => call('PUT', '/api/admin/settings', { fxRate: '400', markupPct: '10', markupFixed: '0', ...b }, cookie);
   assert.equal((await put({ brochures: { 7: 'javascript:alert(1)' } })).status, 422);
   assert.equal((await put({ brochures: { 7: 'https://example.com/bootcamp.pdf' } })).status, 200);
-  assert.equal((await call('GET', '/api/public-settings')).body.brochures[7], 'https://example.com/bootcamp.pdf');
+  assert.equal((await call('GET', '/api/public-settings')).body.brochures[7], true);
+});
+
+test('brochure download needs an email, builds the email list and then releases the link', async () => {
+  await call('PUT', '/api/admin/settings', { fxRate: '400', markupPct: '10', markupFixed: '0', brochures: { 7: 'https://example.com/bootcamp.pdf' } }, cookie);
+  assert.equal((await call('POST', '/api/leads', { service: 7 })).status, 422);
+  assert.equal((await call('POST', '/api/leads', { email: 'nope', service: 7 })).status, 422);
+  assert.equal((await call('POST', '/api/leads', { email: 'a@example.com', service: 3 })).status, 404);   // no link set for service 3
+  const ok = await call('POST', '/api/leads', { email: 'Ada@Example.com', service: 7 });
+  assert.equal(ok.status, 200); assert.equal(ok.body.url, 'https://example.com/bootcamp.pdf');
+  await call('POST', '/api/leads', { email: 'ada@example.com', service: 7 });
+  const list = (await call('GET', '/api/admin/leads', null, cookie)).body.items;
+  assert.equal(list.length, 1); assert.equal(list[0].email, 'ada@example.com'); assert.equal(list[0].downloads, 2);
+  assert.equal((await call('GET', '/api/admin/leads')).status, 401);
+  const csv = (await call('GET', '/api/admin/leads.csv', null, cookie)).body;
+  assert.match(csv, /ada@example\.com/);
 });
 
 test('Umrah visa: fees from settings, server-side total, terms required, admin can mark paid', async () => {

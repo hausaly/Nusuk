@@ -32,6 +32,14 @@ export function serviceRequest(b = {}) {
   return Object.keys(errors).length ? { errors } : { value: { ...v, status: 'New', notes: '' } };
 }
 
+export function lead(b = {}) {
+  const email = str(b.email, 120).toLowerCase(), service = Number(b.service);
+  const errors = {};
+  if (!EMAIL.test(email)) errors.em = 'Enter a valid email address.';
+  if (!Number.isInteger(service) || service < 2 || service > 7) errors.sv = 'Unknown brochure.';
+  return Object.keys(errors).length ? { errors } : { value: { email, service } };
+}
+
 export function userInput(b = {}, { requirePassword }) {
   const v = { name: str(b.name, 100), email: str(b.email, 120).toLowerCase(), role: str(b.role, 10) || 'staff', password: typeof b.password === 'string' ? b.password : '' };
   const errors = {};

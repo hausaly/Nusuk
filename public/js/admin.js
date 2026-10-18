@@ -9,7 +9,7 @@ const download=(url)=>{const a=document.createElement('a');a.href=url;a.click()}
 
 
 let user,onLogout,cur='overview';
-const TABS=()=>[['overview','Overview'],['requests','Service Requests'],['orders','DIY Orders'],['hotels','Hotel Inventory'],
+const TABS=()=>[['overview','Overview'],['requests','Service Requests'],['orders','DIY Orders'],['hotels','Hotel Inventory'],['leads','Email List'],
   ...(user.role=='admin'?[['users','Users'],['settings','Settings']]:[])];
 
 NC.mountAdmin=(u,logout)=>{user=u;onLogout=logout;
@@ -55,6 +55,17 @@ function workflow(coll,title,cols,detailRows){
 VIEWS.requests=workflow('requests','Service Requests',
   [['createdAt','Submitted',r=>esc(fmt(r.createdAt))],['service','Service'],['mode','Mode',r=>esc((r.mode||[]).join(', '))],['name','Name',r=>esc(r.firstName+' '+r.lastName)],['email','Email',r=>`<a href="mailto:${esc(r.email)}">${esc(r.email)}</a>`],['phone','Phone'],['company','Company'],['role','Role']],
   [['createdAt','Submitted'],['service','Service'],['mode','Mode'],['firstName','First name'],['lastName','Last name'],['email','Email'],['phone','Phone'],['company','Company'],['role','Role'],['status','Status']]);
+
+// ---- email list (brochure downloads)
+VIEWS.leads=async mn=>{
+  const {items}=await api('GET','/api/admin/leads');let q='';
+  const draw=()=>{const R=items.filter(r=>JSON.stringify(r).toLowerCase().includes(q));
+    mn.innerHTML=`<h2>Email List</h2><p class="mu">${items.length} unique emails collected from brochure downloads</p><div class="toolbar"><input id="q" placeholder="Search" value="${esc(q)}" aria-label="Search"><button class="btn sm o" id="csv">Export CSV</button></div>
+    <div class="tw"><table><tr><th>Email</th><th>First download</th><th>Last download</th><th>Downloads</th><th>Brochures</th><th></th></tr>${R.map(r=>`<tr><td><a href="mailto:${esc(r.email)}">${esc(r.email)}</a></td><td>${esc(fmt(r.firstDownloadAt))}</td><td>${esc(fmt(r.lastDownloadAt))}</td><td>${r.downloads||1}</td><td>${esc((r.brochures||[]).join(', '))}</td><td><button class="btn sm o" data-x="${r.id}">Delete</button></td></tr>`).join('')||'<tr><td colspan="6">No emails yet.</td></tr>'}</table></div>`;
+    const qi=$('q');qi.oninput=e=>{q=e.target.value.toLowerCase();const p=qi.selectionStart;draw();$('q').focus();$('q').setSelectionRange(p,p)};
+    $('csv').onclick=()=>download('api/admin/leads.csv');
+    mn.querySelectorAll('[data-x]').forEach(b=>b.onclick=async()=>{if(!confirm('Remove this email from the list?'))return;try{await api('DELETE','/api/admin/leads/'+b.dataset.x);items.splice(items.findIndex(r=>r.id==b.dataset.x),1);draw()}catch(e){toast(errText(e))}})};
+  draw()};
 
 // ---- generic CRUD (inventory + users)
 function crud({title,base,fields,extra=[],pwd=false}){

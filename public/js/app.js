@@ -1,4 +1,4 @@
-const BUILD='20261012a';   // keep in sync with server/config.js and index.html (a test enforces it)
+const BUILD='20261018a';   // keep in sync with server/config.js and index.html (a test enforces it)
 const P={about:'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8',services:'M3 7h18v13H3zM8 7V4h8v3',booking:'M3 5h18v16H3zM3 10h18M8 3v4M16 3v4',login:'M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3',logout:'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9',menu:'M3 12h18',dash:'M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z'};
 const ic=k=>`<svg class="i" viewBox="0 0 24 24"><path d="${P[k]||P.menu}"/></svg>`;
 const SI=['M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z','M9 2h6v4H9zM9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3M9 12h6M9 16h6','M22 10 12 5 2 10l10 5 10-5zM6 12v5c3 2 9 2 12 0v-5','M2 3h20M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3M8 21l4-5 4 5','M11 17l2 2a1 1 0 1 0 3-3M14 14l2.5 2.5a1 1 0 1 0 3-3l-3.9-3.9a3 3 0 0 0-4.2 0l-.9.9a1 1 0 0 1-1.4 0l-.9-.9a3 3 0 0 0-4.2 0L2 13M2 11l6 6M22 13l-3-3','M16.5 9.4 7.5 4.2M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7zM3.3 7 12 12l8.7-5M12 22V12','M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18'];
@@ -20,13 +20,30 @@ let BROCH={},YT={};
 const IMK={1:'S1',2:'S2',3:'S3',4:'S4',5:'S5',6:'S6',7:'S7'};
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const link=(u,t,cls='btn o')=>u?`<a class="${cls}" href="${u}" target="_blank" rel="noopener">${t}</a>`:`<span class="${cls}" aria-disabled="true" title="Link will be added soon">${t}</span>`;
+const bro=n=>BROCH[n]?`<a class="btn o" href="#/services" data-bro="${n}">Download Brochure</a>`:`<span class="btn o" aria-disabled="true" title="Link will be added soon">Download Brochure</span>`;
+function broModal(n){
+  const m=document.createElement('div');m.className='modal';m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');
+  m.innerHTML=`<div class="box" style="max-width:440px;width:100%;margin:auto;padding:22px"><h3 style="margin:0 0 6px">Get the brochure</h3><p class="mu" style="margin:0 0 14px">Enter your email and we will open the ${esc(n==7?'Umrah Agent Bootcamp':SV[n-1][0])} brochure for you.</p>
+  <form id="bf" novalidate><input type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px"><label>Email address<input type="email" id="be" autocomplete="email" required placeholder="you@company.com"></label><div class="err" id="bx" role="alert" style="min-height:18px"></div>
+  <p class="mu" style="font-size:.8rem;margin:6px 0 12px">By continuing you agree to receive occasional updates from NUSUK CONSULT. Unsubscribe any time. See our <a href="#/privacy">Privacy Policy</a>.</p>
+  <div class="row"><button class="btn" id="bs" type="submit">Download Brochure</button><button class="btn o" id="bc" type="button">Cancel</button></div></form></div>`;
+  document.body.appendChild(m);const close=()=>m.remove();
+  m.onclick=e=>{if(e.target==m)close()};m.querySelector('#bc').onclick=close;m.querySelector('#be').focus();
+  m.querySelector('#bf').onsubmit=async e=>{e.preventDefault();const em=m.querySelector('#be').value.trim(),bx=m.querySelector('#bx'),bs=m.querySelector('#bs');bx.textContent='';
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)){bx.textContent='Enter a valid email address.';return}
+    bs.disabled=true;
+    try{const r=await api('POST','/api/leads',{email:em,service:n,website:e.target.website.value});
+      const a=document.createElement('a');a.href=r.url;a.target='_blank';a.rel='noopener';a.click();
+      m.querySelector('.box').innerHTML=`<h3 style="margin:0 0 8px">Thank you!</h3><p>Your brochure is opening. If nothing happened, <a href="${esc(r.url)}" target="_blank" rel="noopener"><b>click here to open it</b></a>.</p><div class="row"><button class="btn" id="bd">Close</button></div>`;m.querySelector('#bd').onclick=close}
+    catch(er){bx.textContent=(er.errors&&er.errors.em)||er.message||'Something went wrong. Please try again.';bs.disabled=false}}}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-bro]');if(!b)return;e.preventDefault();broModal(+b.dataset.bro)});
 function cards(){return `<div class="grid">${SV.map((s,i)=>{const n=i+1;
 if(n==7)return `<article class="card"><div class="b"><div class="ico">${sic(n)}</div><div class="num">SERVICE 7</div><div class="kick">Online professional Training</div><h3>${esc(s[0])}</h3><p class="mu" style="margin:0">${esc(s[1])}</p>
 <ul class="meta"><li><b>Language:</b> Hausa</li><li><b>Duration:</b> 3 Total Hours</li><li><b>Sessions:</b> 10 sessions</li></ul>
 <div class="fee"><span class="tg">Premium</span><span class="tg hot">Bestseller</span></div>
-<div class="row"><a class="btn" href="${SELAR}" target="_blank" rel="noopener">${esc(s[2])}</a>${link(BROCH[7],'Download Brochure')}</div></div></article>`;
+<div class="row"><a class="btn" href="${SELAR}" target="_blank" rel="noopener">${esc(s[2])}</a>${bro(7)}</div></div></article>`;
 const href='#/interest/'+n;
-return `<article class="card"><div class="b"><div class="ico">${sic(n)}</div><div class="num">SERVICE ${n}</div><h3>${esc(s[0])}</h3><p class="mu" style="margin:0">${esc(s[1])}</p><div class="row"><a class="btn" href="${href}">${esc(s[2])}</a>${n>1?link(BROCH[n],'Download Brochure'):'<span class="btn" style="visibility:hidden" aria-hidden="true">&nbsp;</span>'}</div></div></article>`}).join('')}</div>`}
+return `<article class="card"><div class="b"><div class="ico">${sic(n)}</div><div class="num">SERVICE ${n}</div><h3>${esc(s[0])}</h3><p class="mu" style="margin:0">${esc(s[1])}</p><div class="row"><a class="btn" href="${href}">${esc(s[2])}</a>${n>1?bro(n):'<span class="btn" style="visibility:hidden" aria-hidden="true">&nbsp;</span>'}</div></div></article>`}).join('')}</div>`}
 const reqCta=`<section class="s band"><div class="w"><h2>Interested in a NUSUK Consult Service?</h2><p>Complete the form below to request a NUSUK Consult service Now!</p><a class="btn" href="#/interest">Request a Service</a></div></section>`;
 const EV=[['300+ Attendees | UEA O.1','Northern Nigeria’s Largest Umrah Capacity-Building Event — Kano, Nigeria','On 8 May 2026, Engr. Ibrahim Inusa, CEO of NUSUK Consult, delivered a strategic session on External Agent Evaluation & Classification, covering the latest Ministry of Hajj & Umrah guidelines and policies for Umrah 1448AH.','The session brought together 100+ Umrah external agents from across Nigeria, alongside major industry stakeholders including Saudia, EgyptAir, flyadeal, Max Air, Ethiopian Airlines, AHUON, and leading Umrah External Agent Companies including Raudah Travel & Tours, Hamsyl Travel & Tours, and other industry leaders.'],
 ['200+ Attendees | UEA O.1','Strategic Partnership Event — Abuja','On 3 August 2026, Engr. Ibrahim Inusa, CEO of NUSUK Consult, delivered a strategic session on External Agent Evaluation & Classification, covering the latest Ministry of Hajj & Umrah guidelines and policies for Umrah 1448AH.','The session attracted 200+ attendees, including 60+ Umrah external agents from across Nigeria, alongside key industry stakeholders such as Almamorah International Group, Maysan International Group, Wakanow.com, White Bird Tourism, Raudah Travel & Tours, and other leading Umrah industry players.'],

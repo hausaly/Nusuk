@@ -86,13 +86,26 @@ const must = (r) => r.errors ? fail(r.errors) : r.value;
 
 // public
 route('GET', '/api/health', () => ({ ok: true, build: BUILD }));
-route('GET', '/api/public-settings', () => { const s = settings.all(); return { brochures: s.brochures || {}, youtube: s.youtube || {}, fxRate: s.fxRate ?? '' }; });
+route('GET', '/api/public-settings', () => { const s = settings.all(); return { brochures: Object.fromEntries(Object.entries(s.brochures || {}).filter(([, u]) => u).map(([k]) => [k, true])), youtube: s.youtube || {}, fxRate: s.fxRate ?? '' }; });
 route('POST', '/api/requests', async ({ req, body }) => {
   limit(req, 'submit', 10, 60 * 60e3);
   if (body.website) return { ok: true };            // honeypot: bots fill hidden field
   const rec = records.create('requests', must(v.serviceRequest(body)));
   notify('service request', rec);
   return { ok: true, id: rec.id };
+});
+// brochure download: email required, added to the email list (collection 'leads'), then the link is released
+route('POST', '/api/leads', async ({ req, body }) => {
+  limit(req, 'lead', 30, 60 * 60e3);
+  if (body.website) return { ok: true };            // honeypot
+  const { email, service } = must(v.lead(body));
+  const url = (settings.all().brochures || {})[service];
+  if (!url) throw new HttpError(404, 'This brochure is not available yet.');
+  const label = service === 7 ? 'Umrah Agent Bootcamp' : v.SERVICES[service - 1], at = new Date().toISOString();
+  const cur = records.list('leads').find(l => l.email === email);
+  if (cur) records.update('leads', cur.id, { lastDownloadAt: at, downloads: (cur.downloads || 0) + 1, brochures: [...new Set([...(cur.brochures || []), label])] });
+  else records.create('leads', { email, source: 'brochure', firstDownloadAt: at, lastDownloadAt: at, downloads: 1, brochures: [label], consent: 'Brochure download notice' });
+  return { ok: true, url };
 });
 // auth
 route('POST', '/api/auth/login', async ({ req, res, body }) => {
@@ -133,6 +146,9 @@ for (const [coll, label, statuses, cols] of [
   route('DELETE', `/api/admin/${coll}/:id`, A, ({ params }) => { if (!records.remove(coll, params.id)) throw new HttpError(404, 'Not found'); return { ok: true }; });
 }
 
+route('GET', '/api/admin/leads', A, () => ({ items: records.list('leads') }));
+route('GET', '/api/admin/leads.csv', A, () => ({ csv: toCsv(records.list('leads'), [['email', 'Email'], ['firstDownloadAt', 'First download'], ['lastDownloadAt', 'Last download'], ['downloads', 'Downloads'], ['brochures', 'Brochures'], ['source', 'Source']]), name: `nusuk-email-list-${new Date().toISOString().slice(0, 10)}.csv` }));
+route('DELETE', '/api/admin/leads/:id', A, ({ params }) => { if (!records.remove('leads', params.id)) throw new HttpError(404, 'Not found'); return { ok: true }; });
 route('GET', '/api/admin/settings', ADMIN, () => { const s = settings.all(); return { brochures: s.brochures || {}, youtube: s.youtube || {}, fxRate: s.fxRate ?? '', markupPct: s.markupPct ?? 0, markupFixed: s.markupFixed ?? 0, visa: { adult: '', child: '', infant: '', service: '', ...(s.visa || {}) }, payment: paymentMode() }; });
 route('PUT', '/api/admin/settings', ADMIN, ({ body }) => {
   const s = must(v.settingsInput(body));

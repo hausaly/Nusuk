@@ -1,4 +1,4 @@
-const BUILD='20261020a';   // keep in sync with server/config.js and index.html (a test enforces it)
+const BUILD='20261020b';   // keep in sync with server/config.js and index.html (a test enforces it)
 const P={about:'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8',services:'M3 7h18v13H3zM8 7V4h8v3',booking:'M3 5h18v16H3zM3 10h18M8 3v4M16 3v4',login:'M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3',logout:'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9',menu:'M3 12h18',dash:'M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z'};
 const ic=k=>`<svg class="i" viewBox="0 0 24 24"><path d="${P[k]||P.menu}"/></svg>`;
 const SI=['M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z','M9 2h6v4H9zM9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3M9 12h6M9 16h6','M22 10 12 5 2 10l10 5 10-5zM6 12v5c3 2 9 2 12 0v-5','M2 3h20M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3M8 21l4-5 4 5','M11 17l2 2a1 1 0 1 0 3-3M14 14l2.5 2.5a1 1 0 1 0 3-3l-3.9-3.9a3 3 0 0 0-4.2 0l-.9.9a1 1 0 0 1-1.4 0l-.9-.9a3 3 0 0 0-4.2 0L2 13M2 11l6 6M22 13l-3-3','M16.5 9.4 7.5 4.2M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7zM3.3 7 12 12l8.7-5M12 22V12','M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18'];
@@ -41,16 +41,6 @@ const FEAT=[
 ['#/booking',6,'UMRAH DIY BOOKINGS','Hotels in Makkah and Madinah, the Haramain train, airport transfers, and Umrah visas — choose, book, and get your booking slip instantly. No account needed.'],
 ['#/services',5,'B2B CONSULTING SERVICES','Expert consulting, compliance, licensing, contracting, and operational solutions to help Umrah agents and OTAs strengthen NUSUK MASAR performance and grow with confidence.'],
 ['#/services',3,'TRAINING PROGRAMS','Professional training to build practical Umrah industry skills, strengthen operational competence, and improve NUSUK MASAR readiness.']];
-const UNVEIL=Date.parse('2026-12-01T00:00:00+01:00');   // 1 December 2026, Nigeria time
-const teaserHtml=()=>Date.now()>=UNVEIL?'':`<section class="teaser" aria-label="Announcement"><div class="w"><div class="tz-k">HAPPENING AT HAUSALY.</div><h2 class="tz-h">SOMETHING BIG IS COMING!</h2><p class="tz-s">SOMETHING IS ABOUT TO SHAKE THINGS UP.</p>
-<div class="tz-d" id="tzd" role="timer" aria-live="off"><div><b data-u="d">--</b><span>Days</span></div><div><b data-u="h">--</b><span>Hours</span></div><div><b data-u="m">--</b><span>Minutes</span></div><div><b data-u="s">--</b><span>Seconds</span></div></div>
-<div class="tz-p">OFFICIAL UNVEILING: 1 DECEMBER 2026</div><p class="tz-n">The countdown starts now. <b>STAY TUNED.</b></p></div></section>`;
-let tzTimer=null;
-function teaser(){clearInterval(tzTimer);const el=document.getElementById('tzd');if(!el)return;
-  const tick=()=>{let ms=UNVEIL-Date.now();if(ms<=0){clearInterval(tzTimer);const s=el.closest('.teaser');s&&s.remove();return}
-    const p=n=>String(n).padStart(2,'0'),S=Math.floor(ms/1000),v={d:Math.floor(S/86400),h:Math.floor(S%86400/3600),m:Math.floor(S%3600/60),s:S%60};
-    for(const k in v){const b=el.querySelector(`[data-u="${k}"]`);if(b)b.textContent=k=='d'?v[k]:p(v[k])}};
-  tick();tzTimer=setInterval(tick,1000)}
 function cards(){return `<div class="grid">${SV.map((s,i)=>{const n=i+1;
 if(n==7)return `<article class="card"><div class="b"><div class="ico">${sic(n)}</div><div class="num">SERVICE 7</div><div class="kick">Online professional Training</div><h3>${esc(s[0])}</h3><p class="mu" style="margin:0">${esc(s[1])}</p>
 <ul class="meta"><li><b>Language:</b> Hausa</li><li><b>Duration:</b> 3 Total Hours</li><li><b>Sessions:</b> 10 sessions</li></ul>
@@ -68,7 +58,7 @@ const tests=()=>`<section class="s"><div class="w"><div class="eyebrow">Testimon
 const POS='NUSUK CONSULT is a pioneering specialist advisory practice for Umrah external-agents and OTA companies, providing professional expertise in NUSUK MASAR ecosystem, covering licensing, contracting, regulatory readiness, visa operations, KPI performance, evaluation and classification, Umrah program development, and operational excellence—supporting operators in strengthening their systems, capabilities, and performance standards within the NUSUK MASAR ecosystem.';
 const GZ='Let’s take your company toward Green Zone classification—reducing penalties, suspensions, fines, and visa delays or rejections while staying updated on NUSUK MASAR operational best practices.';
 const V={
-home:()=>`<div class="home">${teaserHtml()}<section class="hero2"><div class="w"><span class="badge"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 3 7.5v9L12 21l9-4.5v-9zM3 7.5l9 4.5 9-4.5M12 12v9"/></svg>AFRICA’S NUSUK MASAR SPECIALIST</span><h1>“Beyond compliance, toward <span class="hl">operational excellence.</span>”</h1><p class="lead">NUSUK Consult is a specialist advisory and professional services practice for Umrah external agents and OTA companies, delivering expertise across the NUSUK MASAR ecosystem—from licensing and contracting to regulatory readiness, visa operations, KPI performance, evaluation and classification, Umrah programme development, and operational excellence.</p><div class="row"><a class="btn" href="#/services">Explore Our Services</a><a class="btn o" href="#/interest">Request a Service</a></div>
+home:()=>`<div class="home"><section class="hero2"><div class="w"><span class="badge"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 3 3 7.5v9L12 21l9-4.5v-9zM3 7.5l9 4.5 9-4.5M12 12v9"/></svg>AFRICA’S NUSUK MASAR SPECIALIST</span><h1>“Beyond compliance, toward <span class="hl">operational excellence.</span>”</h1><p class="lead">NUSUK Consult is a specialist advisory and professional services practice for Umrah external agents and OTA companies, delivering expertise across the NUSUK MASAR ecosystem—from licensing and contracting to regulatory readiness, visa operations, KPI performance, evaluation and classification, Umrah programme development, and operational excellence.</p><div class="row"><a class="btn" href="#/services">Explore Our Services</a><a class="btn o" href="#/interest">Request a Service</a></div>
 <div class="stats"><div><b>300+</b><span>Attendees · UEA O.1, Kano</span></div><div><b>200+</b><span>Attendees · UEA O.1, Abuja</span></div><div><b>44</b><span>Master-level certifications · our founder</span></div><div><b>#1</b><span>Al Rajhi Educational Platform Leaderboard</span></div></div></div></section>
 <section class="hc"><div class="w"><div class="grid">${FEAT.map(f=>`<a class="card" href="${f[0]}" style="text-decoration:none"><div class="b"><div class="ico">${sic(f[1])}</div><h3>${esc(f[2])}</h3><p class="mu" style="margin:0">${esc(f[3])}</p></div></a>`).join('')}</div></div></section>
 <section class="s"><div class="w"><h2>NUSUK CONSULT SERVICES</h2>${cards()}</div></section>${reqCta}${events()}${tests()}
@@ -127,7 +117,7 @@ function route(){
   const items=[['about','About'],['services','Services'],['booking','DIY Booking'],me?['admin','Dashboard','dash']:['login','Login','login']];
   $('nv').innerHTML=items.map(n=>`<a href="#/${n[0]}" class="${n[0]==r?'on ':''}${n[2]?'login':''}">${n[2]?ic(n[2]):''}${n[1]}</a>`).join('');
   $('nv').classList.remove('o');$('mb').setAttribute('aria-expanded','false');
-  if(r=='home')teaser();if(r=='interest')bindForm();if(r=='booking')bookingView();if(r=='slip')slipView(h.slice(1));if(r=='login')loginView();if(r=='admin')adminView();}
+  if(r=='interest')bindForm();if(r=='booking')bookingView();if(r=='slip')slipView(h.slice(1));if(r=='login')loginView();if(r=='admin')adminView();}
 addEventListener('hashchange',route);
 $('mb').onclick=()=>{const o=$('nv').classList.toggle('o');$('mb').setAttribute('aria-expanded',o)};
 

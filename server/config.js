@@ -15,7 +15,7 @@ try {
 } catch {}
 
 // Bump on every release: it versions the static files (cache-busting) and shows in the footer + /api/health.
-export const BUILD = '20261020a';
+export const BUILD = '20261020b';
 
 export const config = {
   port: Number(process.env.PORT) || 3000,

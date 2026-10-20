@@ -44,12 +44,9 @@ NC.mountBooking=async()=>{
   <div class="conf"><h2>Book with Confidence.</h2><p class="cp">All service providers on Nusuk are officially licensed and approved by the Ministry of Hajj and Umrah to ensure safety, reliability, and quality service for every pilgrim.</p>
   <div class="cgrid"><div class="ci">${ic('tag',38)}<div><b>Get Your Discount</b><p>Save up to 20% on each booking.</p></div></div><div class="ci">${ic('help',38)}<div><b>Get Real Help, 24/7</b><p>Skip the bots. Talk to a real travel expert.</p></div></div><div class="ci">${ic('calpay',38)}<div><b>Reserve Now, Pay Later</b><p>Convenient options online and 24/7 global concierge.</p></div></div></div></div>
   <div id="bkf"></div></section>`;
-  const showTab=b=>{try{b.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'})}catch{}};
-  root.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;showTab(b);root.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('on',x==b));$('bkr').innerHTML='';panel()});
+  root.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;root.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('on',x==b));$('bkr').innerHTML='';panel()});
   panel();
   featured();
-  const tabsEl=root.querySelector('.bk-tabs'),edge=()=>tabsEl.classList.toggle('end',tabsEl.scrollLeft+tabsEl.clientWidth>=tabsEl.scrollWidth-4);tabsEl.addEventListener('scroll',edge,{passive:true});setTimeout(edge,50);setTimeout(edge,500);
-  const on=root.querySelector('[data-tab].on');if(on)setTimeout(()=>{const t=on.parentElement;t.scrollLeft=on.offsetLeft-(t.clientWidth-on.offsetWidth)/2},0);
 };
 const panel=()=>({hotels:hotelsPanel,train:trainPanel,transfers:transferPanel,visa:visaPanel,offers:offersPanel}[tab])();
 

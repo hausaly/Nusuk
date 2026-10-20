@@ -352,3 +352,9 @@ footer .copy{margin:34px 0 0;border-top:1px solid #3a3329;padding-top:18px;font-
  .bk-tabs{-webkit-mask-image:linear-gradient(90deg,#000 0,#000 88%,transparent 100%);mask-image:linear-gradient(90deg,#000 0,#000 88%,transparent 100%)}
  .bk-tabs.end{-webkit-mask-image:none;mask-image:none}
 }
+/* mobile: all booking tabs fit on one line (no icons, tighter spacing) */
+@media(max-width:700px){
+ .bk-tabs{overflow-x:visible;-webkit-mask-image:none;mask-image:none;gap:2px;padding:6px;scroll-snap-type:none}
+ .bk-tabs button{flex:1 1 auto;justify-content:center;padding:10px 3px;min-height:42px;font-size:clamp(.66rem,2.9vw,.84rem);gap:0;letter-spacing:-.01em;text-align:center;border-radius:9px}
+ .bk-tabs button svg{display:none}
+}

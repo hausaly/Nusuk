@@ -335,3 +335,13 @@ footer .copy{margin:34px 0 0;border-top:1px solid #3a3329;padding-top:18px;font-
 .tz-n{margin:20px 0 0;font:500 1.02rem Poppins,sans-serif;color:#e6dfd2}.tz-n b{color:var(--g);letter-spacing:.14em}
 @keyframes tzp{0%,100%{opacity:1}50%{opacity:.82}}
 @media (prefers-reduced-motion:reduce){.tz-h{animation:none}}
+
+/* offers tab */
+.offers .foc .foi-w{position:relative}.offers .od{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0 4px}.offers .od dt{font:600 .68rem Poppins,sans-serif;letter-spacing:.06em;text-transform:uppercase;color:var(--mu)}.offers .od dd{margin:2px 0 0;font:700 .9rem Poppins,sans-serif;color:var(--ink)}
+.offers .od-s{margin:8px 0 4px;font-size:.84rem}.offers .od-s ul{list-style:none;margin:4px 0 0;padding:0;display:grid;gap:3px}.offers .od-s li{display:flex;gap:6px;align-items:flex-start}.offers .od-s svg{flex:none;margin-top:3px;color:var(--gd)}
+.bk-tabs button{min-width:0}
+
+/* services page headings */
+.sv-h{font:700 clamp(1.5rem,3.6vw,2.4rem)/1.2 Cabin,Poppins,sans-serif;max-width:980px;margin:6px 0 26px;letter-spacing:-.01em}
+.sv-s{font:800 clamp(1.1rem,2.2vw,1.4rem) Poppins,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--gd);margin:0 0 18px;padding-bottom:10px;border-bottom:2px solid var(--g);display:inline-block}
+.offers .fof{flex-wrap:wrap;gap:8px 12px}.offers .fof>div{min-width:0}.offers .foc{align-self:start}

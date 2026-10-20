@@ -300,4 +300,54 @@ export function registerBooking(k) {
     const p = path.join(config.dataDir, 'offers', params.file); if (!fs.existsSync(p)) throw new HttpError(404, 'Not found');
     return { file: fs.readFileSync(p), type: 'application/pdf', name: 'hotel-offer.pdf', inline: true };
   });
+
+  // ---------- offers: bed space + mutawef (managed in Dashboard → Offers) ----------
+  const KINDS = ['bedspace', 'mutawef'];
+  const kindOf = p => { if (!KINDS.includes(p.kind)) throw new HttpError(404, 'Not found'); return p.kind; };
+  const money = v => { const n = Number(String(v ?? '').replace(/[, ₦]/g, '')); return Number.isFinite(n) ? n : NaN; };
+  const nightsBetween = (a, b) => Math.round((Date.parse(b + 'T00:00:00Z') - Date.parse(a + 'T00:00:00Z')) / 86400000);
+  function normalizeOffer(kind, b = {}) {
+    const e = {};
+    const v = { title: str(b.title, 120), price: money(b.price), active: !(b.active === false || /^(false|no|0|off)$/i.test(String(b.active ?? ''))), imageUrl: str(b.imageUrl, 300) };
+    if (!v.title) e.title = 'Title is required.';
+    if (!(v.price > 0) || v.price > 1e9) e.price = kind === 'bedspace' ? 'Total price must be a positive amount.' : 'Price per sightseeing service must be a positive amount.';
+    if (v.imageUrl && !/^(https?:\/\/\S+|api\/media\/[\w.-]+)$/i.test(v.imageUrl)) e.imageUrl = 'Image must be an http(s) link or an uploaded image.';
+    if (kind === 'bedspace') {
+      v.offer = str(b.offer, 120); v.checkIn = str(b.checkIn, 10); v.checkOut = str(b.checkOut, 10);
+      if (!v.offer) e.offer = 'Offer is required (e.g. 1 Bed Space for Men).';
+      if (!validDate(v.checkIn)) e.checkIn = 'Choose a check-in date.';
+      if (!validDate(v.checkOut)) e.checkOut = 'Choose a check-out date.';
+      if (!e.checkIn && !e.checkOut) { v.nights = nightsBetween(v.checkIn, v.checkOut); if (v.nights < 1) e.checkOut = 'Check-out must be after check-in.'; }
+    } else {
+      v.description = str(b.description, 1200);
+      const lines = Array.isArray(b.sightseeing) ? b.sightseeing : String(b.sightseeing ?? '').split(/[\n;]/);
+      v.sightseeing = lines.map(x => str(x, 160)).filter(Boolean).slice(0, 30);
+      if (!v.description) e.description = 'Description is required.';
+      if (!v.sightseeing.length) e.sightseeing = 'List at least one sightseeing stop (one per line).';
+    }
+    return Object.keys(e).length ? { errors: e } : { value: v };
+  }
+  route('GET', '/api/offers', ({ req }) => {
+    limit(req, 'search', 120, 10 * 60e3);
+    const t = today(), live = k => records.list(k).filter(o => o.active !== false);
+    return {
+      bedspace: live('bedspace').filter(o => o.checkOut >= t).sort((a, b) => a.checkIn.localeCompare(b.checkIn)).map(({ id, title, offer, checkIn, checkOut, nights, price, imageUrl }) => ({ id, title, offer, checkIn, checkOut, nights, price, imageUrl })),
+      mutawef: live('mutawef').reverse().map(({ id, title, description, sightseeing, price, imageUrl }) => ({ id, title, description, sightseeing, price, imageUrl })),
+    };
+  });
+  route('GET', '/api/admin/special-offers/:kind', A, ({ params }) => ({ items: records.list(kindOf(params)) }));
+  route('POST', '/api/admin/special-offers/:kind', A, ({ params, body }) => records.create(kindOf(params), must(normalizeOffer(params.kind, body))));
+  route('PUT', '/api/admin/special-offers/:kind/:id', A, ({ params, body }) => {
+    const kind = kindOf(params), cur = records.get(kind, params.id); if (!cur) throw new HttpError(404, 'Not found');
+    const { id: _i, createdAt: _c, updatedAt: _u, ...rest } = cur;
+    return records.update(kind, params.id, must(normalizeOffer(kind, { ...rest, ...body })));
+  });
+  route('DELETE', '/api/admin/special-offers/:kind/:id', A, ({ params }) => { if (!records.remove(kindOf(params), params.id)) throw new HttpError(404, 'Not found'); return { ok: true }; });
+  route('POST', '/api/admin/special-offers/:kind/:id/image', { auth: true, maxBody: 3 * 1024 * 1024 }, ({ params, body }) => {
+    const kind = kindOf(params); if (!records.get(kind, params.id)) throw new HttpError(404, 'Not found');
+    const buf = Buffer.from(String(body.data || ''), 'base64');
+    const ext = buf.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff])) ? 'jpg' : buf.subarray(0, 4).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47])) ? 'png' : buf.subarray(0, 4).toString() === 'RIFF' && buf.subarray(8, 12).toString() === 'WEBP' ? 'webp' : null;
+    if (!ext || buf.length > 2 * 1024 * 1024) fail({ image: 'Upload a JPG, PNG or WebP image under 2 MB.' });
+    return records.update(kind, params.id, { imageUrl: `api/media/${saveBlob('media', buf, ext)}` });
+  });
 }

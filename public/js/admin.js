@@ -9,7 +9,7 @@ const download=(url)=>{const a=document.createElement('a');a.href=url;a.click()}
 
 
 let user,onLogout,cur='overview';
-const TABS=()=>[['overview','Overview'],['requests','Service Requests'],['orders','DIY Orders'],['hotels','Hotel Inventory'],['leads','Email List'],
+const TABS=()=>[['overview','Overview'],['requests','Service Requests'],['orders','DIY Orders'],['hotels','Hotel Inventory'],['offers','Offers'],['leads','Email List'],
   ...(user.role=='admin'?[['users','Users'],['settings','Settings']]:[])];
 
 NC.mountAdmin=(u,logout)=>{user=u;onLogout=logout;
@@ -55,6 +55,35 @@ function workflow(coll,title,cols,detailRows){
 VIEWS.requests=workflow('requests','Service Requests',
   [['createdAt','Submitted',r=>esc(fmt(r.createdAt))],['service','Service'],['mode','Mode',r=>esc((r.mode||[]).join(', '))],['name','Name',r=>esc(r.firstName+' '+r.lastName)],['email','Email',r=>`<a href="mailto:${esc(r.email)}">${esc(r.email)}</a>`],['phone','Phone'],['company','Company'],['role','Role']],
   [['createdAt','Submitted'],['service','Service'],['mode','Mode'],['firstName','First name'],['lastName','Last name'],['email','Email'],['phone','Phone'],['company','Company'],['role','Role'],['status','Status']]);
+
+// ---- offers: bed space + mutawef (shown in the Offers tab of the booking page)
+VIEWS.offers=async mn=>{
+  const KIND={bedspace:{t:'Bed Space Offers',one:'bed space offer'},mutawef:{t:'Mutawef Offers',one:'mutawef offer'}};
+  const data={};for(const k in KIND)data[k]=(await api('GET','/api/admin/special-offers/'+k)).items;
+  const draw=()=>{mn.innerHTML=`<h2>Offers</h2><p class="mu">These appear in the <b>Offers</b> tab of the DIY Booking page. Switch an offer off to hide it without deleting it.</p><div id="of"></div>`+Object.keys(KIND).map(k=>`<h3 style="margin:20px 0 8px">${KIND[k].t}</h3><div class="toolbar"><button class="btn sm" data-add="${k}">Add ${KIND[k].one}</button></div><div class="tw"><table><tr><th></th><th>Title</th>${k=='bedspace'?'<th>Offer</th><th>Check-in</th><th>Check-out</th><th>Nights</th><th>Total price</th>':'<th>Description</th><th>Sightseeing</th><th>Price / service</th>'}<th>Live</th><th></th></tr>${data[k].map(o=>`<tr${o.active===false?' style="opacity:.55"':''}><td>${o.imageUrl?`<img src="${esc(o.imageUrl)}" alt="" style="width:56px;height:40px;object-fit:cover;border-radius:6px">`:'—'}</td><td><b>${esc(o.title)}</b></td>${k=='bedspace'?`<td>${esc(o.offer)}</td><td>${esc(o.checkIn)}</td><td>${esc(o.checkOut)}</td><td>${o.nights}</td><td>${NG(o.price)}</td>`:`<td style="max-width:240px">${esc(o.description)}</td><td>${(o.sightseeing||[]).length} stop${(o.sightseeing||[]).length==1?'':'s'}</td><td>${NG(o.price)}</td>`}<td><input type="checkbox" data-a="${k}:${o.id}" ${o.active!==false?'checked':''} aria-label="Live" style="width:20px;min-height:20px"></td><td style="white-space:nowrap"><button class="btn sm o" data-m="${k}:${o.id}">Edit</button> <button class="btn sm o" data-x="${k}:${o.id}">Delete</button></td></tr>`).join('')||`<tr><td colspan="9">None yet.</td></tr>`}</table></div>`).join('');
+    mn.querySelectorAll('[data-add]').forEach(b=>b.onclick=()=>form(b.dataset.add,null));
+    mn.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{const [k,id]=b.dataset.m.split(':');form(k,data[k].find(o=>o.id==id))});
+    mn.querySelectorAll('[data-a]').forEach(c=>c.onchange=async()=>{const [k,id]=c.dataset.a.split(':');try{Object.assign(data[k].find(o=>o.id==id),await api('PUT',`/api/admin/special-offers/${k}/${id}`,{active:c.checked}));toast(c.checked?'Offer is live':'Offer hidden')}catch(e){toast(errText(e))}draw()});
+    mn.querySelectorAll('[data-x]').forEach(b=>b.onclick=async()=>{if(!confirm('Delete this offer?'))return;const [k,id]=b.dataset.x.split(':');try{await api('DELETE',`/api/admin/special-offers/${k}/${id}`);data[k].splice(data[k].findIndex(o=>o.id==id),1);draw()}catch(e){toast(errText(e))}})};
+  const form=(k,o)=>{const v=o||{active:true};const bs=k=='bedspace';
+    $('of').innerHTML=`<div class="box" style="margin-bottom:14px"><h3>${o?'Edit':'Add'} ${KIND[k].one}</h3><form id="ef">
+    <div class="f2"><div><label>Title *<input name="title" value="${esc(v.title||'')}" placeholder="${bs?'e.g. Maysan Al Taqwa Madinah':'e.g. Madinah Ziyarah Mutawef'}" required></label></div>
+    ${bs?`<div><label>Offer *<input name="offer" value="${esc(v.offer||'')}" placeholder="e.g. 1 Bed Space for Men" required></label></div>`:`<div><label>Price per sightseeing service (₦) *<input name="price" type="number" min="1" step="1" value="${esc(v.price??'')}" required></label></div>`}</div>
+    ${bs?`<div class="f2"><div><label>Check-in date *<input name="checkIn" type="date" value="${esc(v.checkIn||'')}" required></label></div><div><label>Check-out date *<input name="checkOut" type="date" value="${esc(v.checkOut||'')}" required></label></div></div>
+    <div class="f2"><div><label>Total price for the stay (₦) *<input name="price" type="number" min="1" step="1" value="${esc(v.price??'')}" required></label></div><div><label>Total nights<input id="nn" value="${esc(v.nights??'')}" readonly placeholder="calculated from the dates"></label></div></div>`
+    :`<label>Description *<textarea name="description" rows="3" maxlength="1200" required>${esc(v.description||'')}</textarea></label><label>Sightseeing details * <small>(one stop per line)</small><textarea name="sightseeing" rows="5" placeholder="Masjid Quba&#10;Masjid Qiblatain&#10;Mount Uhud">${esc((v.sightseeing||[]).join('\n'))}</textarea></label>`}
+    <div class="f2"><div><label>Cover image ${v.imageUrl?`<small>(<a href="${esc(v.imageUrl)}" target="_blank" rel="noopener">current</a>)</small>`:''}<input type="file" id="oi" accept="image/jpeg,image/png,image/webp"></label></div><div></div></div>
+    <label style="display:flex;gap:10px;align-items:center;font-weight:500"><input type="checkbox" name="active" ${v.active!==false?'checked':''} style="width:20px;min-height:20px;margin:0"> Live (visible to clients)</label>
+    <div class="err" id="e_ef" role="alert"></div><div class="row" style="margin:0"><button class="btn sm" id="os">Save</button><button type="button" class="btn sm o" id="ox">Cancel</button></div></form></div>`;
+    const calc=()=>{const f=$('ef');if(!bs||!f.checkIn.value||!f.checkOut.value)return;const n=Math.round((Date.parse(f.checkOut.value)-Date.parse(f.checkIn.value))/864e5);$('nn').value=n>0?n:''};
+    if(bs){$('ef').checkIn.onchange=calc;$('ef').checkOut.onchange=calc}
+    $('ox').onclick=()=>$('of').innerHTML='';$('of').scrollIntoView({behavior:'smooth',block:'start'});
+    $('ef').onsubmit=async e=>{e.preventDefault();const fd=new FormData(e.target),b=Object.fromEntries(fd);b.active=fd.has('active');$('os').disabled=true;$('e_ef').textContent='';
+      try{const saved=await api(o?'PUT':'POST',`/api/admin/special-offers/${k}${o?'/'+o.id:''}`,b);const img=$('oi').files[0];
+        if(img)await api('POST',`/api/admin/special-offers/${k}/${saved.id}/image`,{data:await resizeImg(img)});
+        data[k]=(await api('GET','/api/admin/special-offers/'+k)).items;toast('Offer saved');draw()}
+      catch(err){$('e_ef').textContent=errText(err);$('os').disabled=false}}};
+  draw()};
 
 // ---- email list (brochure downloads)
 VIEWS.leads=async mn=>{

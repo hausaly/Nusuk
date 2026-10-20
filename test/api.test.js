@@ -456,3 +456,26 @@ test('HHR train: one way vs round trip', async () => {
   assert.equal(d.tripType, 'round-trip'); assert.equal(d.returnDate, dayStr(9)); assert.equal(d.service, 'HHR Train (round trip)');
   assert.equal((await call('POST', '/api/orders/train', { ...base, tripType: 'zigzag' })).status, 422);
 });
+
+test('offers: admin manages bed space + mutawef offers, public Offers tab lists only live ones', async () => {
+  const day = (n) => new Date(Date.now() + n * 864e5).toISOString().slice(0, 10);
+  const bs = { title: 'Maysan Al Taqwa Madinah', offer: '1 Bed Space for Men', checkIn: day(30), checkOut: day(37), price: '350000' };
+  assert.equal((await call('POST', '/api/admin/special-offers/bedspace', bs)).status, 401);
+  assert.equal((await call('POST', '/api/admin/special-offers/bedspace', { ...bs, checkOut: bs.checkIn }, cookie)).status, 422);
+  assert.equal((await call('POST', '/api/admin/special-offers/nope', bs, cookie)).status, 404);
+  const a = await call('POST', '/api/admin/special-offers/bedspace', bs, cookie);
+  assert.equal(a.status, 200); assert.equal(a.body.nights, 7);
+  const hidden = await call('POST', '/api/admin/special-offers/bedspace', { ...bs, title: 'Hidden one', active: false }, cookie);
+  const expired = await call('POST', '/api/admin/special-offers/bedspace', { ...bs, title: 'Old', checkIn: day(-20), checkOut: day(-10) }, cookie);
+  assert.equal(expired.status, 200);
+  assert.equal((await call('POST', '/api/admin/special-offers/mutawef', { title: 'Madinah Ziyarah Mutawef', description: 'Guided ziyarah', price: '25000' }, cookie)).status, 422);   // needs sightseeing
+  const m = await call('POST', '/api/admin/special-offers/mutawef', { title: 'Madinah Ziyarah Mutawef', description: 'Guided ziyarah of the holy sites', sightseeing: 'Masjid Quba\nMasjid Qiblatain\nMount Uhud', price: '25000' }, cookie);
+  assert.equal(m.status, 200); assert.deepEqual(m.body.sightseeing, ['Masjid Quba', 'Masjid Qiblatain', 'Mount Uhud']);
+  const pub = (await call('GET', '/api/offers')).body;
+  assert.deepEqual(pub.bedspace.map(o => o.title), ['Maysan Al Taqwa Madinah']);     // hidden + expired are not shown
+  assert.equal(pub.bedspace[0].price, 350000); assert.equal(pub.mutawef.length, 1);
+  assert.equal((await call('PUT', `/api/admin/special-offers/bedspace/${hidden.body.id}`, { active: true }, cookie)).status, 200);
+  assert.equal((await call('GET', '/api/offers')).body.bedspace.length, 2);
+  assert.equal((await call('DELETE', `/api/admin/special-offers/mutawef/${m.body.id}`, null, cookie)).status, 200);
+  assert.equal((await call('GET', '/api/offers')).body.mutawef.length, 0);
+});

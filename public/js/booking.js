@@ -39,7 +39,7 @@ NC.mountBooking=async()=>{
   root.innerHTML=`<section class="bk-hero"><div class="w"><div class="eyebrow">DIY BOOKING</div><h1>One Shop, Multiple deals</h1><p>Hotels in Makkah &amp; Madinah, the Haramain train, airport transfers and Umrah visa — choose, book and get your booking slip instantly. No account needed.</p>
   <div class="trust"><span>${ic('shield',18)}<b>IATA</b> Certified</span><i></i><span>${ic('medal',18)}<b>NCAA</b> Certified</span><i></i><span>${ic('card',18)}<b>Flexible</b> Payment</span><i></i><span>${ic('headset',18)}<b>24/7</b> Support</span></div></div></section>
   <section class="w bk-wrap"><div class="bk-card"><div class="bk-tabs" role="tablist">
-  ${[['hotels','Hotels','hotel'],['train','HHR Train','train'],['transfers','Transfers','car'],['visa','Umrah Visa','passport']].map(t=>`<button role="tab" data-tab="${t[0]}" class="${tab==t[0]?'on':''}">${ic(t[2],22)}<span>${t[1]}</span></button>`).join('')}</div>
+  ${[['hotels','Hotels','hotel'],['train','HHR Train','train'],['transfers','Transfers','car'],['visa','Umrah Visa','passport'],['offers','Offers','tag']].map(t=>`<button role="tab" data-tab="${t[0]}" class="${tab==t[0]?'on':''}">${ic(t[2],22)}<span>${t[1]}</span></button>`).join('')}</div>
   <div class="bk-panel" id="bkp"></div></div><div id="bkr"></div>
   <div class="conf"><h2>Book with Confidence.</h2><p class="cp">All service providers on Nusuk are officially licensed and approved by the Ministry of Hajj and Umrah to ensure safety, reliability, and quality service for every pilgrim.</p>
   <div class="cgrid"><div class="ci">${ic('tag',38)}<div><b>Get Your Discount</b><p>Save up to 20% on each booking.</p></div></div><div class="ci">${ic('help',38)}<div><b>Get Real Help, 24/7</b><p>Skip the bots. Talk to a real travel expert.</p></div></div><div class="ci">${ic('calpay',38)}<div><b>Reserve Now, Pay Later</b><p>Convenient options online and 24/7 global concierge.</p></div></div></div></div>
@@ -48,7 +48,24 @@ NC.mountBooking=async()=>{
   panel();
   featured();
 };
-const panel=()=>({hotels:hotelsPanel,train:trainPanel,transfers:transferPanel,visa:visaPanel}[tab])();
+const panel=()=>({hotels:hotelsPanel,train:trainPanel,transfers:transferPanel,visa:visaPanel,offers:offersPanel}[tab])();
+
+// ============ OFFERS (bed space + mutawef) ============
+const WA='2348131227047',fmtD=s=>{try{return new Date(s+'T00:00:00Z').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric',timeZone:'UTC'})}catch{return s}};
+const waLink=t=>`https://wa.me/${WA}?text=${encodeURIComponent(t)}`;
+const offImg=(o,k)=>`<div class="foi ${o.imageUrl?'':'ph'}" ${o.imageUrl?`style="background-image:url('${esc(o.imageUrl)}')"`:''} role="img" aria-label="${esc(o.title)}">${o.imageUrl?'':ic(k=='b'?'hotel':'pin',40)}</div>`;
+async function offersPanel(){
+  const p=$('bkp');p.innerHTML='<p class="mu" style="padding:18px">Loading offers…</p>';
+  let d;try{d=await api('GET','api/offers')}catch{p.innerHTML='<p class="err" style="padding:18px">Could not load offers. Please refresh.</p>';return}
+  const bs=d.bedspace.map(o=>`<article class="foc"><div class="foi-w">${offImg(o,'b')}<span class="best">Bed space</span></div><div class="fob"><div class="hc-top"><h3>${esc(o.title)}</h3></div><div class="hc-city">${ic('hotel',14)} ${esc(o.offer)}</div>
+    <dl class="od"><div><dt>Check-in</dt><dd>${fmtD(o.checkIn)}</dd></div><div><dt>Check-out</dt><dd>${fmtD(o.checkOut)}</dd></div><div><dt>Total nights</dt><dd>${o.nights}</dd></div></dl>
+    <div class="fof"><div><small>Total price</small><b>${NGN(o.price)}</b></div><a class="btn sm" target="_blank" rel="noopener" href="${waLink(`Hello NUSUK CONSULT, I would like to reserve: ${o.title} — ${o.offer}, ${fmtD(o.checkIn)} to ${fmtD(o.checkOut)} (${o.nights} nights), ${NGN(o.price)}.`)}">Reserve</a></div></div></article>`).join('');
+  const mt=d.mutawef.map(o=>`<article class="foc"><div class="foi-w">${offImg(o,'m')}<span class="best">Mutawef</span></div><div class="fob"><div class="hc-top"><h3>${esc(o.title)}</h3></div><p class="mu" style="margin:0;font-size:.86rem">${esc(o.description)}</p>
+    <div class="od-s"><b>Sightseeing</b><ul>${o.sightseeing.map(s=>`<li>${ic('check',12)} ${esc(s)}</li>`).join('')}</ul></div>
+    <div class="fof"><div><small>Price per sightseeing service</small><b>${NGN(o.price)}</b></div><a class="btn sm" target="_blank" rel="noopener" href="${waLink(`Hello NUSUK CONSULT, I would like to book: ${o.title} (${NGN(o.price)} per sightseeing service).`)}">Book</a></div></div></article>`).join('');
+  p.innerHTML=`<div class="offers"><div class="fo-head" style="margin-top:6px"><h2>Bed Space Offers</h2><p>Limited bed spaces in Makkah and Madinah — total price for the whole stay.</p></div>${bs?`<div class="fo">${bs}</div>`:'<p class="mu">No bed space offers right now. Please check back soon.</p>'}
+  <div class="fo-head" style="margin-top:30px"><h2>Mutawef Offers</h2><p>Guided ziyarah and sightseeing with an experienced mutawef.</p></div>${mt?`<div class="fo">${mt}</div>`:'<p class="mu">No mutawef offers right now. Please check back soon.</p>'}</div>`;
+}
 
 // ============ FEATURED OFFERS ============
 async function featured(){

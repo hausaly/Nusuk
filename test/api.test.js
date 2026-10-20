@@ -479,3 +479,34 @@ test('offers: admin manages bed space + mutawef offers, public Offers tab lists 
   assert.equal((await call('DELETE', `/api/admin/special-offers/mutawef/${m.body.id}`, null, cookie)).status, 200);
   assert.equal((await call('GET', '/api/offers')).body.mutawef.length, 0);
 });
+
+test('offer orders: bed space + mutawef support Pay Now / Pay Later, slip and dashboard fulfilment', async () => {
+  const day = (n) => new Date(Date.now() + n * 864e5).toISOString().slice(0, 10);
+  const bs = (await call('POST', '/api/admin/special-offers/bedspace', { title: 'Maysan Al Taqwa Madinah', offer: '1 Bed Space for Men', checkIn: day(30), checkOut: day(37), price: '350000' }, cookie)).body;
+  const mt = (await call('POST', '/api/admin/special-offers/mutawef', { title: 'Madinah Ziyarah Mutawef', description: 'Guided ziyarah', sightseeing: 'Masjid Quba\nMasjid Qiblatain\nMount Uhud', price: '25000' }, cookie)).body;
+  const customer = { fullName: 'Hauwa Sani', phone: '+2348131227047', email: 'h@example.com', address: 'Kano' };
+  // bed space: Pay Now -> payment link, price comes from the server record
+  const now = await call('POST', '/api/orders/bedspace', { offerId: bs.id, customer, payMode: 'now', amount: 1 });
+  assert.equal(now.status, 200); assert.ok(now.body.authorizationUrl);
+  let slip = (await call('GET', `/api/orders/${now.body.bookingId}/slip?t=${now.body.token}`)).body.order;
+  assert.equal(slip.type, 'bedspace'); assert.equal(slip.amount, 350000); assert.equal(slip.paymentStatus, 'unpaid');
+  // Pay Later -> manual reservation, online payment refused
+  const later = await call('POST', '/api/orders/bedspace', { offerId: bs.id, customer, payMode: 'later' });
+  assert.equal(later.body.manual, true);
+  assert.equal((await call('POST', `/api/orders/${later.body.bookingId}/pay?t=${later.body.token}`, {})).status, 409);
+  assert.equal((await call('POST', '/api/orders/bedspace', { offerId: bs.id, customer, payMode: 'bogus' })).status, 422);
+  assert.equal((await call('POST', '/api/orders/bedspace', { offerId: bs.id, customer: { ...customer, email: 'x' }, payMode: 'now' })).status, 422);
+  // mutawef: total = price x selected services
+  assert.equal((await call('POST', '/api/orders/mutawef', { offerId: mt.id, stops: ['Not a stop'], people: 2, customer, payMode: 'later' })).status, 422);
+  const m = await call('POST', '/api/orders/mutawef', { offerId: mt.id, stops: ['Masjid Quba', 'Mount Uhud'], people: 3, date: day(20), customer, payMode: 'later' });
+  assert.equal(m.status, 200); assert.equal(m.body.manual, true);
+  slip = (await call('GET', `/api/orders/${m.body.bookingId}/slip?t=${m.body.token}`)).body.order;
+  assert.equal(slip.amount, 50000); assert.equal(slip.type, 'mutawef'); assert.deepEqual(slip.details.stops, ['Masjid Quba', 'Mount Uhud']);
+  // dashboard: appears in orders, can be marked paid and fulfilled
+  const list = (await call('GET', '/api/admin/orders', null, cookie)).body.items;
+  const rec = list.find(o => o.bookingId === m.body.bookingId); assert.ok(rec);
+  const paid = await call('PATCH', `/api/admin/orders/${rec.id}`, { paymentStatus: 'paid' }, cookie);
+  assert.equal(paid.body.paymentStatus, 'paid'); assert.equal(paid.body.status, 'Pending');
+  assert.equal((await call('PATCH', `/api/admin/orders/${rec.id}`, { status: 'Fulfilled' }, cookie)).body.status, 'Fulfilled');
+  assert.match((await call('GET', '/api/admin/orders.csv', null, cookie)).body, /Madinah Ziyarah Mutawef/);
+});

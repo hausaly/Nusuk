@@ -15,6 +15,7 @@ export const VEHICLES = [
   { id: 'bus', name: 'Bus', cap: '45 Pax + 40 Luggage' },
 ];
 const ORDER_LIMIT = Number(process.env.ORDER_RATE_LIMIT) || 20;   // orders/requests per IP per hour (tests raise it)
+export const PAYABLE = ['hotel', 'bedspace', 'mutawef'];   // order types that can be paid online (Pay Now) or reserved (Pay Later)
 export const ORDER_STATUSES = ['Awaiting payment', 'Pending', 'Fulfilled', 'Cancelled'];
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/, PHONE = /^\+?[0-9\s\-()]{7,18}$/;
 const str = (v, max = 200) => (typeof v === 'string' ? v.trim().slice(0, max) : '');
@@ -116,12 +117,49 @@ export function registerBooking(k) {
     return { bookingId: o.bookingId, token: o.token, authorizationUrl };
   });
 
+
+  // Bed space + mutawef offers: same Pay Now / Pay Later flow, booking slip and dashboard fulfilment as hotels
+  async function placeOffer(req, body, type, prefix, details, amount) {
+    const { c, e } = customerOf(body.customer); if (c.address.length < 3) e.address = 'Address is required.';
+    if (Object.keys(e).length) fail(e);
+    if (body.payMode !== undefined && !['now', 'later'].includes(body.payMode)) throw new HttpError(422, 'Choose Pay Now or Pay Later.');
+    const manual = paymentMode() === 'off' || body.payMode === 'later';
+    const o = records.create('orders', {
+      type, bookingId: bookingId(prefix), token: crypto.randomBytes(18).toString('base64url'), status: 'Awaiting payment', paymentStatus: 'unpaid',
+      amount, currency: 'NGN', customer: c, notes: '', payment: { provider: manual ? 'manual' : paymentMode(), reference: null, attempts: 0 }, details,
+    });
+    if (manual) {
+      notify(`${type} reservation (payment pending)`, { service: `${summary(o)} · ₦${o.amount.toLocaleString('en-NG')}`, name: c.fullName, email: c.email, phone: c.phone });
+      return { bookingId: o.bookingId, token: o.token, manual: true };
+    }
+    return { bookingId: o.bookingId, token: o.token, authorizationUrl: await initPayment(o, req) };
+  }
+  route('POST', '/api/orders/bedspace', async ({ req, body }) => {
+    limit(req, 'order', ORDER_LIMIT, 60 * 60e3);
+    const off = records.get('bedspace', String(body.offerId || ''));
+    if (!off || off.active === false || off.checkOut < today()) throw new HttpError(409, 'Sorry, this bed space offer is no longer available.');
+    return placeOffer(req, body, 'bedspace', 'B', { offerId: off.id, title: off.title, offer: off.offer, checkIn: off.checkIn, checkOut: off.checkOut, nights: off.nights }, off.price);
+  });
+  route('POST', '/api/orders/mutawef', async ({ req, body }) => {
+    limit(req, 'order', ORDER_LIMIT, 60 * 60e3);
+    const off = records.get('mutawef', String(body.offerId || ''));
+    if (!off || off.active === false) throw new HttpError(409, 'Sorry, this mutawef offer is no longer available.');
+    const picked = Array.isArray(body.stops) ? [...new Set(body.stops.map(x => str(x, 160)))].filter(x => off.sightseeing.includes(x)) : [];
+    const people = intIn(body.people, 1, 100, 1), date = body.date ? str(body.date, 10) : '';
+    const e = {};
+    if (!picked.length) e.stops = 'Select at least one sightseeing service.';
+    if (Number.isNaN(people)) e.people = 'Number of people must be 1–100.';
+    if (date && (!validDate(date) || date < today())) e.date = 'Choose a date from today onwards.';
+    if (Object.keys(e).length) fail(e);
+    return placeOffer(req, body, 'mutawef', 'M', { offerId: off.id, title: off.title, description: off.description, stops: picked, pricePerService: off.price, people, date }, off.price * picked.length);
+  });
+
   route('POST', '/api/orders/:id/pay', async ({ req, params }) => {
     limit(req, 'order', ORDER_LIMIT, 60 * 60e3);
     const t = new URL(req.url, 'http://x').searchParams.get('t') || '';
     const o = byId(params.id);
     if (!o || !safeEq(o.token, t)) throw new HttpError(404, 'Booking not found');
-    if (o.type !== 'hotel' || o.paymentStatus === 'paid' || o.status === 'Cancelled' || o.payment?.provider === 'manual') throw new HttpError(409, 'Online payment is not available for this booking. Our team will contact you.');
+    if (!PAYABLE.includes(o.type) || o.paymentStatus === 'paid' || o.status === 'Cancelled' || o.payment?.provider === 'manual') throw new HttpError(409, 'Online payment is not available for this booking. Our team will contact you.');
     return { authorizationUrl: await initPayment(o, req) };
   });
 
@@ -188,7 +226,7 @@ export function registerBooking(k) {
   function markPaid(o, info = {}) {
     if (o.paymentStatus === 'paid') return o;
     const upd = records.update('orders', o.id, { paymentStatus: 'paid', status: o.status === 'Awaiting payment' ? 'Pending' : o.status, payment: { ...(o.payment || {}), paidAt: new Date().toISOString(), channel: info.channel || '' } });
-    notify('paid hotel booking', { service: `${o.details.hotelName} · ${o.details.checkIn} → ${o.details.checkOut} · ₦${o.amount.toLocaleString('en-NG')}`, name: o.customer.fullName, email: o.customer.email, phone: o.customer.phone });
+    notify(`paid ${o.type} booking`, { service: `${summary(o)} · ₦${o.amount.toLocaleString('en-NG')}`, name: o.customer.fullName, email: o.customer.email, phone: o.customer.phone });
     return upd;
   }
   async function verifyPaystack(ref, o) {
@@ -238,7 +276,9 @@ export function registerBooking(k) {
 
   // ---------- admin: orders ----------
   const csvCols = [['bookingId', 'Booking ID'], ['createdAt', 'Created'], ['type', 'Type'], ['status', 'Status'], ['paymentStatus', 'Payment'], ['amount', 'Amount (NGN)'], ['fullName', 'Client'], ['phone', 'Phone'], ['email', 'Email'], ['address', 'Address'], ['summary', 'Details']];
-  const summary = o => o.type === 'hotel' ? `${o.details.hotelName} (${o.details.city}) · ${o.details.roomType} · ${o.details.checkIn} → ${o.details.checkOut} · ${o.details.nights} night(s) · ${o.details.rooms} room(s)`
+  const summary = o => o.type === 'bedspace' ? `${o.details.title} · ${o.details.offer} · ${o.details.checkIn} → ${o.details.checkOut} · ${o.details.nights} night(s)`
+    : o.type === 'mutawef' ? `${o.details.title} · ${o.details.stops.length} sightseeing service(s) · ${o.details.people} people${o.details.date ? ' · ' + o.details.date : ''}`
+    : o.type === 'hotel' ? `${o.details.hotelName} (${o.details.city}) · ${o.details.roomType} · ${o.details.checkIn} → ${o.details.checkOut} · ${o.details.nights} night(s) · ${o.details.rooms} room(s)`
     : o.type === 'visa' ? `Umrah Visa · ${o.details.adults} adult(s), ${o.details.children} child(ren), ${o.details.infants} infant(s)`
     : o.type === 'train' ? `${o.details.tripType === 'round-trip' ? 'Round trip' : 'One way'} · ${o.details.from} → ${o.details.to} · ${o.details.date}${o.details.returnDate ? ` (return ${o.details.returnDate})` : ''} · ${o.details.adults}A/${o.details.children}C` : `${o.details.vehicle} x${o.details.quantity} · ${o.details.pickup} → ${o.details.dropoff} · ${o.details.date} ${o.details.time}`;
   route('GET', '/api/admin/orders', A, () => ({ items: records.list('orders'), statuses: ORDER_STATUSES }));
@@ -251,7 +291,7 @@ export function registerBooking(k) {
     if (body.notes !== undefined) patch.notes = String(body.notes).slice(0, 2000);
     if (body.paymentStatus !== undefined) {
       const cur = records.get('orders', params.id); if (!cur) throw new HttpError(404, 'Not found');
-      if (!['hotel', 'visa'].includes(cur.type) || !['paid', 'unpaid'].includes(body.paymentStatus)) fail({ paymentStatus: 'Payment status can only be paid or unpaid on hotel and visa orders.' });
+      if (![...PAYABLE, 'visa'].includes(cur.type) || !['paid', 'unpaid'].includes(body.paymentStatus)) fail({ paymentStatus: 'Payment status can only be paid or unpaid on hotel, bed space, mutawef and visa orders.' });
       patch.paymentStatus = body.paymentStatus;
       patch.payment = { ...(cur.payment || {}), paidAt: body.paymentStatus === 'paid' ? new Date().toISOString() : null, channel: body.paymentStatus === 'paid' ? (cur.payment?.channel || 'manual') : '' };
       if (body.paymentStatus === 'paid' && cur.status === 'Awaiting payment' && body.status === undefined) patch.status = 'Pending';

@@ -59,12 +59,59 @@ async function offersPanel(){
   let d;try{d=await api('GET','api/offers')}catch{p.innerHTML='<p class="err" style="padding:18px">Could not load offers. Please refresh.</p>';return}
   const bs=d.bedspace.map(o=>`<article class="foc"><div class="foi-w">${offImg(o,'b')}<span class="best">Bed space</span></div><div class="fob"><div class="hc-top"><h3>${esc(o.title)}</h3></div><div class="hc-city">${ic('hotel',14)} ${esc(o.offer)}</div>
     <dl class="od"><div><dt>Check-in</dt><dd>${fmtD(o.checkIn)}</dd></div><div><dt>Check-out</dt><dd>${fmtD(o.checkOut)}</dd></div><div><dt>Total nights</dt><dd>${o.nights}</dd></div></dl>
-    <div class="fof"><div><small>Total price</small><b>${NGN(o.price)}</b></div><a class="btn sm" target="_blank" rel="noopener" href="${waLink(`Hello NUSUK CONSULT, I would like to reserve: ${o.title} — ${o.offer}, ${fmtD(o.checkIn)} to ${fmtD(o.checkOut)} (${o.nights} nights), ${NGN(o.price)}.`)}">Reserve</a></div></div></article>`).join('');
-  const mt=d.mutawef.map(o=>`<article class="foc"><div class="foi-w">${offImg(o,'m')}<span class="best">Mutawef</span></div><div class="fob"><div class="hc-top"><h3>${esc(o.title)}</h3></div><p class="mu" style="margin:0;font-size:.86rem">${esc(o.description)}</p>
+    <div class="fof"><div><small>Total price</small><b>${NGN(o.price)}</b></div><button class="btn sm" data-bs="${o.id}">Reserve</button></div></div></article>`).join('');
+  const mt=d.mutawef.map(o=>`<article class="foc mt"><div class="foi-w">${offImg(o,'m')}<span class="best">Mutawef</span></div><div class="fob"><div class="hc-top"><h3>${esc(o.title)}</h3></div><p class="mu" style="margin:0;font-size:.86rem">${esc(o.description)}</p>
     <div class="od-s"><b>Sightseeing</b><ul>${o.sightseeing.map(s=>`<li>${ic('check',12)} ${esc(s)}</li>`).join('')}</ul></div>
-    <div class="fof"><div><small>Price per sightseeing service</small><b>${NGN(o.price)}</b></div><a class="btn sm" target="_blank" rel="noopener" href="${waLink(`Hello NUSUK CONSULT, I would like to book: ${o.title} (${NGN(o.price)} per sightseeing service).`)}">Book</a></div></div></article>`).join('');
+    <div class="fof"><div><small>Price per sightseeing service</small><b>${NGN(o.price)}</b></div><button class="btn sm" data-mt="${o.id}">Book</button></div></div></article>`).join('');
   p.innerHTML=`<div class="offers"><div class="fo-head" style="margin-top:6px"><h2>Bed Space Offers</h2><p>Limited bed spaces in Makkah and Madinah — total price for the whole stay.</p></div>${bs?`<div class="fo">${bs}</div>`:'<p class="mu">No bed space offers right now. Please check back soon.</p>'}
   <div class="fo-head" style="margin-top:30px"><h2>Mutawef Offers</h2><p>Guided ziyarah and sightseeing with an experienced mutawef.</p></div>${mt?`<div class="fo">${mt}</div>`:'<p class="mu">No mutawef offers right now. Please check back soon.</p>'}</div>`;
+  p.querySelectorAll('[data-bs]').forEach(x=>x.onclick=()=>offerFlow('bedspace',d.bedspace.find(o=>o.id==x.dataset.bs)));
+  p.querySelectorAll('[data-mt]').forEach(x=>x.onclick=()=>offerFlow('mutawef',d.mutawef.find(o=>o.id==x.dataset.mt)));
+}
+
+
+// ---- offers: review → details → Pay Now / Pay Later (same flow as hotels)
+function offerFlow(kind,o){
+  const bs=kind=='bedspace',sel=new Set(bs?[]:o.sightseeing);let people=1,date='';
+  const m=document.createElement('div');m.className='modal';m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');
+  document.body.appendChild(m);document.body.style.overflow='hidden';
+  const close=()=>{m.remove();document.body.style.overflow=''};
+  const shell=(title,step,body)=>{m.innerHTML=`<div class="mbox"><button class="mx" aria-label="Close">×</button><div class="msteps"><span class="${step>=1?'on':''}">1 Review</span><i></i><span class="${step>=2?'on':''}">2 Your details</span><i></i><span>${cfg.payment=='off'?'3 Confirmation':'3 Payment'}</span></div><h2>${title}</h2>${body}</div>`;m.querySelector('.mx').onclick=close};
+  m.onclick=e=>{if(e.target==m)close()};
+  const total=()=>bs?o.price:o.price*sel.size;
+  const brief=bs?`${esc(o.title)} · ${esc(o.offer)} · ${o.nights} night${o.nights>1?'s':''}`:`${esc(o.title)} · ${sel.size} service${sel.size==1?'':'s'}`;
+  const review=()=>{
+    const sum=bs?`<div class="osum"><div class="oh"><b>${esc(o.title)}</b></div><div class="oc">${ic('hotel',14)} ${esc(o.offer)}</div><table><tr><th>Check-in</th><td>${fd(o.checkIn)}</td></tr><tr><th>Check-out</th><td>${fd(o.checkOut)}</td></tr><tr><th>Total nights</th><td>${o.nights}</td></tr></table><div class="otot"><span>Total to pay</span><b>${NGN(o.price)}</b></div></div>`
+    :`<div class="osum"><div class="oh"><b>${esc(o.title)}</b></div><p class="mu" style="margin:0 0 8px;font-size:.86rem">${esc(o.description)}</p>
+      <div class="fld"><label>Choose your sightseeing services (${NGN(o.price)} each)</label><div class="stops">${o.sightseeing.map((s,i)=>`<label class="stop"><input type="checkbox" data-st="${i}" ${sel.has(s)?'checked':''}> <span>${esc(s)}</span></label>`).join('')}</div><div class="err" id="e_stops"></div></div>
+      <div class="f2m"><div class="fld"><label for="o_people">Number of people</label><div class="ctl"><input id="o_people" type="number" min="1" max="100" value="${people}"></div></div><div class="fld"><label for="o_date">Preferred date (optional)</label><div class="ctl"><input id="o_date" type="date" min="${cfg.today}" value="${date}"></div></div></div>
+      <div class="otot"><span><span id="o_n">${sel.size}</span> × ${NGN(o.price)}</span><b id="o_t">${NGN(total())}</b></div></div>`;
+    shell('Review your order',1,sum+`<div class="mact"><button class="btn o" id="mc">Back to offers</button><button class="btn" id="mok">Confirm order</button></div>`);
+    $('mc').onclick=close;
+    if(!bs){const upd=()=>{$('o_n').textContent=sel.size;$('o_t').textContent=NGN(total())};
+      m.querySelectorAll('[data-st]').forEach(x=>x.onchange=()=>{const s=o.sightseeing[+x.dataset.st];x.checked?sel.add(s):sel.delete(s);upd()});
+      $('o_people').oninput=e=>{people=+e.target.value||1};$('o_date').onchange=e=>{date=e.target.value}}
+    $('mok').onclick=()=>{if(!bs){people=Math.round(+$('o_people').value)||0;date=$('o_date').value;if(!sel.size){$('e_stops').textContent='Select at least one sightseeing service.';return}if(people<1||people>100){alert('Number of people must be 1–100.');return}}details()};
+  };
+  const details=()=>{
+    shell('Your details',2,`<div class="osm">${brief} · <b>${NGN(total())}</b></div>
+    <form id="of" novalidate>${custFields('o_')}<div class="fld"><label for="o_address">Address *</label><div class="ctl"><input id="o_address" autocomplete="street-address"></div><div class="err" id="e_o_address"></div></div>
+    ${cfg.payment=='simulation'?'<div class="testbn">TEST MODE — payments are simulated. No real money is charged.</div>':''}
+    ${cfg.payment=='off'?'<div class="infobn">No payment is needed now. Our team will contact you on WhatsApp / email with payment details — your booking is confirmed once payment is received.</div>':`<div class="paychoice"><div class="pc now"><b>${ic('shield',18)} Pay Now</b><span>Pay instantly and securely with Paystack (card, bank transfer or USSD). Your booking is confirmed as soon as payment succeeds.</span></div><div class="pc later"><b>${ic('clock',18)} Pay Later</b><span>Reserve now. Our team will contact you on WhatsApp / email to collect payment. Your booking is confirmed once payment is received.</span></div></div>`}
+    <div class="err" id="e_o_all" role="alert"></div><div class="mact"><button type="button" class="btn o" id="mb">Back</button>${cfg.payment=='off'?`<button type="submit" class="btn" id="mp">${ic('shield',18)} Confirm booking</button>`:`<button type="button" class="btn o" id="ml">${ic('clock',18)} Pay Later</button><button type="submit" class="btn" id="mp">${ic('shield',18)} Pay Now</button>`}</div>
+    <p class="secure">${ic('shield',14)} ${cfg.payment=='off'?'Your booking slip with your Booking ID is generated right away.':'Pay Now is secured by Paystack. Your booking slip with your Booking ID is generated right away with either option.'}</p></form>`);
+    $('mb').onclick=review;
+    const submit=async mode=>{const btns=[$('mp'),$('ml')].filter(Boolean);btns.forEach(x=>x.disabled=true);errs('e_o_',{},['fullName','phone','email','address','all']);
+      const c=custVals('o_');c.address=$('o_address').value.trim();
+      const body=bs?{offerId:o.id,customer:c,payMode:cfg.payment=='off'?'later':mode}:{offerId:o.id,stops:[...sel],people,date,customer:c,payMode:cfg.payment=='off'?'later':mode};
+      try{const out=await api('POST','api/orders/'+kind,body);
+        if(out.manual){close();location.hash=`#/slip/${out.bookingId}/${out.token}`;return}
+        shell('Redirecting to payment…',3,'<div class="bk-load"><i></i><i></i><i></i></div><p class="secure">Please wait — do not close this page.</p>');location.href=out.authorizationUrl}
+      catch(err){btns.forEach(x=>x.disabled=false);if(err.errors){const x=err.errors;for(const k of ['fullName','phone','email','address'])$('e_o_'+k).textContent=x[k]||'';$('e_o_all').textContent=x.stops||x.people||x.date||''}else $('e_o_all').textContent=err.message}};
+    $('of').onsubmit=e=>{e.preventDefault();submit(cfg.payment=='off'?'later':'now')};
+    if($('ml'))$('ml').onclick=()=>submit('later');
+  };
+  review();
 }
 
 // ============ FEATURED OFFERS ============
@@ -261,8 +308,9 @@ NC.mountSlip=async(id,token)=>{
     await loadSlipJs();
     const [label,col]=NCSlip.status(o);
     const manual=o.payment?.mode=='manual';
-    const unpaid=o.type=='hotel'&&o.paymentStatus!='paid'&&o.status!='Cancelled'&&!manual;
-    const banner=o.type=='hotel'?(o.paymentStatus=='paid'?`<div class="sb ok">${ic('check',26)}<div><b>Payment successful — your booking is confirmed</b><span>Booking ID <b>${esc(o.bookingId)}</b>. Download your slip below.</span></div></div>`:manual?`<div class="sb wait">${ic('clock',26)}<div><b>Booking received — payment pending</b><span>Booking ID <b>${esc(o.bookingId)}</b>. Our team will contact you on WhatsApp / email with payment details. Your room is confirmed once payment is received.</span></div></div>`:`<div class="sb wait">${ic('clock',26)}<div><b>Payment not completed yet</b><span>Your room is not confirmed until payment is received.</span></div></div>`)
+    const PAYT=['hotel','bedspace','mutawef'].includes(o.type);
+    const unpaid=PAYT&&o.paymentStatus!='paid'&&o.status!='Cancelled'&&!manual;
+    const banner=PAYT?(o.paymentStatus=='paid'?`<div class="sb ok">${ic('check',26)}<div><b>Payment successful — your booking is confirmed</b><span>Booking ID <b>${esc(o.bookingId)}</b>. Download your slip below.</span></div></div>`:manual?`<div class="sb wait">${ic('clock',26)}<div><b>Booking received — payment pending</b><span>Booking ID <b>${esc(o.bookingId)}</b>. Our team will contact you on WhatsApp / email with payment details. Your booking is confirmed once payment is received.</span></div></div>`:`<div class="sb wait">${ic('clock',26)}<div><b>Payment not completed yet</b><span>Your room is not confirmed until payment is received.</span></div></div>`)
       :`<div class="sb ok">${ic('check',26)}<div><b>Request received</b><span>Booking ID <b>${esc(o.bookingId)}</b>. Our team will contact you with the price and payment details.</span></div></div>`;
     root.innerHTML=`<div class="w slp">${banner}<div class="slact">${unpaid?`<button class="btn" id="spay">${ic('shield',18)} Complete payment</button><button class="btn o" id="sref">I have paid — refresh</button>`:''}<button class="btn" id="sdl">${ic('dl',18)} Download PDF slip</button><button class="btn o" id="spr">Print</button><a class="btn o" href="#/booking">New booking</a></div>${NCSlip.html(o)}</div>`;
     $('sdl').onclick=async e=>{const b=e.currentTarget;b.disabled=true;try{await NCSlip.pdf(o)}finally{b.disabled=false}};

@@ -111,14 +111,14 @@ pages.append(f'''<section class="page"><div class="ph"><div class="eyebrow">STEP
 <tr><td>BASE_PATH</td><td>/nusuk</td></tr><tr><td>HTTPS</td><td>1</td></tr><tr><td>ADMIN_EMAIL</td><td>you@example.com</td></tr><tr><td>ADMIN_PASSWORD</td><td>•••••••••••• <small>(strong, 10+ chars)</small></td></tr><tr><td>DATA_DIR</td><td>/home/&lt;cpanel-user&gt;/nusuk-data</td></tr></table>
 <div class="btnrow"><span class="b2">CANCEL</span><span class="b1">CREATE {mark(5)}</span></div></div>''')}
 <div class="legend">
-<div>{mark(1)} Pick <b>22.x</b> — the app needs Node 22.13 or newer.</div>
+<div>{mark(1)} Pick <b>22.x</b> and mode <b>Production</b>. An old Node (e.g. 10.x) causes 404 / 503 errors.</div>
 <div>{mark(2)} The folder from Step 2: <code>nusuk</code>.</div>
 <div>{mark(3)} <b>Type <code>nusuk</code> in the path box.</b> If empty, the site shows a black 404.</div>
 <div>{mark(4)} Startup file is exactly <code>app.cjs</code>.</div>
 <div>{mark(5)} Click <b>Create</b>, then <b>Restart</b>.</div></div>
 <div class="two">
 <div class="callout w">{i('key',20,'#8a6a36')}<div><b>First start only.</b> <code>ADMIN_EMAIL</code> and <code>ADMIN_PASSWORD</code> create the first admin the first time the app runs. Change the password later in <b>Dashboard → Users</b>.</div></div>
-<div class="callout r">{i('shield',20,'#b3261e')}<div><b>Never share screenshots</b> of this screen — it shows your password.</div></div></div>
+<div class="callout r">{i('shield',20,'#b3261e')}<div><b>Never share screenshots</b> of this screen — it shows your password. <b>Do not add the Paystack key here</b>: put it in a <code>.env</code> file (see page 7).</div></div></div>
 {foot(4)}</section>''')
 
 # ---------- 5 HTACCESS ----------
@@ -160,7 +160,7 @@ pages.append(f'''<section class="page"><div class="ph"><div class="eyebrow">STEP
 <div class="mc">{i('check',26)}<b>6 · Send a test</b><small>Submit the Interest Form → see it in Service Requests.</small></div></div>
 <div class="sh"><div class="sn">{i('gear',16,'#fff')}</div><div><h3>What the dashboard gives you</h3></div></div>
 <div class="tabs">
-<span>Overview</span><span>Service Requests</span><span>Bookings</span><span>Hotel Inventory</span><span>eSIM Inventory</span><span>Users</span><span>Settings</span></div>
+<span>Overview</span><span>Service Requests</span><span>DIY Orders</span><span>Hotel Inventory</span><span>Offers</span><span>Email List</span><span>Users</span><span>Settings</span></div>
 <p class="cap" style="text-align:left">Requests and bookings: search · status workflow · internal notes · CSV export.</p>
 {foot(6)}</section>''')
 
@@ -168,14 +168,15 @@ pages.append(f'''<section class="page"><div class="ph"><div class="eyebrow">STEP
 pages.append(f'''<section class="page"><div class="ph"><div class="eyebrow">MAINTENANCE</div><h2>Updating the live site</h2><p class="mu">Use this every time you receive new files.</p></div>
 <div class="flow6">
 <div class="fs">{mark(1)}{i('backup',26)}<b>Back up</b><small>Download <code>nusuk.db</code></small></div>{arrow}
-<div class="fs">{mark(2)}{i('dl',26)}<b>New ZIP</b><small>from GitHub</small></div>{arrow}
+<div class="fs">{mark(2)}{i('dl',26)}<b>Update pack</b><small>or ZIP from GitHub</small></div>{arrow}
 <div class="fs">{mark(3)}{i('x',26)}<b>Clear old code</b><small>see list below</small></div>{arrow}
 <div class="fs">{mark(4)}{i('up',26)}<b>Upload + move</b><small>extract into <code>nusuk</code></small></div>{arrow}
 <div class="fs">{mark(5)}{i('refresh',26)}<b>Restart</b><small>Setup Node.js App</small></div>{arrow}
 <div class="fs">{mark(6)}{i('check',26)}<b>Test</b><small>health + Ctrl+Shift+R</small></div></div>
 <div class="two">
 <div class="card del2"><h4>{i('x',18,'#b3261e')} Delete from <code>nusuk/</code></h4><ul class="plain"><li>folders <code>public</code> · <code>server</code> · <code>test</code></li><li>files <code>app.cjs</code> · <code>package.json</code> · <code>README.md</code> · <code>Dockerfile</code></li><li>the old extracted folder and old ZIP</li></ul></div>
-<div class="card keep2"><h4>{i('shield',18,'#2f7d4f')} Never delete</h4><ul class="plain"><li><code>nusuk-data/</code> — <b>your database</b></li><li><code>tmp/</code> — used by cPanel</li><li>the Passenger lines in <code>.htaccess</code></li></ul></div></div>
+<div class="card keep2"><h4>{i('shield',18,'#2f7d4f')} Never delete</h4><ul class="plain"><li><code>nusuk-data/</code> — <b>your database</b></li><li><code>tmp/</code> — used by cPanel</li><li><code>.env</code> — your Paystack key</li><li>the Passenger lines in <code>.htaccess</code></li></ul></div></div>
+<div class="callout">{i('zip',20,'#8a6a36')}<div><b>Small update pack?</b> It holds only the changed files in their folders. Upload it into <code>nusuk</code>, Extract, choose <b>Overwrite</b> — no deleting needed — then Restart and check the build number at <code>/api/health</code>.</div></div>
 <div class="sh"><div class="sn">?</div><div><h3>Do I need to restart?</h3></div></div>
 <table class="tbl"><tr><th>What changed</th><th>Restart app?</th><th>Hard-refresh?</th></tr>
 <tr><td>Only files in <code>public/</code> (design, text, images)</td><td><span class="yn n">No</span></td><td><span class="yn y">Yes</span></td></tr>
@@ -205,8 +206,9 @@ pages.append(f'''<section class="page"><div class="ph"><div class="eyebrow">TROU
 <table class="tbl sm"><tr><th>Symptom</th><th>Fix</th></tr>
 <tr><td>Logged out immediately after login</td><td><code>HTTPS=1</code> is set but you opened <code>http://</code> — use <code>https://</code></td></tr>
 <tr><td>Old design still showing</td><td>Browser cache — <b>Ctrl+Shift+R</b></td></tr>
-<tr><td>Top bar has no exchange rate</td><td>Set it in <b>Dashboard → Settings</b> (hidden until entered)</td></tr>
-<tr><td>Brochure / video buttons greyed out</td><td>Add the links in <b>Dashboard → Settings</b></td></tr>
+<tr><td>Brochure / video buttons greyed out</td><td>Add the links in <b>Dashboard → Settings</b> (brochures then ask for an email)</td></tr>
+<tr><td>503 after adding the Paystack key as a variable</td><td>Delete the variable; put the key in <code>.env</code>; Restart</td></tr>
+<tr><td>Payments show Manual / Test mode</td><td><code>.env</code> missing or misspelt — recreate it and Restart. A hand edit that doesn’t show needs a new build number.</td></tr>
 <tr><td>404 returns after some days</td><td>Host rewrote <code>.htaccess</code> — repeat Step 4</td></tr>
 <tr><td>Node version list stops below 22</td><td>Ask Truehost to enable Node 22, or use a VPS</td></tr></table>
 <div class="callout">{i('search',20,'#8a6a36')}<div><b>Other places to look:</b> cPanel → <b>Metrics → Errors</b> shows recent server errors. Delete <code>boot.log</code> and <code>stderr.log</code> once everything works.</div></div>
@@ -234,7 +236,8 @@ pages.append(f'''<section class="page"><div class="ph"><div class="eyebrow">REFE
 <div class="chk">
 <div>☐ Admin password changed after first login</div><div>☐ Screenshots never show environment values</div>
 <div>☐ <code>DATA_DIR</code> is outside <code>public_html</code></div><div>☐ Site is on https and <code>HTTPS=1</code> is set</div>
-<div>☐ Staff use the <b>staff</b> role, not admin</div><div>☐ Database backups stored away from the server</div></div>
+<div>☐ Staff use the <b>staff</b> role, not admin</div><div>☐ Database backups stored away from the server</div>
+<div>☐ Paystack key is in <code>.env</code>, regenerated if ever exposed</div><div>☐ Email list used only for permitted marketing</div></div>
 <div class="endcard"><img src="data:image/jpeg;base64,{logo}" alt=""><div><b>NUSUK CONSULT</b><br><span>Beyond Compliance</span></div></div>
 {foot(9)}</section>''')
 

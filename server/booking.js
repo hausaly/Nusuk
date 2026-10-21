@@ -138,7 +138,7 @@ export function registerBooking(k) {
     limit(req, 'order', ORDER_LIMIT, 60 * 60e3);
     const off = records.get('bedspace', String(body.offerId || ''));
     if (!off || off.active === false || off.checkOut < today()) throw new HttpError(409, 'Sorry, this bed space offer is no longer available.');
-    return placeOffer(req, body, 'bedspace', 'B', { offerId: off.id, title: off.title, offer: off.offer, checkIn: off.checkIn, checkOut: off.checkOut, nights: off.nights }, off.price);
+    return placeOffer(req, body, 'bedspace', 'B', { offerId: off.id, title: off.title, offer: off.offer, location: off.location || '', stars: off.stars || 0, checkIn: off.checkIn, checkOut: off.checkOut, nights: off.nights }, off.price);
   });
   route('POST', '/api/orders/mutawef', async ({ req, body }) => {
     limit(req, 'order', ORDER_LIMIT, 60 * 60e3);
@@ -353,7 +353,9 @@ export function registerBooking(k) {
     if (!(v.price > 0) || v.price > 1e9) e.price = kind === 'bedspace' ? 'Total price must be a positive amount.' : 'Price per sightseeing service must be a positive amount.';
     if (v.imageUrl && !/^(https?:\/\/\S+|api\/media\/[\w.-]+)$/i.test(v.imageUrl)) e.imageUrl = 'Image must be an http(s) link or an uploaded image.';
     if (kind === 'bedspace') {
-      v.offer = str(b.offer, 120); v.checkIn = str(b.checkIn, 10); v.checkOut = str(b.checkOut, 10);
+      v.offer = str(b.offer, 120); v.location = str(b.location, 120); v.stars = b.stars === '' || b.stars == null ? 0 : Math.round(Number(b.stars));
+      if (!Number.isInteger(v.stars) || v.stars < 0 || v.stars > 5) e.stars = 'Stars must be 0–5.';
+      v.checkIn = str(b.checkIn, 10); v.checkOut = str(b.checkOut, 10);
       if (!v.offer) e.offer = 'Offer is required (e.g. 1 Bed Space for Men).';
       if (!validDate(v.checkIn)) e.checkIn = 'Choose a check-in date.';
       if (!validDate(v.checkOut)) e.checkOut = 'Choose a check-out date.';
@@ -371,7 +373,7 @@ export function registerBooking(k) {
     limit(req, 'search', 120, 10 * 60e3);
     const t = today(), live = k => records.list(k).filter(o => o.active !== false);
     return {
-      bedspace: live('bedspace').filter(o => o.checkOut >= t).sort((a, b) => a.checkIn.localeCompare(b.checkIn)).map(({ id, title, offer, checkIn, checkOut, nights, price, imageUrl }) => ({ id, title, offer, checkIn, checkOut, nights, price, imageUrl })),
+      bedspace: live('bedspace').filter(o => o.checkOut >= t).sort((a, b) => a.checkIn.localeCompare(b.checkIn)).map(({ id, title, offer, location, stars, checkIn, checkOut, nights, price, imageUrl }) => ({ id, title, offer, location: location || '', stars: stars || 0, checkIn, checkOut, nights, price, imageUrl })),
       mutawef: live('mutawef').reverse().map(({ id, title, description, sightseeing, price, imageUrl }) => ({ id, title, description, sightseeing, price, imageUrl })),
     };
   });

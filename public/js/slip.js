@@ -19,7 +19,7 @@ function sections(o){
   const client=[['Full name',c.fullName],['WhatsApp / Mobile',c.phone],['Email',c.email]]; if(c.address)client.push(['Address',c.address]);
   let book=[],pay=[];
   if(o.type=='bedspace'){
-    book=[['Accommodation',d.title],['Offer',d.offer],['Check-in',dt(d.checkIn)],['Check-out',dt(d.checkOut)],['Total nights',String(d.nights)]];
+    book=[['Accommodation',d.title+(d.stars?`  (${d.stars}★)`:'')],...(d.location?[['Location',d.location]]:[]),['Offer',d.offer],['Check-in',dt(d.checkIn)],['Check-out',dt(d.checkOut)],['Total nights',String(d.nights)]];
     pay=[['Total price',`NGN ${num(o.amount)}`],['Payment status',o.paymentStatus=='paid'?'Paid':'Pending']];
     if(o.payment?.reference)pay.push(['Payment reference',o.payment.reference]);
     if(o.payment?.paidAt)pay.push(['Paid on',dtm(o.payment.paidAt)]);

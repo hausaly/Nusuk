@@ -459,7 +459,7 @@ test('HHR train: one way vs round trip', async () => {
 
 test('offers: admin manages bed space + mutawef offers, public Offers tab lists only live ones', async () => {
   const day = (n) => new Date(Date.now() + n * 864e5).toISOString().slice(0, 10);
-  const bs = { title: 'Maysan Al Taqwa Madinah', offer: '1 Bed Space for Men', checkIn: day(30), checkOut: day(37), price: '350000' };
+  const bs = { title: 'Maysan Al Taqwa Madinah', offer: '1 Bed Space for Men', location: 'Madinah, 200 m from Masjid an-Nabawi', stars: 4, checkIn: day(30), checkOut: day(37), price: '350000' };
   assert.equal((await call('POST', '/api/admin/special-offers/bedspace', bs)).status, 401);
   assert.equal((await call('POST', '/api/admin/special-offers/bedspace', { ...bs, checkOut: bs.checkIn }, cookie)).status, 422);
   assert.equal((await call('POST', '/api/admin/special-offers/nope', bs, cookie)).status, 404);
@@ -473,7 +473,8 @@ test('offers: admin manages bed space + mutawef offers, public Offers tab lists 
   assert.equal(m.status, 200); assert.deepEqual(m.body.sightseeing, ['Masjid Quba', 'Masjid Qiblatain', 'Mount Uhud']);
   const pub = (await call('GET', '/api/offers')).body;
   assert.deepEqual(pub.bedspace.map(o => o.title), ['Maysan Al Taqwa Madinah']);     // hidden + expired are not shown
-  assert.equal(pub.bedspace[0].price, 350000); assert.equal(pub.mutawef.length, 1);
+  assert.equal(pub.bedspace[0].price, 350000); assert.equal(pub.bedspace[0].stars, 4); assert.equal(pub.bedspace[0].location, 'Madinah, 200 m from Masjid an-Nabawi');
+  assert.equal((await call('POST', '/api/admin/special-offers/bedspace', { ...bs, stars: 9 }, cookie)).status, 422); assert.equal(pub.mutawef.length, 1);
   assert.equal((await call('PUT', `/api/admin/special-offers/bedspace/${hidden.body.id}`, { active: true }, cookie)).status, 200);
   assert.equal((await call('GET', '/api/offers')).body.bedspace.length, 2);
   assert.equal((await call('DELETE', `/api/admin/special-offers/mutawef/${m.body.id}`, null, cookie)).status, 200);

@@ -9,7 +9,7 @@ const download=(url)=>{const a=document.createElement('a');a.href=url;a.click()}
 
 
 let user,onLogout,cur='overview';
-const TABS=()=>[['overview','Overview'],['requests','Service Requests'],['orders','DIY Orders'],['hotels','Hotel Inventory'],['offers','Offers'],['leads','Email List'],
+const TABS=()=>[['overview','Overview'],['requests','Service Requests'],['orders','DIY Orders'],['hotels','Hotel Inventory'],['offers','Offers'],['banners','Banners'],['leads','Email List'],
   ...(user.role=='admin'?[['users','Users'],['settings','Settings']]:[])];
 
 NC.mountAdmin=(u,logout)=>{user=u;onLogout=logout;
@@ -84,6 +84,30 @@ VIEWS.offers=async mn=>{
         if(img)await api('POST',`/api/admin/special-offers/${k}/${saved.id}/image`,{data:await resizeImg(img)});
         data[k]=(await api('GET','/api/admin/special-offers/'+k)).items;toast('Offer saved');draw()}
       catch(err){$('e_ef').textContent=errText(err);$('os').disabled=false}}};
+  draw()};
+
+// ---- home page slide banners
+VIEWS.banners=async mn=>{
+  let items=(await api('GET','/api/admin/banners')).items;
+  const draw=()=>{mn.innerHTML=`<h2>Home Page Banners</h2><p class="mu">These slide automatically on the home page, between the three featured cards and the services. Use a wide image <b>1920 × 160 px</b> (12:1, a slim strip), JPG, PNG or WebP under 3 MB. The same ratio is used on phones, so nothing is cropped; keep text large and short so it stays readable on a small screen. Banners with no image are not shown.</p><div id="bf"></div><div class="toolbar"><button class="btn sm" id="ba">Add banner</button></div>
+    <div class="tw"><table><tr><th>Preview</th><th>Name</th><th>Link</th><th>Order</th><th>Live</th><th></th></tr>${items.map(b=>`<tr${b.active===false?' style="opacity:.55"':''}><td>${b.imageUrl?`<img src="${esc(b.imageUrl)}" alt="" style="width:160px;aspect-ratio:12/1;object-fit:cover;border-radius:6px;display:block">`:'<span class="mu">No image</span>'}</td><td><b>${esc(b.title)}</b></td><td>${b.link?esc(b.link):'<span class="mu">—</span>'}</td><td>${b.order}</td><td><input type="checkbox" data-a="${b.id}" ${b.active!==false?'checked':''} style="width:20px;min-height:20px"></td><td style="white-space:nowrap"><button class="btn sm o" data-m="${b.id}">Edit</button> <button class="btn sm o" data-x="${b.id}">Delete</button></td></tr>`).join('')||'<tr><td colspan="6" class="mu">No banners yet.</td></tr>'}</table></div>`;
+    $('ba').onclick=()=>form(null);
+    mn.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>form(items.find(x=>x.id==b.dataset.m)));
+    mn.querySelectorAll('[data-a]').forEach(c=>c.onchange=async()=>{try{Object.assign(items.find(x=>x.id==c.dataset.a),await api('PUT','/api/admin/banners/'+c.dataset.a,{active:c.checked}));toast(c.checked?'Banner is live':'Banner hidden')}catch(e){toast(errText(e))}draw()});
+    mn.querySelectorAll('[data-x]').forEach(b=>b.onclick=async()=>{if(!confirm('Delete this banner?'))return;try{await api('DELETE','/api/admin/banners/'+b.dataset.x);items=items.filter(x=>x.id!=b.dataset.x);draw()}catch(e){toast(errText(e))}})};
+  const form=o=>{const v=o||{active:true,order:items.length+1};
+    $('bf').innerHTML=`<div class="box" style="margin-bottom:14px"><h3>${o?'Edit':'Add'} banner</h3><form id="bform">
+    <div class="f2"><div><label>Name * <small>(describes the image)</small><input name="title" value="${esc(v.title||'')}" placeholder="e.g. UEA O.1 Strategic Partnership Event" required></label></div><div><label>Link <small>(optional, https://… or #/services)</small><input name="link" value="${esc(v.link||'')}" placeholder="#/booking"></label></div></div>
+    <div class="f2"><div><label>Banner image ${v.imageUrl?`<small>(<a href="${esc(v.imageUrl)}" target="_blank" rel="noopener">current</a>)</small>`:'*'}<input type="file" id="bi" accept="image/jpeg,image/png,image/webp"></label><small class="mu">Recommended 1920 × 160 px (12:1)</small></div><div><label>Order <small>(1 shows first)</small><input name="order" type="number" step="1" value="${esc(v.order??'')}"></label></div></div>
+    <label style="display:flex;gap:10px;align-items:center;font-weight:500"><input type="checkbox" name="active" ${v.active!==false?'checked':''} style="width:20px;min-height:20px;margin:0"> Live (visible on the home page)</label>
+    <div class="err" id="e_bf" role="alert"></div><div class="row" style="margin:0"><button class="btn sm" id="bs">Save</button><button type="button" class="btn sm o" id="bx">Cancel</button></div></form></div>`;
+    $('bx').onclick=()=>$('bf').innerHTML='';$('bf').scrollIntoView({behavior:'smooth',block:'start'});
+    $('bform').onsubmit=async e=>{e.preventDefault();const fd=new FormData(e.target),b=Object.fromEntries(fd);b.active=fd.has('active');const img=$('bi').files[0];$('e_bf').textContent='';
+      if(!o&&!img){$('e_bf').textContent='Choose a banner image.';return}
+      $('bs').disabled=true;
+      try{const saved=await api(o?'PUT':'POST','/api/admin/banners'+(o?'/'+o.id:''),b);if(img)await api('POST',`/api/admin/banners/${saved.id}/image`,{data:await resizeImg(img,1920)});
+        items=(await api('GET','/api/admin/banners')).items;toast('Banner saved');draw()}
+      catch(err){$('e_bf').textContent=errText(err);$('bs').disabled=false}}};
   draw()};
 
 // ---- email list (brochure downloads)

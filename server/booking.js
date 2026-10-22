@@ -342,6 +342,32 @@ export function registerBooking(k) {
     return { file: fs.readFileSync(p), type: 'application/pdf', name: 'hotel-offer.pdf', inline: true };
   });
 
+
+  // ---------- home page slide banners (managed in Dashboard → Banners) ----------
+  const normBanner = (b = {}) => {
+    const e = {}, v = { title: str(b.title, 120), link: str(b.link, 300), order: Math.round(Number(b.order) || 0), active: !(b.active === false || /^(false|no|0|off)$/i.test(String(b.active ?? ''))), imageUrl: str(b.imageUrl, 300) };
+    if (!v.title) e.title = 'Give the banner a short name (used as the image description).';
+    if (v.link && !/^(https?:\/\/\S+|#\/[\w\-/]*)$/i.test(v.link)) e.link = 'Link must start with https:// (or be a page like #/services).';
+    if (v.imageUrl && !/^(https?:\/\/\S+|api\/media\/[\w.-]+)$/i.test(v.imageUrl)) e.imageUrl = 'Image must be an http(s) link or an uploaded image.';
+    return Object.keys(e).length ? { errors: e } : { value: v };
+  };
+  const bannerList = () => records.list('banners').sort((a, b) => a.order - b.order || a.createdAt - b.createdAt);
+  route('GET', '/api/admin/banners', A, () => ({ items: bannerList() }));
+  route('POST', '/api/admin/banners', A, ({ body }) => records.create('banners', must(normBanner(body))));
+  route('PUT', '/api/admin/banners/:id', A, ({ params, body }) => {
+    const cur = records.get('banners', params.id); if (!cur) throw new HttpError(404, 'Not found');
+    const { id, createdAt, updatedAt, ...rest } = cur;
+    return records.update('banners', params.id, must(normBanner({ ...rest, ...body })));
+  });
+  route('DELETE', '/api/admin/banners/:id', A, ({ params }) => { if (!records.remove('banners', params.id)) throw new HttpError(404, 'Not found'); return { ok: true }; });
+  route('POST', '/api/admin/banners/:id/image', { auth: true, maxBody: 4 * 1024 * 1024 }, ({ params, body }) => {
+    if (!records.get('banners', params.id)) throw new HttpError(404, 'Not found');
+    const buf = Buffer.from(String(body.data || ''), 'base64');
+    const ext = buf.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff])) ? 'jpg' : buf.subarray(0, 4).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47])) ? 'png' : buf.subarray(0, 4).toString() === 'RIFF' && buf.subarray(8, 12).toString() === 'WEBP' ? 'webp' : null;
+    if (!ext || buf.length > 3 * 1024 * 1024) fail({ image: 'Upload a JPG, PNG or WebP image under 3 MB.' });
+    return records.update('banners', params.id, { imageUrl: `api/media/${saveBlob('media', buf, ext)}` });
+  });
+  route('GET', '/api/banners', () => ({ items: bannerList().filter(b => b.active !== false && b.imageUrl).map(({ id, title, link, imageUrl }) => ({ id, title, link, imageUrl })) }));
   // ---------- offers: bed space + mutawef (managed in Dashboard → Offers) ----------
   const KINDS = ['bedspace', 'mutawef'];
   const kindOf = p => { if (!KINDS.includes(p.kind)) throw new HttpError(404, 'Not found'); return p.kind; };

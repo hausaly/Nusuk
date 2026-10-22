@@ -512,3 +512,19 @@ test('offer orders: bed space + mutawef support Pay Now / Pay Later, slip and da
   assert.equal((await call('PATCH', `/api/admin/orders/${rec.id}`, { status: 'Fulfilled' }, cookie)).body.status, 'Fulfilled');
   assert.match((await call('GET', '/api/admin/orders.csv', null, cookie)).body, /Madinah Ziyarah Mutawef/);
 });
+
+test('home banners: admin uploads, orders and hides them; public list shows only live ones with an image', async () => {
+  const png1 = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==', 'base64');
+  assert.equal((await call('POST', '/api/admin/banners', { title: '' }, cookie)).status, 422);
+  assert.equal((await call('POST', '/api/admin/banners', { title: 'x', link: 'javascript:alert(1)' }, cookie)).status, 422);
+  const b = await call('POST', '/api/admin/banners', { title: 'Event', link: '#/services', order: 1 }, cookie);
+  assert.equal(b.status, 200);
+  assert.deepEqual((await call('GET', '/api/banners')).body.items, []);   // no image yet
+  assert.equal((await call('POST', `/api/admin/banners/${b.body.id}/image`, { data: Buffer.from('nope').toString('base64') }, cookie)).status, 422);
+  assert.match((await call('POST', `/api/admin/banners/${b.body.id}/image`, { data: png1.toString('base64') }, cookie)).body.imageUrl, /^api\/media\/[a-f0-9]{16}\.png$/);
+  assert.equal((await call('GET', '/api/banners')).body.items.length, 1);
+  assert.equal((await call('GET', '/api/admin/banners')).status, 401);
+  await call('PUT', `/api/admin/banners/${b.body.id}`, { active: false }, cookie);
+  assert.equal((await call('GET', '/api/banners')).body.items.length, 0);
+  assert.equal((await call('DELETE', `/api/admin/banners/${b.body.id}`, null, cookie)).status, 200);
+});

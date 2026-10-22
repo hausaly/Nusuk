@@ -388,3 +388,11 @@ footer .copy{margin:34px 0 0;border-top:1px solid #3a3329;padding-top:18px;font-
 .ptn-c:hover img{filter:none;opacity:1}
 @media(max-width:900px){.ptn-g{gap:28px}.ptn-c img{height:calc(var(--h)*.8px)}}
 @media(max-width:700px){.ptn{padding-bottom:40px}.ptn-g{gap:2.4vw}.ptn-c img{height:calc(var(--h)*.118vw)}}
+
+.band.sm{padding:30px 0}.band.sm h2{font-size:1.3rem;margin:0 0 6px}.band.sm p{font-size:.9rem;margin:0 0 4px}.band.sm .btn{padding:9px 20px;font-size:.88rem;margin-top:8px}
+/* founder: smaller title and card text (About page) + home founder card text */
+.founder .eyebrow{font-size:.7rem}.founder h2{font-size:1.35rem;margin-bottom:20px}
+.fcard{grid-template-columns:380px 1fr}.fphoto img{min-height:320px}.fbody{padding:26px 34px}
+.fbody h3{font-size:1.3rem;margin-bottom:6px}.fbody .frole{margin-bottom:14px;padding:5px 12px;font-size:.68rem}.fbody p{font-size:.88rem;line-height:1.65;margin-bottom:11px}
+.fd{padding:26px}.fd h2{font-size:1.3rem}.fd p{font-size:.9rem;line-height:1.6}
+@media(max-width:820px){.fcard{grid-template-columns:1fr}.fphoto img{height:300px}.fbody{padding:20px 18px}.fbody h3{font-size:1.15rem}.fbody p{font-size:.85rem}.founder h2{font-size:1.2rem}}

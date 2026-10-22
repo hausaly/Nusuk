@@ -4,7 +4,6 @@ export const SERVICES = [
   'UEA O.1 Capacity Building',
   'Umrah Operations Masterclass',
   'Saudi Partner Company Contracting',
-  'Umrah Product & Package Development',
 ];
 export const MODES = ['Online (Virtual)', 'Offline (On-site)'];
 export const REQUEST_STATUSES = ['New', 'Contacted', 'In progress', 'Closed'];
@@ -36,7 +35,7 @@ export function lead(b = {}) {
   const email = str(b.email, 120).toLowerCase(), service = Number(b.service);
   const errors = {};
   if (!EMAIL.test(email)) errors.em = 'Enter a valid email address.';
-  if (!Number.isInteger(service) || service < 2 || service > 7) errors.sv = 'Unknown brochure.';
+  if (!Number.isInteger(service) || service < 2 || service > 7 || service === 6) errors.sv = 'Unknown brochure.';
   return Object.keys(errors).length ? { errors } : { value: { email, service } };
 }
 

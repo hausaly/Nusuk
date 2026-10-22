@@ -145,13 +145,14 @@ export function registerBooking(k) {
     const off = records.get('mutawef', String(body.offerId || ''));
     if (!off || off.active === false) throw new HttpError(409, 'Sorry, this mutawef offer is no longer available.');
     const picked = Array.isArray(body.stops) ? [...new Set(body.stops.map(x => str(x, 160)))].filter(x => off.sightseeing.includes(x)) : [];
-    const people = intIn(body.people, 1, 100, 1), date = body.date ? str(body.date, 10) : '';
+    const people = intIn(body.people, 1, 100, 1), date = body.date ? str(body.date, 10) : '', meetingPoint = str(body.meetingPoint, 160);
     const e = {};
     if (!picked.length) e.stops = 'Select at least one sightseeing service.';
-    if (Number.isNaN(people)) e.people = 'Number of people must be 1–100.';
+    if (Number.isNaN(people)) e.people = 'Number of pilgrims must be 1–100.';
+    if (!meetingPoint) e.meetingPoint = 'Enter the meeting point.';
     if (date && (!validDate(date) || date < today())) e.date = 'Choose a date from today onwards.';
     if (Object.keys(e).length) fail(e);
-    return placeOffer(req, body, 'mutawef', 'M', { offerId: off.id, title: off.title, description: off.description, stops: picked, pricePerService: off.price, people, date }, off.price * picked.length);
+    return placeOffer(req, body, 'mutawef', 'M', { offerId: off.id, title: off.title, description: off.description, stops: picked, pricePerService: off.price, people, meetingPoint, date }, off.price * picked.length);
   });
 
   route('POST', '/api/orders/:id/pay', async ({ req, params }) => {
@@ -277,7 +278,7 @@ export function registerBooking(k) {
   // ---------- admin: orders ----------
   const csvCols = [['bookingId', 'Booking ID'], ['createdAt', 'Created'], ['type', 'Type'], ['status', 'Status'], ['paymentStatus', 'Payment'], ['amount', 'Amount (NGN)'], ['fullName', 'Client'], ['phone', 'Phone'], ['email', 'Email'], ['address', 'Address'], ['summary', 'Details']];
   const summary = o => o.type === 'bedspace' ? `${o.details.title} · ${o.details.offer} · ${o.details.checkIn} → ${o.details.checkOut} · ${o.details.nights} night(s)`
-    : o.type === 'mutawef' ? `${o.details.title} · ${o.details.stops.length} sightseeing service(s) · ${o.details.people} people${o.details.date ? ' · ' + o.details.date : ''}`
+    : o.type === 'mutawef' ? `${o.details.title} · ${o.details.stops.length} sightseeing service(s) · ${o.details.people} pilgrim(s)${o.details.meetingPoint ? ' · meet: ' + o.details.meetingPoint : ''}${o.details.date ? ' · ' + o.details.date : ''}`
     : o.type === 'hotel' ? `${o.details.hotelName} (${o.details.city}) · ${o.details.roomType} · ${o.details.checkIn} → ${o.details.checkOut} · ${o.details.nights} night(s) · ${o.details.rooms} room(s)`
     : o.type === 'visa' ? `Umrah Visa · ${o.details.adults} adult(s), ${o.details.children} child(ren), ${o.details.infants} infant(s)`
     : o.type === 'train' ? `${o.details.tripType === 'round-trip' ? 'Round trip' : 'One way'} · ${o.details.from} → ${o.details.to} · ${o.details.date}${o.details.returnDate ? ` (return ${o.details.returnDate})` : ''} · ${o.details.adults}A/${o.details.children}C` : `${o.details.vehicle} x${o.details.quantity} · ${o.details.pickup} → ${o.details.dropoff} · ${o.details.date} ${o.details.time}`;

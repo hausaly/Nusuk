@@ -366,7 +366,9 @@ footer .copy{margin:34px 0 0;border-top:1px solid #3a3329;padding-top:18px;font-
 .offers .foc.mt .fof small{font-size:.68rem}.offers .foc.mt .fof b{font-size:1rem}.offers .foc.mt .best{font-size:.62rem;padding:3px 9px}
 .offers .foc.mt .foi{aspect-ratio:16/8}
 /* offer order modal */
-.stops{display:grid;gap:6px;margin-top:6px}.stop{display:flex;gap:10px;align-items:center;font:500 .92rem Poppins,sans-serif;padding:9px 12px;border:1px solid var(--bd);border-radius:10px;cursor:pointer;background:#fff}.stop input{width:18px;height:18px;min-height:0;margin:0;accent-color:var(--gd)}
+.stops{display:grid;gap:5px;margin-top:5px}.stop{display:flex;gap:9px;align-items:center;font:500 .8rem Poppins,sans-serif;padding:7px 10px;border:1px solid var(--bd);border-radius:10px;cursor:pointer;background:#fff}.stop input{width:18px;height:18px;min-height:0;margin:0;accent-color:var(--gd)}
 .f2m{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:10px}@media(max-width:520px){.f2m{grid-template-columns:1fr}}
-.fld .stop,.mbox .stop{text-transform:none;letter-spacing:0;font:500 .92rem Poppins,sans-serif;color:var(--ink)}
+.fld .stop,.mbox .stop{text-transform:none;letter-spacing:0;font:500 .8rem Poppins,sans-serif;color:var(--ink)}
+.mbox .osum .fld label{font-size:.72rem}.mbox .osum .fld input{font-size:.84rem;min-height:38px}.mbox .osum .oh b{font-size:.98rem}.mbox .osum .oc{font-size:.8rem}.mbox .osum .otot span{font-size:.82rem}.mbox .osum .otot b{font-size:1.1rem}.mbox .osum .err{font-size:.74rem}
 .osum .otot{margin-top:14px}
+.mbox .stops .stop{margin:0;min-height:0;padding:6px 10px;line-height:1.25}.mbox .stops .stop input{width:16px;height:16px;min-height:0;padding:0}.mbox .osum .fld{margin-bottom:8px}.mbox .osum .fld>label{display:block;margin-bottom:4px}

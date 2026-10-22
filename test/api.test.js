@@ -499,7 +499,8 @@ test('offer orders: bed space + mutawef support Pay Now / Pay Later, slip and da
   assert.equal((await call('POST', '/api/orders/bedspace', { offerId: bs.id, customer: { ...customer, email: 'x' }, payMode: 'now' })).status, 422);
   // mutawef: total = price x selected services
   assert.equal((await call('POST', '/api/orders/mutawef', { offerId: mt.id, stops: ['Not a stop'], people: 2, customer, payMode: 'later' })).status, 422);
-  const m = await call('POST', '/api/orders/mutawef', { offerId: mt.id, stops: ['Masjid Quba', 'Mount Uhud'], people: 3, date: day(20), customer, payMode: 'later' });
+  assert.equal((await call('POST', '/api/orders/mutawef', { offerId: mt.id, stops: ['Masjid Quba'], people: 2, customer, payMode: 'later' })).status, 422); // meeting point required
+  const m = await call('POST', '/api/orders/mutawef', { offerId: mt.id, stops: ['Masjid Quba', 'Mount Uhud'], people: 3, meetingPoint: 'Hotel lobby', date: day(20), customer, payMode: 'later' });
   assert.equal(m.status, 200); assert.equal(m.body.manual, true);
   slip = (await call('GET', `/api/orders/${m.body.bookingId}/slip?t=${m.body.token}`)).body.order;
   assert.equal(slip.amount, 50000); assert.equal(slip.type, 'mutawef'); assert.deepEqual(slip.details.stops, ['Masjid Quba', 'Mount Uhud']);

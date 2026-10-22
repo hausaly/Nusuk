@@ -25,7 +25,7 @@ function sections(o){
     if(o.payment?.paidAt)pay.push(['Paid on',dtm(o.payment.paidAt)]);
     if(o.paymentStatus!='paid'&&o.payment?.mode=='manual')pay.push(['Next step','Our team will contact you with payment details. Your bed space is confirmed once payment is received.']);
   }else if(o.type=='mutawef'){
-    book=[['Mutawef service',d.title],['Description',d.description||'—'],['Sightseeing services',(d.stops||[]).join(', ')],['Number of people',String(d.people)]]; if(d.date)book.push(['Preferred date',dt(d.date)]);
+    book=[['Mutawef service',d.title],['Description',d.description||'—'],['Sightseeing services',(d.stops||[]).join(', ')],['Number of pilgrims',String(d.people)],['Meeting point',d.meetingPoint||'—']]; if(d.date)book.push(['Preferred date',dt(d.date)]);
     pay=[['Price per sightseeing service',`NGN ${num(d.pricePerService)}`],['Services selected',String((d.stops||[]).length)],['Payment status',o.paymentStatus=='paid'?'Paid':'Pending']];
     if(o.payment?.reference)pay.push(['Payment reference',o.payment.reference]);
     if(o.payment?.paidAt)pay.push(['Paid on',dtm(o.payment.paidAt)]);

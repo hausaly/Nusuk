@@ -72,7 +72,7 @@ async function offersPanel(){
 
 // ---- offers: review → details → Pay Now / Pay Later (same flow as hotels)
 function offerFlow(kind,o){
-  const bs=kind=='bedspace',sel=new Set(bs?[]:o.sightseeing);let people=1,date='';
+  const bs=kind=='bedspace',sel=new Set(bs?[]:o.sightseeing);let people=1,date='',meet='';
   const m=document.createElement('div');m.className='modal';m.setAttribute('role','dialog');m.setAttribute('aria-modal','true');
   document.body.appendChild(m);document.body.style.overflow='hidden';
   const close=()=>{m.remove();document.body.style.overflow=''};
@@ -84,14 +84,15 @@ function offerFlow(kind,o){
     const sum=bs?`<div class="osum"><div class="oh"><b>${esc(o.title)}</b>${o.stars?`<span class="stars">${stars(o.stars)}</span>`:''}</div>${o.location?`<div class="oc">${ic('pin',14)} ${esc(o.location)}</div>`:''}<div class="oc">${ic('hotel',14)} ${esc(o.offer)}</div><table><tr><th>Check-in</th><td>${fd(o.checkIn)}</td></tr><tr><th>Check-out</th><td>${fd(o.checkOut)}</td></tr><tr><th>Total nights</th><td>${o.nights}</td></tr></table><div class="otot"><span>Total to pay</span><b>${NGN(o.price)}</b></div></div>`
     :`<div class="osum"><div class="oh"><b>${esc(o.title)}</b></div><p class="mu" style="margin:0 0 8px;font-size:.86rem">${esc(o.description)}</p>
       <div class="fld"><label>Choose your sightseeing services (${NGN(o.price)} each)</label><div class="stops">${o.sightseeing.map((s,i)=>`<label class="stop"><input type="checkbox" data-st="${i}" ${sel.has(s)?'checked':''}> <span>${esc(s)}</span></label>`).join('')}</div><div class="err" id="e_stops"></div></div>
-      <div class="f2m"><div class="fld"><label for="o_people">Number of people</label><div class="ctl"><input id="o_people" type="number" min="1" max="100" value="${people}"></div></div><div class="fld"><label for="o_date">Preferred date (optional)</label><div class="ctl"><input id="o_date" type="date" min="${cfg.today}" value="${date}"></div></div></div>
+      <div class="f2m"><div class="fld"><label for="o_people">Number of pilgrims</label><div class="ctl"><input id="o_people" type="number" min="1" max="100" value="${people}"></div></div><div class="fld"><label for="o_date">Preferred date (optional)</label><div class="ctl"><input id="o_date" type="date" min="${cfg.today}" value="${date}"></div></div></div>
+      <div class="fld"><label for="o_meet">Meeting point *</label><div class="ctl"><input id="o_meet" maxlength="160" placeholder="e.g. hotel lobby, Makkah" value="${esc(meet)}"></div><div class="err" id="e_meet"></div></div>
       <div class="otot"><span><span id="o_n">${sel.size}</span> × ${NGN(o.price)}</span><b id="o_t">${NGN(total())}</b></div></div>`;
     shell('Review your order',1,sum+`<div class="mact"><button class="btn o" id="mc">Back to offers</button><button class="btn" id="mok">Confirm order</button></div>`);
     $('mc').onclick=close;
     if(!bs){const upd=()=>{$('o_n').textContent=sel.size;$('o_t').textContent=NGN(total())};
       m.querySelectorAll('[data-st]').forEach(x=>x.onchange=()=>{const s=o.sightseeing[+x.dataset.st];x.checked?sel.add(s):sel.delete(s);upd()});
-      $('o_people').oninput=e=>{people=+e.target.value||1};$('o_date').onchange=e=>{date=e.target.value}}
-    $('mok').onclick=()=>{if(!bs){people=Math.round(+$('o_people').value)||0;date=$('o_date').value;if(!sel.size){$('e_stops').textContent='Select at least one sightseeing service.';return}if(people<1||people>100){alert('Number of people must be 1–100.');return}}details()};
+      $('o_people').oninput=e=>{people=+e.target.value||1};$('o_date').onchange=e=>{date=e.target.value};$('o_meet').oninput=e=>{meet=e.target.value;$('e_meet').textContent=''}}
+    $('mok').onclick=()=>{if(!bs){people=Math.round(+$('o_people').value)||0;date=$('o_date').value;if(!sel.size){$('e_stops').textContent='Select at least one sightseeing service.';return}if(people<1||people>100){alert('Number of pilgrims must be 1–100.');return}meet=$('o_meet').value.trim();if(!meet){$('e_meet').textContent='Enter the meeting point.';return}}details()};
   };
   const details=()=>{
     shell('Your details',2,`<div class="osm">${brief} · <b>${NGN(total())}</b></div>
@@ -103,11 +104,11 @@ function offerFlow(kind,o){
     $('mb').onclick=review;
     const submit=async mode=>{const btns=[$('mp'),$('ml')].filter(Boolean);btns.forEach(x=>x.disabled=true);errs('e_o_',{},['fullName','phone','email','address','all']);
       const c=custVals('o_');c.address=$('o_address').value.trim();
-      const body=bs?{offerId:o.id,customer:c,payMode:cfg.payment=='off'?'later':mode}:{offerId:o.id,stops:[...sel],people,date,customer:c,payMode:cfg.payment=='off'?'later':mode};
+      const body=bs?{offerId:o.id,customer:c,payMode:cfg.payment=='off'?'later':mode}:{offerId:o.id,stops:[...sel],people,meetingPoint:meet,date,customer:c,payMode:cfg.payment=='off'?'later':mode};
       try{const out=await api('POST','api/orders/'+kind,body);
         if(out.manual){close();location.hash=`#/slip/${out.bookingId}/${out.token}`;return}
         shell('Redirecting to payment…',3,'<div class="bk-load"><i></i><i></i><i></i></div><p class="secure">Please wait — do not close this page.</p>');location.href=out.authorizationUrl}
-      catch(err){btns.forEach(x=>x.disabled=false);if(err.errors){const x=err.errors;for(const k of ['fullName','phone','email','address'])$('e_o_'+k).textContent=x[k]||'';$('e_o_all').textContent=x.stops||x.people||x.date||''}else $('e_o_all').textContent=err.message}};
+      catch(err){btns.forEach(x=>x.disabled=false);if(err.errors){const x=err.errors;for(const k of ['fullName','phone','email','address'])$('e_o_'+k).textContent=x[k]||'';$('e_o_all').textContent=x.stops||x.people||x.meetingPoint||x.date||''}else $('e_o_all').textContent=err.message}};
     $('of').onsubmit=e=>{e.preventDefault();submit(cfg.payment=='off'?'later':'now')};
     if($('ml'))$('ml').onclick=()=>submit('later');
   };

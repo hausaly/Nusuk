@@ -36,7 +36,7 @@ NC.mountBooking=async()=>{
   const root=$('bk'); if(!root)return;
   try{cfg??=await api('GET','api/booking-config')}catch(e){root.innerHTML=`<div class="w" style="padding:40px 20px"><p class="err">Could not load booking options (${e.status?'server error '+e.status:'no connection'}). Please refresh. If it keeps happening, contact us.</p></div>`;return}
   st.checkIn||(st.checkIn='');
-  root.innerHTML=`<section class="bk-hero"><div class="w"><div class="eyebrow">DIY BOOKING</div><h1>One Shop, Multiple deals</h1><p>Hotels in Makkah &amp; Madinah, the Haramain train, airport transfers and Umrah visa — choose, book and get your booking slip instantly. No account needed.</p>
+  root.innerHTML=`<section class="bk-hero"><div class="w"><div class="eyebrow">DIY BOOKING</div><h1>Your Booking Power, Unlocked</h1><p>Hotels in Makkah &amp; Madinah, the Haramain train, airport transfers and Umrah visa — choose, book and get your booking slip instantly. No account needed.</p>
   <div class="trust"><span>${ic('shield',18)}<b>IATA</b> Certified</span><i></i><span>${ic('medal',18)}<b>NCAA</b> Certified</span><i></i><span>${ic('card',18)}<b>Flexible</b> Payment</span><i></i><span>${ic('headset',18)}<b>24/7</b> Support</span></div></div></section>
   <section class="w bk-wrap"><div class="bk-card"><div class="bk-tabs" role="tablist">
   ${[['hotels','Hotels','hotel'],['train','HHR Train','train'],['transfers','Transfers','car'],['visa','Umrah Visa','passport'],['offers','Offers','tag']].map(t=>`<button role="tab" data-tab="${t[0]}" class="${tab==t[0]?'on':''}">${ic(t[2],22)}<span>${t[1]}</span></button>`).join('')}</div>

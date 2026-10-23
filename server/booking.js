@@ -100,7 +100,12 @@ export function registerBooking(k) {
     const stay = must(parseStay(body));
     const q = quoteHotel(String(body.hotelId || ''), stay);
     if (!q) throw new HttpError(409, 'Sorry, this room is no longer available for your dates. Please search again.');
-    const { c, e } = customerOf(body.customer); if (c.address.length < 3) e.address = 'Address is required.';
+    const { c, e } = customerOf(body.customer);
+    const cu = body.customer || {};
+    c.address = '';   // hotel orders collect country of residence instead of an address
+    c.country = str(cu.country, 80); c.gender = str(cu.gender, 10); c.guestList = String(cu.guestList || '').replace(/\r/g, '').split('\n').map(x => str(x, 80)).filter(Boolean).slice(0, 30).join('\n');
+    if (c.country.length < 2) e.country = 'Country of residence is required.';
+    if (!['Male', 'Female'].includes(c.gender)) e.gender = 'Choose Male or Female.';
     if (Object.keys(e).length) fail(e);
     if (body.payMode !== undefined && !['now', 'later'].includes(body.payMode)) throw new HttpError(422, 'Choose Pay Now or Pay Later.');
     const manual = paymentMode() === 'off' || body.payMode === 'later';   // Pay Later (or payments not set up): reservation first, our team collects payment
@@ -276,7 +281,7 @@ export function registerBooking(k) {
   });
 
   // ---------- admin: orders ----------
-  const csvCols = [['bookingId', 'Booking ID'], ['createdAt', 'Created'], ['type', 'Type'], ['status', 'Status'], ['paymentStatus', 'Payment'], ['amount', 'Amount (NGN)'], ['fullName', 'Client'], ['phone', 'Phone'], ['email', 'Email'], ['address', 'Address'], ['summary', 'Details']];
+  const csvCols = [['bookingId', 'Booking ID'], ['createdAt', 'Created'], ['type', 'Type'], ['status', 'Status'], ['paymentStatus', 'Payment'], ['amount', 'Amount (NGN)'], ['fullName', 'Client'], ['phone', 'Phone'], ['email', 'Email'], ['address', 'Address'], ['country', 'Country of residence'], ['gender', 'Gender'], ['guestList', 'Guest list'], ['summary', 'Details']];
   const summary = o => o.type === 'bedspace' ? `${o.details.title} · ${o.details.offer} · ${o.details.checkIn} → ${o.details.checkOut} · ${o.details.nights} night(s)`
     : o.type === 'mutawef' ? `${o.details.title} · ${o.details.stops.length} sightseeing service(s) · ${o.details.people} pilgrim(s)${o.details.meetingPoint ? ' · meet: ' + o.details.meetingPoint : ''}${o.details.date ? ' · ' + o.details.date : ''}`
     : o.type === 'hotel' ? `${o.details.hotelName} (${o.details.city}) · ${o.details.roomType} · ${o.details.checkIn} → ${o.details.checkOut} · ${o.details.nights} night(s) · ${o.details.rooms} room(s)`
@@ -284,7 +289,7 @@ export function registerBooking(k) {
     : o.type === 'train' ? `${o.details.tripType === 'round-trip' ? 'Round trip' : 'One way'} · ${o.details.from} → ${o.details.to} · ${o.details.date}${o.details.returnDate ? ` (return ${o.details.returnDate})` : ''} · ${o.details.adults}A/${o.details.children}C` : `${o.details.vehicle} x${o.details.quantity} · ${o.details.pickup} → ${o.details.dropoff} · ${o.details.date} ${o.details.time}`;
   route('GET', '/api/admin/orders', A, () => ({ items: records.list('orders'), statuses: ORDER_STATUSES }));
   route('GET', '/api/admin/orders.csv', A, () => ({
-    csv: [csvCols.map(c => `"${c[1]}"`).join(','), ...records.list('orders').map(o => csvCols.map(([key]) => { let v = key === 'summary' ? summary(o) : ['fullName', 'phone', 'email', 'address'].includes(key) ? o.customer[key] : o[key]; v = String(v ?? ''); if (/^[=+\-@\t\r]/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }).join(','))].join('\r\n'),
+    csv: [csvCols.map(c => `"${c[1]}"`).join(','), ...records.list('orders').map(o => csvCols.map(([key]) => { let v = key === 'summary' ? summary(o) : ['fullName', 'phone', 'email', 'address', 'country', 'gender', 'guestList'].includes(key) ? o.customer[key] : o[key]; v = String(v ?? ''); if (/^[=+\-@\t\r]/.test(v)) v = "'" + v; return `"${v.replace(/"/g, '""')}"`; }).join(','))].join('\r\n'),
     name: `nusuk-orders-${today()}.csv` }));
   route('PATCH', '/api/admin/orders/:id', A, ({ params, body }) => {
     const patch = {};

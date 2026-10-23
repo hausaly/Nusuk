@@ -219,11 +219,14 @@ test('hotel search: restricted cities, sorted by lowest price, FX-aware, validit
 
 test('hotel order → simulated payment → slip', async () => {
   const stay = { city: 'Makkah', checkIn: dayStr(10), checkOut: dayStr(12), adults: 2, children: 1, rooms: 1 };
-  const customer = { fullName: 'Aisha Bello', phone: '+2348131227047', email: 'aisha@example.com', address: '12 Kano Road' };
+  const customer = { fullName: 'Aisha Bello', phone: '+2348131227047', email: 'aisha@example.com', country: 'Nigeria', gender: 'Female', guestList: 'Aisha Bello\nFatima Bello' };
   assert.equal((await call('POST', '/api/orders/hotel', { ...stay, hotelId, customer: { ...customer, email: 'bad' } })).status, 422);
   assert.equal((await call('POST', '/api/orders/hotel', { ...stay, hotelId: 'nope', customer })).status, 409);
+  assert.equal((await call('POST', '/api/orders/hotel', { ...stay, hotelId, customer: { ...customer, country: '' } })).status, 422);
+  assert.equal((await call('POST', '/api/orders/hotel', { ...stay, hotelId, customer: { ...customer, gender: 'Other' } })).status, 422);
   const o = await call('POST', '/api/orders/hotel', { ...stay, hotelId, customer, amount: 1 /* client price must be ignored */ });
   assert.equal(o.status, 200); assert.match(o.body.bookingId, /^NC-H-[A-Z0-9]{6}$/);
+  { const sl = await call('GET', `/api/orders/${o.body.bookingId}/slip?t=${o.body.token}`); assert.equal(sl.body.order.customer.country, 'Nigeria'); assert.equal(sl.body.order.customer.gender, 'Female'); assert.equal(sl.body.order.customer.guestList, 'Aisha Bello\nFatima Bello'); }
   const quote = (await call('GET', '/api/hotels/search?' + new URLSearchParams(stay))).body.results.find(h => h.id === hotelId);
   const slip0 = await call('GET', `/api/orders/${o.body.bookingId}/slip?t=${o.body.token}`);
   assert.equal(slip0.body.order.amount, quote.total); assert.equal(slip0.body.order.paymentStatus, 'unpaid');
@@ -255,7 +258,7 @@ test('payment connection check is admin-only and explains a missing key', async 
 
 test('payment webhook requires a valid Paystack signature and a matching amount', async () => {
   const stay = { city: 'Makkah', checkIn: dayStr(20), checkOut: dayStr(21), adults: 1, children: 0, rooms: 1 };
-  const o = await call('POST', '/api/orders/hotel', { ...stay, hotelId, customer: { fullName: 'Musa Ibrahim', phone: '08131227047', email: 'm@example.com', address: 'Biu' } });
+  const o = await call('POST', '/api/orders/hotel', { ...stay, hotelId, customer: { fullName: 'Musa Ibrahim', phone: '08131227047', email: 'm@example.com', country: 'Nigeria', gender: 'Male' } });
   const ref = new URL(o.body.authorizationUrl).searchParams.get('reference');
   const amount = (await call('GET', `/api/orders/${o.body.bookingId}/slip?t=${o.body.token}`)).body.order.amount;
   const crypto = await import('node:crypto');
@@ -332,7 +335,7 @@ test('manual payment mode (no Paystack): reservation → pending slip → admin 
   try {
     assert.equal((await call('GET', '/api/booking-config')).body.payment, 'off');
     const stay = { city: 'Makkah', checkIn: dayStr(30), checkOut: dayStr(32), adults: 2, children: 0, rooms: 1 };
-    const customer = { fullName: 'Zainab Yusuf', phone: '+2348131227047', email: 'z@example.com', address: 'Maiduguri' };
+    const customer = { fullName: 'Zainab Yusuf', phone: '+2348131227047', email: 'z@example.com', country: 'Nigeria', gender: 'Female' };
     const o = await call('POST', '/api/orders/hotel', { ...stay, hotelId, customer });
     assert.equal(o.status, 200); assert.equal(o.body.manual, true); assert.ok(!o.body.authorizationUrl);
     const slip = (await call('GET', `/api/orders/${o.body.bookingId}/slip?t=${o.body.token}`)).body.order;
@@ -351,7 +354,7 @@ test('manual payment mode (no Paystack): reservation → pending slip → admin 
 
 test('hotel pay options: Pay Now goes to Paystack, Pay Later is a manual reservation', async () => {
   const stay = { city: 'Makkah', checkIn: dayStr(40), checkOut: dayStr(42), adults: 2, children: 0, rooms: 1 };
-  const customer = { fullName: 'Hauwa Sani', phone: '+2348131227047', email: 'h@example.com', address: 'Kano' };
+  const customer = { fullName: 'Hauwa Sani', phone: '+2348131227047', email: 'h@example.com', country: 'Nigeria', gender: 'Female' };
   const now = await call('POST', '/api/orders/hotel', { ...stay, hotelId, customer, payMode: 'now' });
   assert.equal(now.status, 200); assert.ok(now.body.authorizationUrl); assert.ok(!now.body.manual);
   const later = await call('POST', '/api/orders/hotel', { ...stay, hotelId, customer, payMode: 'later' });

@@ -396,3 +396,54 @@ footer .copy{margin:34px 0 0;border-top:1px solid #3a3329;padding-top:18px;font-
 .fbody h3{font-size:1.3rem;margin-bottom:6px}.fbody .frole{margin-bottom:14px;padding:5px 12px;font-size:.68rem}.fbody p{font-size:.88rem;line-height:1.65;margin-bottom:11px}
 .fd{padding:26px}.fd h2{font-size:1.3rem}.fd p{font-size:.9rem;line-height:1.6}
 @media(max-width:820px){.fcard{grid-template-columns:1fr}.fphoto img{height:300px}.fbody{padding:20px 18px}.fbody h3{font-size:1.15rem}.fbody p{font-size:.85rem}.founder h2{font-size:1.2rem}}
+
+.ctl textarea{border:0;outline:0;margin:0;padding:12px 0;background:transparent;flex:1;font:500 .92rem Poppins,sans-serif;color:var(--ink);min-width:0;resize:vertical;min-height:70px}.mbox .f2m{margin-top:0;margin-bottom:12px}.mbox .f2m .fld{margin-bottom:0}
+
+/* booking slip header (cream band, gold logo) + hotel terms */
+.sl-head{background:#faf7f0 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1000 120' preserveAspectRatio='none'%3E%3Cg fill='none' stroke='%23fff' stroke-width='3'%3E%3Cpath d='M0 70C200 20 350 25 520 55S850 80 1000 35'/%3E%3Cpath d='M0 82C200 32 350 37 520 67S850 92 1000 47'/%3E%3Cpath d='M0 94C200 44 350 49 520 79S850 104 1000 59'/%3E%3C/g%3E%3C/svg%3E") center/100% 100% no-repeat;padding:22px 40px;border-bottom:0;align-items:center}
+.sl-head img{height:64px}.sl-head .sl-co{text-align:left;line-height:1.5;min-width:230px}.sl-head .sl-co b{display:block;font:700 1.15rem Cabin,Poppins,sans-serif;color:var(--g);letter-spacing:.01em}
+.sl-head .sl-co i{display:block;width:62px;height:3px;background:var(--g);margin:4px 0 8px}.sl-head .sl-co p{margin:0;font-size:.76rem;letter-spacing:.05em;color:#46403a}.sl-head .sl-co strong{font-weight:700}
+.sl-strip{height:8px;background:#e2d1b8}
+.sl-terms{padding:6px 26px 20px;display:grid;gap:10px}.sl-nb{background:#faf7f0;border-left:5px solid #edd6b4;padding:14px 20px;font-size:.84rem;line-height:1.55}
+.sl-nb h5{margin:0 0 4px;font-size:.8rem;letter-spacing:.04em;text-transform:uppercase}.sl-nb p{margin:0}.sl-nb ul,.sl-nb ol{margin:4px 0 0;padding-left:20px}.sl-nb li{margin:2px 0}.sl-gl{list-style:decimal}
+@media(max-width:600px){.sl-head{padding:16px 18px}.sl-head .sl-co{min-width:0}.sl-terms{padding:6px 14px 16px}}
+@media(max-width:600px){.sl-head{flex-direction:column;align-items:flex-start;gap:12px}.sl-head img{height:52px}}
+
+/* compact slip (screen + print) */
+.sl-head{padding:12px 28px}.sl-head img{height:44px}.sl-head .sl-co{line-height:1.35}.sl-head .sl-co b{font-size:.98rem}.sl-head .sl-co i{margin:3px 0 5px;height:2px;width:46px}.sl-head .sl-co p{font-size:.68rem}.sl-strip{height:6px}
+.sl-title{padding:14px 22px 2px}.sl-title h2{font-size:1.45rem}.sl-id b{font-size:1.2rem}
+.slip section{padding:2px 22px 8px}.sl-grid{padding:0 22px}.slip h4{margin:8px 0 4px;font-size:.7rem}
+.sl-t{font-size:.78rem}.sl-t th,.sl-t td{padding:4px 4px}.sl-total{padding:8px 14px;margin-top:8px}.sl-total b{font-size:1.2rem}
+.sl-terms{padding:2px 22px 12px;gap:7px}.sl-nb{padding:9px 16px;font-size:.74rem;line-height:1.45}.sl-nb h5{font-size:.72rem;margin-bottom:2px}.sl-nb ul,.sl-nb ol{margin-top:2px}.sl-nb li{margin:1px 0}.sl-gl{display:flex;flex-wrap:wrap;gap:2px 22px;list-style-position:inside;padding-left:0}
+.sl-foot{padding:9px 22px;font-size:.72rem}
+@page{size:A4;margin:8mm}
+@media print{.slip{font-size:.92em}.sl-head,.sl-strip,.sl-nb,.sl-total{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+.sl-grid section{padding:2px 0 8px}
+@media print{.slip{font-size:.78em}.sl-grid{grid-template-columns:1fr 1.3fr!important;gap:0 18px}.sl-head{flex-direction:row!important;align-items:center!important}.sl-head div{text-align:left!important}.sl-terms{gap:5px}.sl-nb{padding:6px 12px}}
+@media print{.sl-t{font-size:.68rem}.sl-t th,.sl-t td{padding:2px 4px}.sl-title{padding:8px 22px 0}.sl-title h2{font-size:1.2rem}.sl-id b{font-size:1rem}.slip h4{margin:5px 0 2px;font-size:.62rem}.sl-nb{font-size:.62rem;line-height:1.35;padding:5px 12px}.sl-nb h5{font-size:.62rem}.sl-total{padding:6px 12px;margin-top:5px}.sl-total b{font-size:1rem}.sl-head{padding:8px 24px}.sl-head img{height:36px}.sl-foot{padding:6px;font-size:.62rem}.slip section{padding-bottom:4px}}
+
+.sl-nb.sm{font-size:.66rem;line-height:1.4;padding:7px 14px}.sl-nb.sm h5{font-size:.64rem}@media print{.sl-nb.sm{font-size:.56rem;padding:4px 12px}.sl-nb.sm h5{font-size:.56rem}}
+
+.sl-terms{gap:6px}.sl-nb.sm{font-size:.6rem;line-height:1.45;padding:8px 14px}.sl-nb.sm h5{font-size:.62rem;margin-bottom:3px}.sl-nb.sm ul,.sl-nb.sm ol{margin-top:2px;padding-left:16px}.sl-nb.sm li{margin:1px 0}.sl-nb.sm p+h5{margin-top:8px}@media print{.sl-nb.sm{font-size:.52rem;padding:5px 12px}.sl-nb.sm h5{font-size:.54rem}}
+
+.sl-head{padding:12px 22px}@media print{.sl-head{padding:8px 22px}}@media(max-width:600px){.sl-head{padding:14px 22px}}
+.sl-head .sl-co{min-width:0;width:max-content}
+/* compact "Your details" step (hotel / offer order forms) */
+.mbox #of .fld label{font-size:.6rem;margin-bottom:3px;letter-spacing:.07em}
+.mbox #of .ctl{min-height:40px;border-radius:8px;padding:0 11px;gap:8px}
+.mbox #of .ctl input,.mbox #of .ctl select{height:38px;font-size:.84rem}
+.mbox #of .ctl svg{width:15px;height:15px}
+.mbox #of .ctl textarea{font-size:.82rem;min-height:54px;padding:9px 0}
+.mbox #of .cust{gap:8px 10px}.mbox #of .cust .fld{margin-bottom:0}
+.mbox #of .fld{margin-bottom:8px}.mbox #of .f2m{gap:8px 10px;margin-bottom:8px}
+.mbox #of .fld small{font-size:.6rem}
+.mbox #of .err{font-size:.7rem;min-height:0;margin-top:2px}
+.mbox #of .osm,.mbox .osm{font-size:.8rem;padding:7px 12px;margin-bottom:10px}
+.mbox #of .testbn{font-size:.74rem;padding:6px 11px;margin:2px 0 8px}
+.mbox #of .paychoice{gap:8px;margin:4px 0 6px}.mbox #of .paychoice .pc{padding:8px 11px;border-radius:10px}.mbox #of .paychoice .pc b{font-size:.84rem}.mbox #of .paychoice .pc span{font-size:.7rem;line-height:1.4;margin-top:3px}
+.mbox #of .mact{margin-top:10px}.mbox #of .mact .btn{padding:9px 18px;font-size:.85rem}
+.mbox #of .secure{font-size:.7rem;margin-top:8px}
+.mbox #of .infobn{font-size:.78rem;padding:8px 12px}
+.mbox #of .err:empty{display:none}.mbox #of .cust{margin-bottom:8px}
+.mbox #of{gap:0}.mbox #of .cust{margin-bottom:8px}
+.mbox #of .testbn{margin:4px 0 10px}.mbox #of .paychoice{margin:2px 0 4px}.mbox #of .mact{margin-top:12px}

@@ -372,6 +372,8 @@ test('featured offers: flagged hotels first, max 3, one card per hotel', async (
   const r = await call('GET', '/api/hotels/featured');
   assert.equal(r.status, 200); assert.ok(r.body.items.length >= 1 && r.body.items.length <= 3);
   assert.equal(r.body.items[0].name, 'Madinah Stay'); assert.equal(r.body.items[0].featured, true);
+  assert.equal((await call('PUT', `/api/admin/hotels/${target.id}`, { description: 'Quiet stay close to the Prophet’s Mosque' }, cookie)).body.description, 'Quiet stay close to the Prophet’s Mosque');
+  assert.equal((await call('GET', '/api/hotels/featured')).body.items[0].description, 'Quiet stay close to the Prophet’s Mosque');
   assert.equal(new Set(r.body.items.map(i => i.name)).size, r.body.items.length);
   assert.ok(r.body.items.every(i => i.perNight > 0 && !('cost' in i)));          // price only, never the supplier cost
 });

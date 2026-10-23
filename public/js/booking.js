@@ -121,7 +121,7 @@ async function featured(){
   let items=[];try{items=(await api('GET','api/hotels/featured')).items}catch{}
   if(!items.length){box.innerHTML='';return}
   box.innerHTML=`<div class="fo-head"><h2>Featured hotel offers</h2><p>Handpicked stays in Makkah and Madinah — prices shown per room, per night.</p></div><div class="fo">${items.map((h,i)=>`<article class="foc"><div class="foi ${h.image?'':'ph'}" ${h.image?`style="background-image:url('${esc(h.image)}')"`:''}>${h.image?'':ic('hotel',40)}${h.featured?'<span class="best">Featured</span>':''}</div>
-    <div class="fob"><div class="hc-top"><h3>${esc(h.name)}</h3><span class="stars">${stars(h.stars)}</span></div><div class="hc-city">${ic('pin',14)} ${esc(h.city)}</div>${h.distance?`<div class="hc-dist">${ic('pin',13)} ${esc(h.distance)}</div>`:''}
+    <div class="fob"><div class="hc-top"><h3>${esc(h.name)}</h3><span class="stars">${stars(h.stars)}</span></div><div class="hc-city">${ic('pin',14)} ${esc(h.city)}</div>${(h.description||h.distance)?`<div class="hc-desc">${esc(h.description||h.distance)}</div>`:''}
     ${h.facilities.length?`<div class="hc-fac">${h.facilities.slice(0,3).map(f=>`<span>${ic('check',12)} ${esc(f)}</span>`).join('')}</div>`:''}
     <div class="fof"><div><small>From</small><b>${NGN(h.perNight)}</b><small>/ night</small></div><button class="btn sm" data-fo="${i}">View offer</button></div></div></article>`).join('')}</div>`;
   box.querySelectorAll('[data-fo]').forEach(b=>b.onclick=()=>{const h=items[+b.dataset.fo];tab='hotels';st.city=h.city;document.querySelectorAll('[data-tab]').forEach(x=>x.classList.toggle('on',x.dataset.tab=='hotels'));$('bkr').innerHTML='';hotelsPanel();window.scrollTo({top:0,behavior:'smooth'});setTimeout(()=>{const i=$('hi');i&&i.focus()},350)});
@@ -162,7 +162,7 @@ function showResults({stay,results}){
   r.innerHTML=head+`<div class="hlist">${results.map((h,i)=>`<article class="htl"><div class="hc-img ${h.image?'':'ph'}" ${h.image?`style="background-image:url('${esc(h.image)}')"`:''}>${h.image?'':ic('hotel',46)}${i==0?'<span class="best">Lowest price</span>':''}</div>
   <div class="hc-main"><div class="hc-top"><h3>${esc(h.name)}</h3><span class="stars" aria-label="${h.stars} stars">${stars(h.stars)}</span></div>
   <div class="hc-city">${ic('pin',15)} ${esc(h.city)}${h.address?` · ${esc(h.address)}`:''}</div>
-  ${h.distance?`<div class="hc-dist">${ic('pin',14)} ${esc(h.distance)}</div>`:''}
+  ${(h.description||h.distance)?`<div class="hc-desc">${esc(h.description||h.distance)}</div>`:''}
   <div class="hc-room"><b>${esc(h.roomType)}</b> · sleeps up to ${h.capacity}</div>
   ${h.facilities.length?`<div class="hc-fac">${h.facilities.slice(0,8).map(f=>`<span>${ic('check',12)} ${esc(f)}</span>`).join('')}</div>`:''}</div>
   <div class="hc-price"><small>${h.nights} night${h.nights>1?'s':''} · ${h.rooms} room${h.rooms>1?'s':''}</small><b>${NGN(h.total)}</b><small>${NGN(h.perNight)} / night</small><button class="btn" data-book="${i}">Book now</button></div></article>`).join('')}</div>`;

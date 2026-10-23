@@ -24,7 +24,7 @@ export function normalizeHotel(b = {}, defaults = {}) {
   const city = CITIES.find(c => c.toLowerCase() === cityRaw) || (cityRaw.startsWith('mad') ? 'Madinah' : cityRaw.startsWith('mak') || cityRaw === 'mecca' ? 'Makkah' : '');
   const fac = Array.isArray(b.facilities) ? b.facilities : str(b.facilities, 600).split(/[,;|\n]/);
   const v = {
-    name: str(b.name, 120), city, address: str(b.address, 220), roomType: str(b.roomType, 80),
+    name: str(b.name, 120), city, address: str(b.address, 220), description: str(b.description, 140), roomType: str(b.roomType, 80),
     distanceM: b.distanceM === '' || b.distanceM == null ? null : Math.round(num(b.distanceM)),
     stars: b.stars === '' || b.stars == null ? 0 : Math.round(num(b.stars)),
     facilities: fac.map(x => str(x, 40)).filter(Boolean).slice(0, 20),
@@ -61,7 +61,7 @@ export function nightlyNgn(h, fx) {
 }
 
 const publicHotel = (h, nights, rooms, perNight) => ({
-  id: h.id, name: h.name, city: h.city, address: h.address, distance: distanceLabel(h), distanceM: h.distanceM, stars: h.stars,
+  id: h.id, name: h.name, city: h.city, address: h.address, description: h.description || '', distance: distanceLabel(h), distanceM: h.distanceM, stars: h.stars,
   facilities: h.facilities, roomType: h.roomType, capacity: h.capacity, image: h.imageUrl || '',
   nights, rooms, perNight, total: perNight * nights * rooms, currency: 'NGN',
 });
@@ -102,17 +102,17 @@ export function quoteHotel(id, s) {
 }
 
 // ---------- Excel / CSV import ----------
-export const TEMPLATE_COLUMNS = ['hotel_name', 'city', 'address', 'distance_m', 'stars', 'facilities', 'room_type', 'rate_per_night', 'currency', 'capacity', 'image_url', 'valid_from', 'valid_to', 'markup_pct'];
+export const TEMPLATE_COLUMNS = ['hotel_name', 'city', 'address', 'distance_m', 'stars', 'facilities', 'room_type', 'rate_per_night', 'currency', 'capacity', 'image_url', 'valid_from', 'valid_to', 'markup_pct', 'description'];
 const ALIAS = {
   hotel_name: 'name', name: 'name', hotel: 'name', city: 'city', destination: 'city', address: 'address', distance_m: 'distanceM', distance: 'distanceM', distance_to_haram: 'distanceM',
   stars: 'stars', star: 'stars', facilities: 'facilities', amenities: 'facilities', room_type: 'roomType', room: 'roomType', roomtype: 'roomType',
   rate_per_night: 'cost', rate: 'cost', price: 'cost', cost: 'cost', price_per_night: 'cost', currency: 'currency', capacity: 'capacity', max_guests: 'capacity',
-  featured: 'featured', image_url: 'imageUrl', image: 'imageUrl', valid_from: 'validFrom', valid_to: 'validTo', markup_pct: 'markupPct', markup: 'markupPct', markup_fixed: 'markupFixed',
+  featured: 'featured', image_url: 'imageUrl', image: 'imageUrl', valid_from: 'validFrom', valid_to: 'validTo', markup_pct: 'markupPct', markup: 'markupPct', markup_fixed: 'markupFixed', description: 'description', short_description: 'description', about: 'description',
 };
 export function templateXlsx() {
   return writeXlsx([TEMPLATE_COLUMNS,
-    ['Sample Makkah Hotel', 'Makkah', 'Ibrahim Al-Khalil Rd, Makkah', 250, 5, 'Wi-Fi, Breakfast, Shuttle', 'Double Room', 450, 'SAR', 3, 'https://example.com/photo.jpg', '2026-11-01', '2027-03-31', ''],
-    ['Sample Madinah Hotel', 'Madinah', 'Central Area, Madinah', 120, 4, 'Wi-Fi, Breakfast', 'Quad Room', 380, 'SAR', 4, '', '', '', 12]], 'Hotel rates');
+    ['Sample Makkah Hotel', 'Makkah', 'Ibrahim Al-Khalil Rd, Makkah', 250, 5, 'Wi-Fi, Breakfast, Shuttle', 'Double Room', 450, 'SAR', 3, 'https://example.com/photo.jpg', '2026-11-01', '2027-03-31', '', 'Walking distance to the Haram, ideal for families'],
+    ['Sample Madinah Hotel', 'Madinah', 'Central Area, Madinah', 120, 4, 'Wi-Fi, Breakfast', 'Quad Room', 380, 'SAR', 4, '', '', '', 12, 'Quiet stay close to the Prophet’s Mosque']], 'Hotel rates');
 }
 
 export function parseRatesFile(buf, filename = '', defaults = {}) {
@@ -158,5 +158,5 @@ export function featuredHotels(limit = 3) {
   return [...seen.values()]
     .sort((a, b) => (b.h.featured ? 1 : 0) - (a.h.featured ? 1 : 0) || a.p - b.p)
     .slice(0, limit)
-    .map(({ h, p }) => ({ id: h.id, name: h.name, city: h.city, address: h.address, distance: distanceLabel(h), stars: h.stars, facilities: h.facilities.slice(0, 4), roomType: h.roomType, image: h.imageUrl || '', perNight: p, featured: !!h.featured }));
+    .map(({ h, p }) => ({ id: h.id, name: h.name, city: h.city, address: h.address, description: h.description || '', distance: distanceLabel(h), stars: h.stars, facilities: h.facilities.slice(0, 4), roomType: h.roomType, image: h.imageUrl || '', perNight: p, featured: !!h.featured }));
 }

@@ -475,6 +475,9 @@ test('offers: admin manages bed space + mutawef offers, public Offers tab lists 
   assert.equal(expired.status, 200);
   assert.equal((await call('POST', '/api/admin/special-offers/mutawef', { title: 'Madinah Ziyarah Mutawef', description: 'Guided ziyarah', price: '25000' }, cookie)).status, 422);   // needs sightseeing
   const m = await call('POST', '/api/admin/special-offers/mutawef', { title: 'Madinah Ziyarah Mutawef', description: 'Guided ziyarah of the holy sites', sightseeing: 'Masjid Quba\nMasjid Qiblatain\nMount Uhud', price: '25000' }, cookie);
+  assert.equal(m.status, 200);
+  { const u = await call('PUT', `/api/admin/special-offers/mutawef/${m.body.id}`, { based: 'Madinah, Saudi Arabia', experience: '1+ Year', languages: 'English, Hausa, Arabic', verified: true }, cookie); assert.equal(u.status, 200); assert.deepEqual(u.body.languages, ['English', 'Hausa', 'Arabic']); assert.equal(u.body.verified, true);
+    const pub = (await call('GET', '/api/offers')).body.mutawef.find(x => x.id === m.body.id); assert.equal(pub.based, 'Madinah, Saudi Arabia'); assert.equal(pub.experience, '1+ Year'); assert.deepEqual(pub.languages, ['English', 'Hausa', 'Arabic']); assert.equal(pub.verified, true); }
   assert.equal(m.status, 200); assert.deepEqual(m.body.sightseeing, ['Masjid Quba', 'Masjid Qiblatain', 'Mount Uhud']);
   const pub = (await call('GET', '/api/offers')).body;
   assert.deepEqual(pub.bedspace.map(o => o.title), ['Maysan Al Taqwa Madinah']);     // hidden + expired are not shown

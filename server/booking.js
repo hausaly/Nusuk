@@ -397,6 +397,9 @@ export function registerBooking(k) {
       if (!e.checkIn && !e.checkOut) { v.nights = nightsBetween(v.checkIn, v.checkOut); if (v.nights < 1) e.checkOut = 'Check-out must be after check-in.'; }
     } else {
       v.description = str(b.description, 1200);
+      v.based = str(b.based, 120); v.experience = str(b.experience, 40);
+      v.languages = (Array.isArray(b.languages) ? b.languages : String(b.languages ?? '').split(/[,;\n]/)).map(x => str(x, 30)).filter(Boolean).slice(0, 8);
+      v.verified = b.verified === true || /^(true|yes|1|on)$/i.test(String(b.verified ?? ''));
       const lines = Array.isArray(b.sightseeing) ? b.sightseeing : String(b.sightseeing ?? '').split(/[\n;]/);
       v.sightseeing = lines.map(x => str(x, 160)).filter(Boolean).slice(0, 30);
       if (!v.description) e.description = 'Description is required.';
@@ -409,7 +412,7 @@ export function registerBooking(k) {
     const t = today(), live = k => records.list(k).filter(o => o.active !== false);
     return {
       bedspace: live('bedspace').filter(o => o.checkOut >= t).sort((a, b) => a.checkIn.localeCompare(b.checkIn)).map(({ id, title, offer, location, stars, checkIn, checkOut, nights, price, imageUrl }) => ({ id, title, offer, location: location || '', stars: stars || 0, checkIn, checkOut, nights, price, imageUrl })),
-      mutawef: live('mutawef').reverse().map(({ id, title, description, sightseeing, price, imageUrl }) => ({ id, title, description, sightseeing, price, imageUrl })),
+      mutawef: live('mutawef').reverse().map(({ id, title, description, sightseeing, price, imageUrl, based, experience, languages, verified }) => ({ id, title, description, sightseeing, price, imageUrl, based: based || '', experience: experience || '', languages: languages || [], verified: !!verified })),
     };
   });
   route('GET', '/api/admin/special-offers/:kind', A, ({ params }) => ({ items: records.list(kindOf(params)) }));

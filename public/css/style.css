@@ -477,3 +477,12 @@ footer .copy{margin:34px 0 0;border-top:1px solid #3a3329;padding-top:18px;font-
 .gc-st>div{display:grid;gap:1px}.gc-st>div>dt,.gc-lg dt{font-size:.68rem;color:var(--mu);font-weight:500;line-height:1.3}
 .gc-lg{display:grid;gap:1px;padding:9px 14px;border-top:1px solid #eadfcb}.gc-lg dd{margin:0;font:700 .88rem Poppins,sans-serif;color:var(--ink);line-height:1.35}.gc-lg dd i{font-style:normal;color:var(--gd);margin:0 .5em;font-weight:700}
 .gc-st{margin:0}
+/* mutawef cards: 3 per row like bed space (desktop), 2 on tablet, 1 on phone */
+.fo.gcs{grid-template-columns:repeat(3,1fr);gap:18px}
+.gc{padding:16px 16px 16px;min-width:0}.gc-top{gap:12px;padding-bottom:12px}.gc-av{width:56px;height:56px;border-radius:12px}
+.gc-id h3{font-size:.96rem}.gc-role{font-size:.74rem}.gc-loc{font-size:.72rem}
+.gc-intro{font-size:.82rem;line-height:1.5;margin-top:12px;-webkit-line-clamp:7}
+.gc-st>div{padding:8px 12px}.gc-st dd{font-size:.86rem}.gc-lg{padding:8px 12px}.gc-lg dd{font-size:.82rem}
+.gc-btn{padding:10px 16px}
+@media(max-width:1000px){.fo.gcs{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.fo.gcs{grid-template-columns:1fr}.gc{padding:16px}}

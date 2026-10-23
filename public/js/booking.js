@@ -57,7 +57,7 @@ const offImg=(o,k)=>`<div class="foi ${o.imageUrl?'':'ph'}" ${o.imageUrl?`style=
 async function offersPanel(){
   const p=$('bkp');p.innerHTML='<p class="mu" style="padding:18px">Loading offers…</p>';
   let d;try{d=await api('GET','api/offers')}catch{p.innerHTML='<p class="err" style="padding:18px">Could not load offers. Please refresh.</p>';return}
-  const bs=d.bedspace.map(o=>`<article class="foc"><div class="foi-w">${offImg(o,'b')}<span class="best">Bed space</span></div><div class="fob"><div class="hc-top"><h3>${esc(o.title)}</h3>${o.stars?`<span class="stars">${stars(o.stars)}</span>`:''}</div>${o.location?`<div class="hc-city">${ic('pin',14)} ${esc(o.location)}</div>`:''}<div class="hc-dist">${ic('hotel',13)} ${esc(o.offer)}</div>
+  const bs=d.bedspace.map(o=>`<article class="foc"><div class="foi-w">${offImg(o,'b')}<span class="best">Bed space</span></div><div class="fob"><div class="hc-top"><h3>${esc(o.title)}</h3>${o.stars?`<span class="stars">${stars(o.stars)}</span>`:''}</div>${o.location?`<div class="hc-desc">${esc(o.location)}</div>`:''}<div class="hc-dist">${ic('hotel',13)} ${esc(o.offer)}</div>
     <dl class="od"><div><dt>Check-in</dt><dd>${fmtD(o.checkIn)}</dd></div><div><dt>Check-out</dt><dd>${fmtD(o.checkOut)}</dd></div><div><dt>Total nights</dt><dd>${o.nights}</dd></div></dl>
     <div class="fof"><div><small>Total price</small><b>${NGN(o.price)}</b></div><button class="btn sm" data-bs="${o.id}">Reserve</button></div></div></article>`).join('');
   const mt=d.mutawef.map(o=>`<article class="foc mt"><div class="foi-w">${offImg(o,'m')}<span class="best">Mutawef</span></div><div class="fob"><div class="hc-top"><h3>${esc(o.title)}</h3></div><p class="mu" style="margin:0;font-size:.86rem">${esc(o.description)}</p>
@@ -81,7 +81,7 @@ function offerFlow(kind,o){
   const total=()=>bs?o.price:o.price*sel.size;
   const brief=bs?`${esc(o.title)} · ${esc(o.offer)} · ${o.nights} night${o.nights>1?'s':''}`:`${esc(o.title)} · ${sel.size} service${sel.size==1?'':'s'}`;
   const review=()=>{
-    const sum=bs?`<div class="osum"><div class="oh"><b>${esc(o.title)}</b>${o.stars?`<span class="stars">${stars(o.stars)}</span>`:''}</div>${o.location?`<div class="oc">${ic('pin',14)} ${esc(o.location)}</div>`:''}<div class="oc">${ic('hotel',14)} ${esc(o.offer)}</div><table><tr><th>Check-in</th><td>${fd(o.checkIn)}</td></tr><tr><th>Check-out</th><td>${fd(o.checkOut)}</td></tr><tr><th>Total nights</th><td>${o.nights}</td></tr></table><div class="otot"><span>Total to pay</span><b>${NGN(o.price)}</b></div></div>`
+    const sum=bs?`<div class="osum"><div class="oh"><b>${esc(o.title)}</b>${o.stars?`<span class="stars">${stars(o.stars)}</span>`:''}</div>${o.location?`<p class="odesc">${esc(o.location)}</p>`:''}<div class="oc">${ic('hotel',14)} ${esc(o.offer)}</div><table><tr><th>Check-in</th><td>${fd(o.checkIn)}</td></tr><tr><th>Check-out</th><td>${fd(o.checkOut)}</td></tr><tr><th>Total nights</th><td>${o.nights}</td></tr></table><div class="otot"><span>Total to pay</span><b>${NGN(o.price)}</b></div></div>`
     :`<div class="osum"><div class="oh"><b>${esc(o.title)}</b></div><p class="mu" style="margin:0 0 8px;font-size:.86rem">${esc(o.description)}</p>
       <div class="fld"><label>Choose your sightseeing services (${NGN(o.price)} each)</label><div class="stops">${o.sightseeing.map((s,i)=>`<label class="stop"><input type="checkbox" data-st="${i}" ${sel.has(s)?'checked':''}> <span>${esc(s)}</span></label>`).join('')}</div><div class="err" id="e_stops"></div></div>
       <div class="f2m"><div class="fld"><label for="o_people">Number of pilgrims</label><div class="ctl"><input id="o_people" type="number" min="1" max="100" value="${people}"></div></div><div class="fld"><label for="o_date">Preferred date (optional)</label><div class="ctl"><input id="o_date" type="date" min="${cfg.today}" value="${date}"></div></div></div>
@@ -96,19 +96,19 @@ function offerFlow(kind,o){
   };
   const details=()=>{
     shell('Your details',2,`<div class="osm">${brief} · <b>${NGN(total())}</b></div>
-    <form id="of" novalidate>${custFields('o_')}<div class="fld"><label for="o_address">Address *</label><div class="ctl"><input id="o_address" autocomplete="street-address"></div><div class="err" id="e_o_address"></div></div>
+    <form id="of" novalidate>${custFields('o_')}<div class="f2m"><div class="fld"><label for="o_country">Country of residence *</label><div class="ctl"><input id="o_country" autocomplete="country-name" placeholder="e.g. Nigeria"></div><div class="err" id="e_o_country"></div></div><div class="fld"><label for="o_gender">Gender *</label><div class="ctl"><select id="o_gender"><option value="">Select…</option><option>Male</option><option>Female</option></select></div><div class="err" id="e_o_gender"></div></div></div>
     ${cfg.payment=='simulation'?'<div class="testbn">TEST MODE — payments are simulated. No real money is charged.</div>':''}
     ${cfg.payment=='off'?'<div class="infobn">No payment is needed now. Our team will contact you on WhatsApp / email with payment details — your booking is confirmed once payment is received.</div>':`<div class="paychoice"><div class="pc now"><b>${ic('shield',18)} Pay Now</b><span>Pay instantly and securely with Paystack (card, bank transfer or USSD). Your booking is confirmed as soon as payment succeeds.</span></div><div class="pc later"><b>${ic('clock',18)} Pay Later</b><span>Reserve now. Our team will contact you on WhatsApp / email to collect payment. Your booking is confirmed once payment is received.</span></div></div>`}
     <div class="err" id="e_o_all" role="alert"></div><div class="mact"><button type="button" class="btn o" id="mb">Back</button>${cfg.payment=='off'?`<button type="submit" class="btn" id="mp">${ic('shield',18)} Confirm booking</button>`:`<button type="button" class="btn o" id="ml">${ic('clock',18)} Pay Later</button><button type="submit" class="btn" id="mp">${ic('shield',18)} Pay Now</button>`}</div>
     <p class="secure">${ic('shield',14)} ${cfg.payment=='off'?'Your booking slip with your Booking ID is generated right away.':'Pay Now is secured by Paystack. Your booking slip with your Booking ID is generated right away with either option.'}</p></form>`);
     $('mb').onclick=review;
-    const submit=async mode=>{const btns=[$('mp'),$('ml')].filter(Boolean);btns.forEach(x=>x.disabled=true);errs('e_o_',{},['fullName','phone','email','address','all']);
-      const c=custVals('o_');c.address=$('o_address').value.trim();
+    const submit=async mode=>{const btns=[$('mp'),$('ml')].filter(Boolean);btns.forEach(x=>x.disabled=true);errs('e_o_',{},['fullName','phone','email','country','gender','all']);
+      const c=custVals('o_');c.country=$('o_country').value.trim();c.gender=$('o_gender').value;
       const body=bs?{offerId:o.id,customer:c,payMode:cfg.payment=='off'?'later':mode}:{offerId:o.id,stops:[...sel],people,meetingPoint:meet,date,customer:c,payMode:cfg.payment=='off'?'later':mode};
       try{const out=await api('POST','api/orders/'+kind,body);
         if(out.manual){close();location.hash=`#/slip/${out.bookingId}/${out.token}`;return}
         shell('Redirecting to payment…',3,'<div class="bk-load"><i></i><i></i><i></i></div><p class="secure">Please wait — do not close this page.</p>');location.href=out.authorizationUrl}
-      catch(err){btns.forEach(x=>x.disabled=false);if(err.errors){const x=err.errors;for(const k of ['fullName','phone','email','address'])$('e_o_'+k).textContent=x[k]||'';$('e_o_all').textContent=x.stops||x.people||x.meetingPoint||x.date||''}else $('e_o_all').textContent=err.message}};
+      catch(err){btns.forEach(x=>x.disabled=false);if(err.errors){const x=err.errors;for(const k of ['fullName','phone','email','country','gender'])$('e_o_'+k).textContent=x[k]||'';$('e_o_all').textContent=x.stops||x.people||x.meetingPoint||x.date||''}else $('e_o_all').textContent=err.message}};
     $('of').onsubmit=e=>{e.preventDefault();submit(cfg.payment=='off'?'later':'now')};
     if($('ml'))$('ml').onclick=()=>submit('later');
   };
@@ -255,7 +255,7 @@ function visaPanel(){
   const p=$('bkp'),F=cfg.visa||{},priced=F.adult>0,cnt={adults:1,children:0,infants:0};
   const row=(k,l,sub,min)=>`<div class="stp"><div><b>${l}</b><small>${sub}</small></div><div class="stc"><button type="button" data-vs="${k}" data-d="-1" aria-label="Fewer ${l}">−</button><span id="vc_${k}">${cnt[k]}</span><button type="button" data-vs="${k}" data-d="1" aria-label="More ${l}">+</button></div></div>`;
   p.innerHTML=`<form id="vf" novalidate><div class="vgrid"><div>
-  <h3 class="vh">Umrah B2B eVisa – Group &amp; Individual</h3><p class="mu vsubt">Add the pilgrims in your group. Our team will collect passport of each pilgrim after you submit.</p>
+  <h3 class="vh">Umrah eVisa – Group &amp; Individual</h3><p class="mu vsubt">Add the pilgrims in your group. Our team will collect passport of each pilgrim after you submit.</p>
   <div class="vfacts"><span>${ic('clock',18)}<b>Processing Time:</b> Within 48 hours</span><span>${ic('passport',18)}<b>Visa Type:</b> Multiple-Entry Umrah Visa</span></div>
   <div class="vcnt">${row('adults','Adult','12 years &amp; above')}${row('children','Children','2–12 years')}${row('infants','Infant','Under 2 years')}</div>
   <h3 class="vh">Contact Info</h3><p class="mu vsubt">Who should we contact about this request?</p>

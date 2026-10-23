@@ -125,7 +125,10 @@ export function registerBooking(k) {
 
   // Bed space + mutawef offers: same Pay Now / Pay Later flow, booking slip and dashboard fulfilment as hotels
   async function placeOffer(req, body, type, prefix, details, amount) {
-    const { c, e } = customerOf(body.customer); if (c.address.length < 3) e.address = 'Address is required.';
+    const { c, e } = customerOf(body.customer);
+    c.address = ''; c.country = str((body.customer || {}).country, 80); c.gender = str((body.customer || {}).gender, 10);   // offer orders collect country of residence and gender
+    if (c.country.length < 2) e.country = 'Country of residence is required.';
+    if (!['Male', 'Female'].includes(c.gender)) e.gender = 'Choose Male or Female.';
     if (Object.keys(e).length) fail(e);
     if (body.payMode !== undefined && !['now', 'later'].includes(body.payMode)) throw new HttpError(422, 'Choose Pay Now or Pay Later.');
     const manual = paymentMode() === 'off' || body.payMode === 'later';
@@ -385,7 +388,7 @@ export function registerBooking(k) {
     if (!(v.price > 0) || v.price > 1e9) e.price = kind === 'bedspace' ? 'Total price must be a positive amount.' : 'Price per sightseeing service must be a positive amount.';
     if (v.imageUrl && !/^(https?:\/\/\S+|api\/media\/[\w.-]+)$/i.test(v.imageUrl)) e.imageUrl = 'Image must be an http(s) link or an uploaded image.';
     if (kind === 'bedspace') {
-      v.offer = str(b.offer, 120); v.location = str(b.location, 120); v.stars = b.stars === '' || b.stars == null ? 0 : Math.round(Number(b.stars));
+      v.offer = str(b.offer, 120); v.location = str(b.location, 140); v.stars = b.stars === '' || b.stars == null ? 0 : Math.round(Number(b.stars));
       if (!Number.isInteger(v.stars) || v.stars < 0 || v.stars > 5) e.stars = 'Stars must be 0–5.';
       v.checkIn = str(b.checkIn, 10); v.checkOut = str(b.checkOut, 10);
       if (!v.offer) e.offer = 'Offer is required (e.g. 1 Bed Space for Men).';

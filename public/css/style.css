@@ -450,3 +450,8 @@ footer .copy{margin:34px 0 0;border-top:1px solid #3a3329;padding-top:18px;font-
 
 .hc-desc{font-size:.84rem;line-height:1.45;color:#4a443c;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin:0;max-width:62ch}
 @media(max-width:900px){.hc-desc{font-size:.8rem}}
+
+/* offers cards: description line + aligned footers */
+.offers .hc-desc{font-size:.8rem;line-height:1.45;color:#4a443c;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.9em;margin:0}
+.offers .foc{align-self:stretch}.offers .foc .fob{flex:1;display:flex;flex-direction:column}.offers .foc .fof{margin-top:auto}
+.mbox .odesc{margin:0 0 6px;font-size:.8rem;line-height:1.45;color:#4a443c}

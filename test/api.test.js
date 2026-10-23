@@ -490,7 +490,7 @@ test('offer orders: bed space + mutawef support Pay Now / Pay Later, slip and da
   const day = (n) => new Date(Date.now() + n * 864e5).toISOString().slice(0, 10);
   const bs = (await call('POST', '/api/admin/special-offers/bedspace', { title: 'Maysan Al Taqwa Madinah', offer: '1 Bed Space for Men', checkIn: day(30), checkOut: day(37), price: '350000' }, cookie)).body;
   const mt = (await call('POST', '/api/admin/special-offers/mutawef', { title: 'Madinah Ziyarah Mutawef', description: 'Guided ziyarah', sightseeing: 'Masjid Quba\nMasjid Qiblatain\nMount Uhud', price: '25000' }, cookie)).body;
-  const customer = { fullName: 'Hauwa Sani', phone: '+2348131227047', email: 'h@example.com', address: 'Kano' };
+  const customer = { fullName: 'Hauwa Sani', phone: '+2348131227047', email: 'h@example.com', country: 'Nigeria', gender: 'Female' };
   // bed space: Pay Now -> payment link, price comes from the server record
   const now = await call('POST', '/api/orders/bedspace', { offerId: bs.id, customer, payMode: 'now', amount: 1 });
   assert.equal(now.status, 200); assert.ok(now.body.authorizationUrl);
@@ -503,6 +503,7 @@ test('offer orders: bed space + mutawef support Pay Now / Pay Later, slip and da
   assert.equal((await call('POST', '/api/orders/bedspace', { offerId: bs.id, customer, payMode: 'bogus' })).status, 422);
   assert.equal((await call('POST', '/api/orders/bedspace', { offerId: bs.id, customer: { ...customer, email: 'x' }, payMode: 'now' })).status, 422);
   // mutawef: total = price x selected services
+  assert.equal((await call('POST', '/api/orders/bedspace', { offerId: (await call('GET', '/api/offers')).body.bedspace[0].id, customer: { ...customer, gender: 'Other' }, payMode: 'later' })).status, 422);
   assert.equal((await call('POST', '/api/orders/mutawef', { offerId: mt.id, stops: ['Not a stop'], people: 2, customer, payMode: 'later' })).status, 422);
   assert.equal((await call('POST', '/api/orders/mutawef', { offerId: mt.id, stops: ['Masjid Quba'], people: 2, customer, payMode: 'later' })).status, 422); // meeting point required
   const m = await call('POST', '/api/orders/mutawef', { offerId: mt.id, stops: ['Masjid Quba', 'Mount Uhud'], people: 3, meetingPoint: 'Hotel lobby', date: day(20), customer, payMode: 'later' });

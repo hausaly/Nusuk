@@ -14,6 +14,7 @@ const HT={
     ['If breakfast is included, certain properties may charge extra for children travelling with their parents. Verify any applicable charges with the property.'],
     ['Check-in after 16:00 hours and check-out by 12:00 hours'],
     ['Hotel confirmation number (HCN) will be provided 24 hours prior to check-in']]};
+const TERMS=['hotel','bedspace','mutawef'];   // slips that carry the booking terms
 const guestNames=o=>[o.customer.fullName+' (lead guest)',...String(o.customer.guestList||'').split('\n').map(x=>x.trim()).filter(Boolean)];
 const num=n=>Number(n||0).toLocaleString('en-NG');
 const dt=d=>d?new Date(d+(d.length==10?'T00:00:00':'')).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'';
@@ -29,10 +30,10 @@ function status(o){
 }
 function sections(o){
   const d=o.details,c=o.customer;
-  const client=[['Full name',c.fullName],['WhatsApp / Mobile',c.phone],['Email',c.email]]; if(o.type=='hotel'){if(c.country)client.push(['Country of residence',c.country]);if(c.gender)client.push(['Gender',c.gender])}else if(c.address)client.push(['Address',c.address]);
+  const client=[['Full name',c.fullName],['WhatsApp / Mobile',c.phone],['Email',c.email]]; if(['hotel','bedspace','mutawef'].includes(o.type)&&(c.country||!c.address)){if(c.country)client.push(['Country of residence',c.country]);if(c.gender)client.push(['Gender',c.gender])}else if(c.address)client.push(['Address',c.address]);
   let book=[],pay=[];
   if(o.type=='bedspace'){
-    book=[['Accommodation',d.title+(d.stars?`  (${d.stars}★)`:'')],...(d.location?[['Location',d.location]]:[]),['Offer',d.offer],['Check-in',dt(d.checkIn)],['Check-out',dt(d.checkOut)],['Total nights',String(d.nights)]];
+    book=[['Accommodation',d.title+(d.stars?`  (${d.stars}★)`:'')],...(d.location?[['Description',d.location]]:[]),['Offer',d.offer],['Check-in',dt(d.checkIn)],['Check-out',dt(d.checkOut)],['Total nights',String(d.nights)]];
     pay=[['Total price',`NGN ${num(o.amount)}`],['Payment status',o.paymentStatus=='paid'?'Paid':'Pending']];
     if(o.payment?.reference)pay.push(['Payment reference',o.payment.reference]);
     if(o.payment?.paidAt)pay.push(['Paid on',dtm(o.payment.paidAt)]);
@@ -69,7 +70,7 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 
 const rich=p=>p.map(x=>typeof x=='string'?esc(x):`<b>${esc(x.b)}</b>`).join('');
 function hotelTerms(o){
-  return `<div class="sl-terms"><div class="sl-nb sm"><h5>Guest list:</h5><ol class="sl-gl">${guestNames(o).map(n=>`<li>${esc(n)}</li>`).join('')}</ol></div>
+  return `<div class="sl-terms">${o.type=='hotel'?`<div class="sl-nb sm"><h5>Guest list:</h5><ol class="sl-gl">${guestNames(o).map(n=>`<li>${esc(n)}</li>`).join('')}</ol></div>`:''}
   <div class="sl-nb sm"><h5>Special requests:</h5><p>${esc(HT.special)}</p><h5 style="margin-top:12px">Payment details</h5><ul>${HT.pay.map(l=>`<li>${rich(l)}</li>`).join('')}</ul></div>
   <div class="sl-nb sm"><p>${rich(HT.cancel)}</p></div>
   <div class="sl-nb sm"><h5>Notes</h5><ul>${HT.notes.map(l=>`<li>${rich(l)}</li>`).join('')}</ul></div></div>`;
@@ -82,7 +83,7 @@ function html(o){
   <div class="sl-title"><div><div class="eyebrow">${TYPE[o.type]}</div><h2>BOOKING SLIP</h2><small>Issued ${dtm(o.createdAt)}</small></div><div class="sl-id"><small>BOOKING ID</small><b>${esc(o.bookingId)}</b><span class="chip ${col}">${st}</span></div></div>
   <div class="sl-grid"><section><h4>Client information</h4>${tbl(S.client)}</section><section><h4>Booking details</h4>${tbl(S.book)}</section></div>
   <section><h4>${PAY.includes(o.type)||(o.type=='visa'&&o.details.priced)?'Payment summary':'Pricing'}</h4>${tbl(S.pay)}${PAY.includes(o.type)||(o.type=='visa'&&o.details.priced)?`<div class="sl-total"><span>TOTAL ${o.paymentStatus=='paid'?'PAID':'DUE'}</span><b>₦${num(o.amount)}</b></div>`:''}</section>
-  ${o.type=='hotel'?hotelTerms(o):''}
+  ${TERMS.includes(o.type)?hotelTerms(o):''}
   <div class="sl-foot">Keep this slip and quote your Booking ID when contacting us.<br>${esc(CO.addr)}</div></div>`;
 }
 
@@ -145,7 +146,7 @@ async function pdf(o){
     doc.setTextColor(255,255,255);doc.setFontSize(13);doc.text('NGN '+num(o.amount),W-M-5,y+7.6,{align:'right'});y+=18;
   }
   // ---- hotel terms (compact cards)
-  if(o.type=='hotel'){
+  if(TERMS.includes(o.type)){
     const IW=W-2*M-9,FS=6.3,HS=6.9,PAD=3.4,GAP=1.3,MM=.3528;
     const lhOf=fs=>fs*MM*1.42;
     const lay=(parts,x,yTop,maxW,draw,fs)=>{   // word-wrapped rich text; returns height used
@@ -167,7 +168,7 @@ async function pdf(o){
       doc.setFillColor(250,247,240);doc.rect(M,y,W-2*M,h,'F');doc.setFillColor(237,214,180);doc.rect(M,y,1.4,h,'F');
       doc.setTextColor(...INK);measure(true,M+6,y);y+=h+3.4};
     const gl=guestNames(o).map((n,i)=>`${i+1}. ${n}`).join('      ');
-    card([{h:'GUEST LIST:',inline:gl}]);
+    if(o.type=='hotel')card([{h:'GUEST LIST:',inline:gl}]);
     card([{h:'SPECIAL REQUESTS:',p:[HT.special]},{h:'PAYMENT DETAILS',bul:HT.pay}]);
     card([{p:HT.cancel}]);
     card([{h:'NOTES',bul:HT.notes}]);

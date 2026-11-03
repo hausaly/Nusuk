@@ -1,4 +1,4 @@
-const BUILD='20261103d';   // keep in sync with server/config.js and index.html (a test enforces it)
+const BUILD='20261103f';   // keep in sync with server/config.js and index.html (a test enforces it)
 // Native app mode (Capacitor wrapper or ?app=1): only the DIY Booking pages, no marketing nav/footer.
 const APP=(()=>{try{const n=!!(window.Capacitor&&Capacitor.isNativePlatform&&Capacitor.isNativePlatform());if(n||/[?&]app=1\b/.test(location.search))sessionStorage.setItem('app','1');return sessionStorage.getItem('app')=='1'}catch{return false}})();
 if(APP)document.documentElement.classList.add('app');

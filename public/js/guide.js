@@ -12,7 +12,7 @@ function card(b){
   return `<article class="gb" data-id="${esc(b.id)}"><div class="gh"><b>${esc(b.bookingId)}</b><span class="gs ${cls}">${esc(st)}</span></div>
   <dl><div><dt>Date</dt><dd>${b.date?esc(b.date):'To be agreed'}</dd></div><div><dt>Pilgrims</dt><dd>${esc(b.people)}</dd></div><div class="fw"><dt>Meeting point</dt><dd>${esc(b.meetingPoint)}</dd></div>
   <div class="fw"><dt>Sightseeing</dt><dd>${esc((b.stops||[]).join(', '))}</dd></div></dl>
-  <div class="gc"><b>${esc(b.customer.name)}</b><span>${esc(b.customer.country||'')}${b.customer.gender?' · '+esc(b.customer.gender):''}</span>
+  <div class="gcu"><b>${esc(b.customer.name)}</b><span>${esc(b.customer.country||'')}${b.customer.gender?' · '+esc(b.customer.gender):''}</span>
   <div class="gl"><a class="btn sm o" href="tel:${esc(tel(b.customer.phone))}">Call</a><a class="btn sm o" href="${esc(wa(b.customer.phone))}" target="_blank" rel="noopener">WhatsApp</a></div></div>
   <p class="gm">${b.payLater&&b.paymentStatus!='paid'?'Pay later: our team collects payment. ':b.paymentStatus=='paid'?'Paid. ':''}Booked ${esc(fmt(b.createdAt))}</p>
   ${st=='Pending'?`<div class="ga"><button class="btn" data-a="accept">Accept</button><button class="btn o" data-a="decline">Decline</button></div><div class="gr" hidden><label>Reason for declining<textarea rows="2" maxlength="300" placeholder="e.g. I am not available on that date"></textarea></label><div class="err" role="alert"></div><div class="ga"><button class="btn" data-a="send">Send</button><button class="btn o" data-a="back">Back</button></div></div>`

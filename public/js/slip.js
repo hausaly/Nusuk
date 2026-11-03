@@ -177,7 +177,11 @@ async function pdf(o){
   const n=doc.getNumberOfPages();
   for(let p=1;p<=n;p++){doc.setPage(p);doc.setDrawColor(...GOLD);doc.setLineWidth(.4);doc.line(M,287,W-M,287);doc.setFont('helvetica','normal');doc.setFontSize(6.8);doc.setTextColor(...MU);
     doc.text('Keep this slip and quote your Booking ID when contacting us.  '+CO.phone+'  |  '+CO.email,M,291.5);doc.text(`Page ${p} of ${n}`,W-M,291.5,{align:'right'});}
-  doc.save(`${o.bookingId}-booking-slip.pdf`);
+  const name = `${o.bookingId}-booking-slip.pdf`, cap = window.Capacitor, pl = cap && cap.Plugins;
+  if (cap && cap.isNativePlatform && cap.isNativePlatform() && pl && pl.Filesystem && pl.Share) {   // native app: save to the app cache, then open the share / save sheet
+    const f = await pl.Filesystem.writeFile({ path: name, data: doc.output('datauristring').split(',')[1], directory: 'CACHE' });
+    await pl.Share.share({ title: 'Booking slip ' + o.bookingId, url: f.uri, dialogTitle: 'Save or share your booking slip' });
+  } else doc.save(name);
 }
 window.NCSlip={html,pdf,status,CO};
 })();

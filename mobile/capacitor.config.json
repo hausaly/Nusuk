@@ -1,0 +1,16 @@
+{
+  "appId": "com.hausaly.nusukconsult",
+  "appName": "NUSUK Booking",
+  "webDir": "www",
+  "backgroundColor": "#1d1a16",
+  "server": {
+    "url": "https://www.hausaly.com/nusuk/?app=1#/booking",
+    "androidScheme": "https",
+    "allowNavigation": ["www.hausaly.com", "checkout.paystack.com", "*.paystack.com", "*.paystack.co"],
+    "errorPath": "index.html"
+  },
+  "plugins": {
+    "SplashScreen": { "launchShowDuration": 1200, "backgroundColor": "#DDB47E", "showSpinner": false },
+    "StatusBar": { "style": "DARK", "backgroundColor": "#1d1a16" }
+  }
+}

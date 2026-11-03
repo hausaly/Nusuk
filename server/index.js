@@ -109,7 +109,7 @@ route('POST', '/api/leads', async ({ req, body }) => {
 });
 // auth
 route('POST', '/api/auth/login', async ({ req, res, body }) => {
-  limit(req, 'login', 8, 15 * 60e3);
+  limit(req, 'login', Number(process.env.LOGIN_RATE_LIMIT) || 8, 15 * 60e3);
   const s = auth.login(body.email ?? '', body.password ?? '');
   if (!s) throw new HttpError(401, 'Incorrect email or password.');
   res.setHeader('Set-Cookie', setCookie(s.token, auth.sessionMaxAge));
@@ -156,7 +156,8 @@ route('PUT', '/api/admin/settings', ADMIN, ({ body }) => {
   return s;
 });
 
-const bk = { route, HttpError, must, fail, A, ADMIN, limit, notify, publicUrl };
+const GUIDE = { auth: true, guide: true };
+const bk = { route, HttpError, must, fail, A, ADMIN, GUIDE, limit, notify, publicUrl };
 registerBooking(bk);
 payHandler = (req, res, url) => bk.payRoutes(req, res, url);
 
@@ -206,6 +207,7 @@ async function handleApi(req, res, url) {
     }
     const user = auth.userFromToken(cookies(req)[COOKIE]);
     if (hit.opts.auth && !user) throw new HttpError(401, 'Sign in required');
+    if (hit.opts.auth && user.role === 'guide' && !hit.opts.guide) throw new HttpError(403, 'Not available for guide accounts');   // guides only reach /api/guide/*
     if (hit.opts.role && user.role !== hit.opts.role) throw new HttpError(403, 'Administrator access required');
     const noBody = req.method === 'GET' || req.method === 'DELETE';
     const rawBody = noBody ? Buffer.alloc(0) : await readBody(req, hit.opts.maxBody || 64 * 1024);
@@ -241,7 +243,7 @@ function serveStatic(req, res, url) {
     const etag = `"${st.size.toString(16)}-${Math.floor(st.mtimeMs).toString(16)}"`;
     const headers = {
       'Content-Type': MIME[ext] || 'application/octet-stream', ETag: etag, 'Content-Length': st.size,
-      'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=3600',
+      'Cache-Control': ext === '.html' || path.basename(file) === 'sw.js' ? 'no-cache' : 'public, max-age=3600',
     };
     if (req.headers['if-none-match'] === etag) { res.writeHead(304, headers); return res.end(); }
     res.writeHead(200, headers);

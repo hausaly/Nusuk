@@ -44,7 +44,7 @@ export function userInput(b = {}, { requirePassword }) {
   const errors = {};
   if (!v.name) errors.name = 'Name is required.';
   if (!EMAIL.test(v.email)) errors.email = 'Valid email required.';
-  if (!['admin', 'staff'].includes(v.role)) errors.role = 'Role must be admin or staff.';
+  if (!['admin', 'staff', 'guide'].includes(v.role)) errors.role = 'Role must be admin, staff or guide.';
   if ((requirePassword || v.password) && v.password.length < 10) errors.password = 'Password must be at least 10 characters.';
   return Object.keys(errors).length ? { errors } : { value: v };
 }

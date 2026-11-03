@@ -1,0 +1,22 @@
+{
+  "name": "NUSUK CONSULT",
+  "short_name": "NUSUK CONSULT",
+  "description": "Hotels, bed space, Mutawef tour guides, Umrah visas and NUSUK MASAR advisory in one app.",
+  "id": "./",
+  "start_url": "./#/?source=pwa",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#DDB47E",
+  "theme_color": "#1d1a16",
+  "lang": "en",
+  "icons": [
+    {"src": "img/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "img/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "img/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ],
+  "shortcuts": [
+    {"name": "Book a hotel", "url": "./#/booking"},
+    {"name": "Services", "url": "./#/services"}
+  ]
+}

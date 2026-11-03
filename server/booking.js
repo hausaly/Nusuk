@@ -48,7 +48,7 @@ function customerOf(b = {}) {
 }
 
 export function registerBooking(k) {
-  const { route, HttpError, must, fail, A, ADMIN, limit, notify, publicUrl } = k;
+  const { route, HttpError, must, fail, A, ADMIN, GUIDE, limit, notify, publicUrl } = k;
   const publicOrder = o => ({ bookingId: o.bookingId, type: o.type, status: o.status, paymentStatus: o.paymentStatus, amount: o.amount, currency: o.currency, customer: o.customer, details: o.details, payment: { reference: o.payment?.reference, paidAt: o.payment?.paidAt, channel: o.payment?.channel, mode: o.payment?.provider }, createdAt: o.createdAt });
   const byId = id => { const r = db.prepare("SELECT id FROM records WHERE collection='orders' AND json_extract(data,'$.bookingId')=?").get(String(id)); return r && records.get('orders', r.id); };
   const byRef = ref => { const r = db.prepare("SELECT id FROM records WHERE collection='orders' AND json_extract(data,'$.payment.reference')=?").get(String(ref)); return r && records.get('orders', r.id); };
@@ -160,7 +160,7 @@ export function registerBooking(k) {
     if (!meetingPoint) e.meetingPoint = 'Enter the meeting point.';
     if (date && (!validDate(date) || date < today())) e.date = 'Choose a date from today onwards.';
     if (Object.keys(e).length) fail(e);
-    return placeOffer(req, body, 'mutawef', 'M', { offerId: off.id, title: off.title, description: off.description, stops: picked, pricePerService: off.price, people, meetingPoint, date }, off.price * picked.length);
+    return placeOffer(req, body, 'mutawef', 'M', { offerId: off.id, guideId: off.guideId || '', title: off.title, description: off.description, stops: picked, pricePerService: off.price, people, meetingPoint, date }, off.price * picked.length);
   });
 
   route('POST', '/api/orders/:id/pay', async ({ req, params }) => {
@@ -286,7 +286,7 @@ export function registerBooking(k) {
   // ---------- admin: orders ----------
   const csvCols = [['bookingId', 'Booking ID'], ['createdAt', 'Created'], ['type', 'Type'], ['status', 'Status'], ['paymentStatus', 'Payment'], ['amount', 'Amount (NGN)'], ['fullName', 'Client'], ['phone', 'Phone'], ['email', 'Email'], ['address', 'Address'], ['country', 'Country of residence'], ['gender', 'Gender'], ['guestList', 'Guest list'], ['summary', 'Details']];
   const summary = o => o.type === 'bedspace' ? `${o.details.title} · ${o.details.offer} · ${o.details.checkIn} → ${o.details.checkOut} · ${o.details.nights} night(s)`
-    : o.type === 'mutawef' ? `${o.details.title} · ${o.details.stops.length} sightseeing service(s) · ${o.details.people} pilgrim(s)${o.details.meetingPoint ? ' · meet: ' + o.details.meetingPoint : ''}${o.details.date ? ' · ' + o.details.date : ''}`
+    : o.type === 'mutawef' ? `${o.details.title} · ${o.details.stops.length} sightseeing service(s) · ${o.details.people} pilgrim(s)${o.details.meetingPoint ? ' · meet: ' + o.details.meetingPoint : ''}${o.details.date ? ' · ' + o.details.date : ''}${o.guideStatus ? ' · Guide: ' + o.guideStatus : ''}`
     : o.type === 'hotel' ? `${o.details.hotelName} (${o.details.city}) · ${o.details.roomType} · ${o.details.checkIn} → ${o.details.checkOut} · ${o.details.nights} night(s) · ${o.details.rooms} room(s)`
     : o.type === 'visa' ? `Umrah Visa · ${o.details.adults} adult(s), ${o.details.children} child(ren), ${o.details.infants} infant(s)`
     : o.type === 'train' ? `${o.details.tripType === 'round-trip' ? 'Round trip' : 'One way'} · ${o.details.from} → ${o.details.to} · ${o.details.date}${o.details.returnDate ? ` (return ${o.details.returnDate})` : ''} · ${o.details.adults}A/${o.details.children}C` : `${o.details.vehicle} x${o.details.quantity} · ${o.details.pickup} → ${o.details.dropoff} · ${o.details.date} ${o.details.time}`;
@@ -399,6 +399,8 @@ export function registerBooking(k) {
       v.description = str(b.description, 1200);
       v.based = str(b.based, 120); v.experience = str(b.experience, 40);
       v.languages = (Array.isArray(b.languages) ? b.languages : String(b.languages ?? '').split(/[,;\n]/)).map(x => str(x, 30)).filter(Boolean).slice(0, 8);
+      v.guideId = str(b.guideId, 40);
+      if (v.guideId && !db.prepare("SELECT 1 FROM users WHERE id = ? AND role = 'guide'").get(v.guideId)) e.guideId = 'Choose a guide account from the list.';
       v.verified = b.verified === true || /^(true|yes|1|on)$/i.test(String(b.verified ?? ''));
       const lines = Array.isArray(b.sightseeing) ? b.sightseeing : String(b.sightseeing ?? '').split(/[\n;]/);
       v.sightseeing = lines.map(x => str(x, 160)).filter(Boolean).slice(0, 30);
@@ -430,4 +432,29 @@ export function registerBooking(k) {
     if (!ext || buf.length > 2 * 1024 * 1024) fail({ image: 'Upload a JPG, PNG or WebP image under 2 MB.' });
     return records.update(kind, params.id, { imageUrl: `api/media/${saveBlob('media', buf, ext)}` });
   });
+  // ---------- guide area: a guide sees and answers the bookings made on their own Mutawef profile ----------
+  const guideOf = o => o.details?.guideId || records.get('mutawef', o.details?.offerId)?.guideId || '';
+  const guideView = o => ({
+    id: o.id, bookingId: o.bookingId, createdAt: o.createdAt, status: o.status, paymentStatus: o.paymentStatus, payLater: o.payment?.provider === 'manual',
+    guideStatus: o.guideStatus || 'Pending', guideNote: o.guideNote || '', guideAt: o.guideAt || '',
+    profile: o.details.title, stops: o.details.stops, people: o.details.people, date: o.details.date || '', meetingPoint: o.details.meetingPoint,
+    customer: { name: o.customer.fullName, phone: o.customer.phone, country: o.customer.country, gender: o.customer.gender },
+  });
+  const myOrders = user => records.list('orders').filter(o => o.type === 'mutawef' && o.status !== 'Cancelled' && guideOf(o) === user.id && (o.paymentStatus === 'paid' || o.payment?.provider === 'manual'));
+  route('GET', '/api/guide/bookings', GUIDE, ({ user }) => {
+    const items = myOrders(user).map(guideView);
+    return { items, pending: items.filter(i => i.guideStatus === 'Pending').length };
+  });
+  route('POST', '/api/guide/bookings/:id/respond', GUIDE, ({ params, body, user }) => {
+    const o = myOrders(user).find(x => x.id === params.id);
+    if (!o) throw new HttpError(404, 'Booking not found');
+    if (!['accept', 'decline'].includes(body.action)) fail({ action: 'Choose accept or decline.' });
+    if ((o.guideStatus || 'Pending') !== 'Pending') throw new HttpError(409, 'You have already responded to this booking.');
+    const note = str(body.note, 300);
+    if (body.action === 'decline' && note.length < 3) fail({ note: 'Please give a short reason for declining.' });
+    const u = records.update('orders', o.id, { guideStatus: body.action === 'accept' ? 'Accepted' : 'Declined', guideNote: note, guideAt: new Date().toISOString() });
+    notify(`guide ${body.action === 'accept' ? 'accepted' : 'declined'} a booking`, { service: `${u.bookingId} · ${summary(u)}${note ? ' · ' + note : ''}`, name: user.name, email: user.email, phone: '' });
+    return guideView(u);
+  });
+
 }

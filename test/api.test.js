@@ -12,6 +12,7 @@ process.env.ADMIN_PASSWORD = 'correct-horse-battery';
 process.env.PORT = '0';
 process.env.PAYMENT_SIMULATION = '1';
 process.env.ORDER_RATE_LIMIT = '200';
+process.env.LOGIN_RATE_LIMIT = '20';
 delete process.env.PAYSTACK_SECRET_KEY;
 
 let base, server;
@@ -144,9 +145,40 @@ test('logout invalidates the session; cross-origin writes are blocked', async ()
   assert.equal((await call('GET', '/api/admin/summary', null, c)).status, 401);
 });
 
+test('guide area: guide logs in, sees only their own bookings, accepts or declines, and cannot reach the admin API', async () => {
+  const mk = async (name, email) => { const u = await call('POST', '/api/admin/users', { name, email, role: 'guide', password: 'guide-password-123' }, cookie); assert.equal(u.status, 200); return u.body.items.find(x => x.email === email).id; };
+  const g1 = await mk('Usman Daudawa', 'usman@example.com'), g2 = await mk('Other Guide', 'other@example.com');
+  assert.equal((await call('POST', '/api/admin/special-offers/mutawef', { title: 'X', description: 'd', sightseeing: 'Masjid Quba', price: '1000', guideId: 'nope' }, cookie)).status, 422);
+  const offer = (guide) => call('POST', '/api/admin/special-offers/mutawef', { title: 'Guide ' + guide, description: 'Guided ziyarah', sightseeing: 'Masjid Quba\nMount Uhud', price: '10000', guideId: guide }, cookie).then(r => r.body);
+  const o1 = await offer(g1), o2 = await offer(g2);
+  const customer = { fullName: 'Hauwa Sani', phone: '+2348131227047', email: 'h@example.com', country: 'Nigeria', gender: 'Female' };
+  const place = (o) => call('POST', '/api/orders/mutawef', { offerId: o.id, stops: ['Masjid Quba'], people: 2, meetingPoint: 'Hotel lobby', customer, payMode: 'later' }).then(r => r.body);
+  const b1 = await place(o1), b2 = await place(o1), b3 = await place(o2);
+  const guide = (await login('usman@example.com', 'guide-password-123')); assert.equal(guide.r.status, 200); assert.equal(guide.r.body.user.role, 'guide');
+  const list = (await call('GET', '/api/guide/bookings', null, guide.cookie)).body;
+  assert.deepEqual(list.items.map(i => i.bookingId).sort(), [b1.bookingId, b2.bookingId].sort()); assert.equal(list.pending, 2);
+  assert.ok(list.items[0].customer.phone && !('token' in list.items[0]));
+  const id1 = list.items.find(i => i.bookingId === b1.bookingId).id, id2 = list.items.find(i => i.bookingId === b2.bookingId).id;
+  const acc = await call('POST', `/api/guide/bookings/${id1}/respond`, { action: 'accept' }, guide.cookie); assert.equal(acc.status, 200); assert.equal(acc.body.guideStatus, 'Accepted');
+  assert.equal((await call('POST', `/api/guide/bookings/${id1}/respond`, { action: 'decline', note: 'changed my mind' }, guide.cookie)).status, 409);
+  assert.equal((await call('POST', `/api/guide/bookings/${id2}/respond`, { action: 'decline' }, guide.cookie)).status, 422);   // reason required
+  assert.equal((await call('POST', `/api/guide/bookings/${id2}/respond`, { action: 'decline', note: 'Not available that day' }, guide.cookie)).body.guideStatus, 'Declined');
+  // a different guide cannot answer someone else's booking; guides cannot use admin or staff APIs
+  const other = await login('other@example.com', 'guide-password-123');
+  assert.equal((await call('POST', `/api/guide/bookings/${id1}/respond`, { action: 'accept' }, other.cookie)).status, 404);
+  assert.equal((await call('GET', '/api/guide/bookings', null, other.cookie)).body.items.length, 1);
+  for (const url of ['/api/admin/orders', '/api/admin/summary', '/api/admin/leads', '/api/admin/users']) assert.equal((await call('GET', url, null, guide.cookie)).status, 403, url);
+  assert.equal((await call('GET', '/api/guide/bookings')).status, 401);
+  assert.equal((await call('GET', '/api/guide/bookings', null, cookie)).status, 200);   // staff/admin are not blocked from it, they simply own no bookings
+  const adminOrders = (await call('GET', '/api/admin/orders', null, cookie)).body.items;
+  assert.equal(adminOrders.find(o => o.bookingId === b1.bookingId).guideStatus, 'Accepted');
+  assert.equal(adminOrders.find(o => o.bookingId === b3.bookingId).guideStatus, undefined);
+  for (const o of [o1, o2]) await call('DELETE', `/api/admin/special-offers/mutawef/${o.id}`, null, cookie);
+});
+
 test('login is rate limited', async () => {
   let last;
-  for (let i = 0; i < 10; i++) last = (await login('boss@example.com', 'bad' + i)).r.status;
+  for (let i = 0; i < 25; i++) last = (await login('boss@example.com', 'bad' + i)).r.status;
   assert.equal(last, 429);
 });
 
@@ -390,6 +422,23 @@ test('build number is consistent (cache-busting): config, index.html, app.js, /a
   assert.match(idx, new RegExp(`css/style\\.css\\?v=${BUILD}`)); assert.match(idx, new RegExp(`js/app\\.js\\?v=${BUILD}`));
   assert.match(app, new RegExp(`const BUILD='${BUILD}'`));
   assert.equal((await call('GET', '/api/health')).body.build, BUILD);
+});
+
+test('installable web app: manifest, icons and service worker match the build', async () => {
+  const { BUILD } = await import('../server/config.js');
+  const pub = (f) => fs.readFileSync(new URL('../public/' + f, import.meta.url), 'utf8');
+  const m = JSON.parse(pub('manifest.webmanifest'));
+  assert.equal(m.display, 'standalone');
+  for (const i of m.icons) assert.ok(fs.existsSync(new URL('../public/' + i.src, import.meta.url)), i.src);
+  assert.match(pub('sw.js'), new RegExp(`nusuk-${BUILD}`));
+  assert.match(pub('index.html'), /rel="manifest"/);
+});
+
+test('mobile app wrapper: Capacitor config points at the booking page and allows the payment host', async () => {
+  const c = JSON.parse(fs.readFileSync(new URL('../mobile/capacitor.config.json', import.meta.url), 'utf8'));
+  assert.match(c.server.url, /^https:\/\/www\.hausaly\.com\/nusuk\/\?app=1#\/booking$/);
+  assert.ok(c.server.allowNavigation.some(h => h.includes('paystack')));
+  assert.ok(fs.existsSync(new URL('../mobile/www/index.html', import.meta.url)));
 });
 
 test('brochure link for service 7 (Umrah Agent Bootcamp) is configurable and public', async () => {

@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS users (
   id TEXT PRIMARY KEY,
   name TEXT NOT NULL,
   email TEXT NOT NULL UNIQUE,
-  role TEXT NOT NULL CHECK (role IN ('admin','staff')),
+  role TEXT NOT NULL CHECK (role IN ('admin','staff','guide')),
   pass_hash TEXT NOT NULL,
   created_at TEXT NOT NULL
 );
@@ -32,6 +32,15 @@ CREATE TABLE IF NOT EXISTS sessions (
 );
 CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT NOT NULL);
 `);
+
+// Older databases limit users.role to admin/staff: rebuild the table once so the 'guide' role is allowed.
+const usersSql = db.prepare("SELECT sql FROM sqlite_master WHERE name='users'").get().sql;
+if (!usersSql.includes("'guide'")) {
+  db.exec(`PRAGMA foreign_keys = OFF; BEGIN;
+    CREATE TABLE users_new (id TEXT PRIMARY KEY, name TEXT NOT NULL, email TEXT NOT NULL UNIQUE, role TEXT NOT NULL CHECK (role IN ('admin','staff','guide')), pass_hash TEXT NOT NULL, created_at TEXT NOT NULL);
+    INSERT INTO users_new SELECT id, name, email, role, pass_hash, created_at FROM users;
+    DROP TABLE users; ALTER TABLE users_new RENAME TO users; COMMIT; PRAGMA foreign_keys = ON;`);
+}
 
 export const uid = () => crypto.randomBytes(8).toString('hex');
 const now = () => new Date().toISOString();

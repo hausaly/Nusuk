@@ -434,13 +434,6 @@ test('installable web app: manifest, icons and service worker match the build', 
   assert.match(pub('index.html'), /rel="manifest"/);
 });
 
-test('mobile app wrapper: Capacitor config points at the booking page and allows the payment host', async () => {
-  const c = JSON.parse(fs.readFileSync(new URL('../mobile/capacitor.config.json', import.meta.url), 'utf8'));
-  assert.match(c.server.url, /^https:\/\/www\.hausaly\.com\/nusuk\/\?app=1#\/booking$/);
-  assert.ok(c.server.allowNavigation.some(h => h.includes('paystack')));
-  assert.ok(fs.existsSync(new URL('../mobile/www/index.html', import.meta.url)));
-});
-
 test('brochure link for service 7 (Umrah Agent Bootcamp) is configurable and public', async () => {
   const put = (b) => call('PUT', '/api/admin/settings', { fxRate: '400', markupPct: '10', markupFixed: '0', ...b }, cookie);
   assert.equal((await put({ brochures: { 7: 'javascript:alert(1)' } })).status, 422);

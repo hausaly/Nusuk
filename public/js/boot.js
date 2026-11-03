@@ -1,9 +1,8 @@
-// Runs first (in <head>): when the site is opened as an installed app, show the branded boot animation until the page has loaded.
+// Runs first (in <head>): when the site is opened as an installed app (home-screen icon), show the branded boot animation until the page has loaded.
 (function () {
-  var d = document.documentElement, standalone = false, app = false;
+  var d = document.documentElement, standalone = false;
   try { standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true; } catch (e) {}
-  try { app = /[?&]app=1\b/.test(location.search) || sessionStorage.getItem('app') === '1' || !!(window.Capacitor && Capacitor.isNativePlatform && Capacitor.isNativePlatform()); } catch (e) {}
-  if (!(standalone || app)) return;
+  if (!standalone) return;
   d.classList.add('boot');
   var t0 = Date.now(), MIN = 1900;
   var ran = false;

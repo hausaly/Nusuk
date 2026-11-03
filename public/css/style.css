@@ -498,7 +498,7 @@ footer .copy{margin:34px 0 0;border-top:1px solid #3a3329;padding-top:18px;font-
 #pwa-toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#1d1a16;color:#fff;border:1px solid #DDB47E;border-radius:99px;padding:11px 22px;font:600 .95rem Poppins,sans-serif;z-index:95;box-shadow:0 10px 30px rgba(0,0,0,.35);white-space:nowrap}
 .dl-app{display:inline-flex;align-items:center;gap:9px;margin-top:16px;background:var(--g,#DDB47E);color:#1d1a16;border:0;border-radius:99px;padding:11px 22px;font:700 .92rem Poppins,sans-serif;cursor:pointer}
 .dl-app svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}.dl-app:hover{filter:brightness(1.06)}
-html.app .dl-app,html.boot .dl-app{display:none}@media (display-mode:standalone){.dl-app{display:none}}
+html.boot .dl-app{display:none}@media (display-mode:standalone){.dl-app{display:none}}
 #pwa-sheet{position:fixed;inset:0;z-index:110;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;padding:0 12px calc(12px + env(safe-area-inset-bottom))}
 #pwa-sheet .ps-box{background:#fff;border-radius:20px;padding:22px 22px 20px;width:100%;max-width:420px;text-align:center}#pwa-sheet img{border-radius:14px}#pwa-sheet h3{margin:10px 0 8px}#pwa-sheet ol{text-align:left;margin:8px 0 16px;padding-left:22px;line-height:1.8}
 /* branded boot animation (installed app only) */
@@ -528,7 +528,3 @@ html.boot #splash.out{opacity:0}
 .gcu b{font-size:.84rem}.gcu span{font-size:.74rem;color:var(--mu)}.gcu .gl{flex-basis:100%;margin-top:4px}
 .gm{margin:0;font-size:.72rem;color:var(--mu);line-height:1.35}.ga{display:flex;gap:8px}.ga .btn{flex:1;text-align:center}
 .gr label{display:block;font-weight:600;font-size:.78rem}.gr textarea{width:100%;margin-top:3px;font-size:.82rem;padding:6px 8px}.gr .err{font-size:.74rem}
-/* native app mode: DIY Booking only */
-.app .topbar,.app footer,.app #nv,.app #mb{display:none!important}
-.app header{padding-top:env(safe-area-inset-top)}.app header .nav{justify-content:center}
-.app body{padding-bottom:env(safe-area-inset-bottom)}

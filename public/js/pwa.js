@@ -4,7 +4,7 @@
   if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
   const root = document.documentElement;
   const standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-  if (root.classList.contains('app') || root.classList.contains('boot') || standalone) return;
+  if (root.classList.contains('boot') || standalone) return;
   const KEY = 'pwa-dismissed', QUIET = 7 * 864e5;                      // after Close, the pop-up rests for 7 days
   const ls = { get: k => { try { return localStorage.getItem(k); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem(k, v); } catch {} } };
   const ios = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;

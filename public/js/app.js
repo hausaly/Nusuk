@@ -1,4 +1,4 @@
-const BUILD='20261105f';   // keep in sync with server/config.js and index.html (a test enforces it)
+const BUILD='20261105h';   // keep in sync with server/config.js and index.html (a test enforces it)
 const P={about:'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8',services:'M3 7h18v13H3zM8 7V4h8v3',booking:'M3 5h18v16H3zM3 10h18M8 3v4M16 3v4',login:'M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3',logout:'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9',menu:'M3 12h18',dash:'M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z'};
 const ic=k=>`<svg class="i" viewBox="0 0 24 24"><path d="${P[k]||P.menu}"/></svg>`;
 const SI=['M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z','M9 2h6v4H9zM9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3M9 12h6M9 16h6','M22 10 12 5 2 10l10 5 10-5zM6 12v5c3 2 9 2 12 0v-5','M2 3h20M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3M8 21l4-5 4 5','M11 17l2 2a1 1 0 1 0 3-3M14 14l2.5 2.5a1 1 0 1 0 3-3l-3.9-3.9a3 3 0 0 0-4.2 0l-.9.9a1 1 0 0 1-1.4 0l-.9-.9a3 3 0 0 0-4.2 0L2 13M2 11l6 6M22 13l-3-3','M16.5 9.4 7.5 4.2M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7zM3.3 7 12 12l8.7-5M12 22V12','M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18'];
@@ -37,7 +37,7 @@ function broModal(n){
     catch(er){bx.textContent=(er.errors&&er.errors.em)||er.message||'Something went wrong. Please try again.';bs.disabled=false}}}
 document.addEventListener('click',e=>{const b=e.target.closest('[data-bro]');if(!b)return;e.preventDefault();broModal(+b.dataset.bro)});
 const FEAT=[
-['#/booking',6,'UMRAH DIY BOOKINGS','Hotels in Makkah and Madinah, the Haramain train, airport transfers, and Umrah visas — choose, book, and get your booking slip instantly. No account needed.'],
+['#/booking',6,'BOOK & MANAGE','Hotels in Makkah and Madinah, the Haramain train, airport transfers, and Umrah visas — choose, book, and get your booking slip instantly. No account needed.'],
 ['#/services',5,'B2B CONSULTING SERVICES','Expert consulting, compliance, licensing, contracting, and operational solutions to help Umrah agents and OTAs strengthen NUSUK MASAR performance and grow with confidence.'],
 ['#/services',3,'TRAINING PROGRAMS','Professional training to build practical Umrah industry skills, strengthen operational competence, and improve NUSUK MASAR readiness.']];
 function cards(){return `<div class="grid">${SV.map((s,i)=>{const n=i+1;

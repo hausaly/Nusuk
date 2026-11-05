@@ -19,7 +19,7 @@
     { sel: '#nv a[href="#/services"]', nav: true, title: 'Services', text: 'Specialist consulting and training for Umrah agents and OTA companies. Open it to see every service and request one.' },
     { sel: '#nv a[href="#/booking"]', nav: true, title: 'Book &amp; Manage', text: 'Book hotels, the Haramain train, airport transfers, Umrah visas and special offers yourself. No account needed.' },
     { sel: '.hc .grid', title: 'Our three service categories', text: 'Everything on the platform falls into one of these.', list: [
-      ['Umrah DIY Bookings', 'DIY means Do It Yourself: you search, choose and book Umrah services yourself, right here, and get your booking slip instantly.'],
+      ['Book &amp; Manage', 'Search, choose and book Umrah services yourself, right here, and get your booking slip instantly.'],
       ['B2B Consulting Services', 'Professional consultation for Umrah agents and business partners.'],
       ['Training Programs', 'Professional training and learning resources for the Umrah industry.'] ] },
     { sel: '#tour-again', footer: true, title: 'Replay it any time', text: 'That is the tour. You can open it again whenever you like from "Take a Quick Tour" in the footer.' },

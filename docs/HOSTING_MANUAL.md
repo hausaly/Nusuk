@@ -131,7 +131,7 @@ Keep the Passenger lines, the HTTPS redirect and the security rules, then contin
 
 ---
 
-## 4b. DIY Booking (hotels, offers, HHR train, transfers) and the Email List
+## 4b. Book & Manage / DIY Booking (hotels, offers, HHR train, transfers) and the Email List
 
 - **Payments are manual by default.** No extra settings are needed: a client reserves a hotel or offer, receives a slip marked *payment pending*, your team contacts them, and you click **Mark as PAID** on the order (Dashboard → DIY Orders).
 - **Pay Now and Pay Later.** Once Paystack is on, hotel, bed space and mutawef bookings show **Pay Now** (Paystack: card, bank transfer, USSD) and **Pay Later** (reservation, your team collects payment). Both create a booking slip straight away.

@@ -1,4 +1,4 @@
-const BUILD='20261104b';   // keep in sync with server/config.js and index.html (a test enforces it)
+const BUILD='20261105f';   // keep in sync with server/config.js and index.html (a test enforces it)
 const P={about:'M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2M12 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8',services:'M3 7h18v13H3zM8 7V4h8v3',booking:'M3 5h18v16H3zM3 10h18M8 3v4M16 3v4',login:'M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3',logout:'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9',menu:'M3 12h18',dash:'M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z'};
 const ic=k=>`<svg class="i" viewBox="0 0 24 24"><path d="${P[k]||P.menu}"/></svg>`;
 const SI=['M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z','M9 2h6v4H9zM9 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3M9 12h6M9 16h6','M22 10 12 5 2 10l10 5 10-5zM6 12v5c3 2 9 2 12 0v-5','M2 3h20M21 3v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V3M8 21l4-5 4 5','M11 17l2 2a1 1 0 1 0 3-3M14 14l2.5 2.5a1 1 0 1 0 3-3l-3.9-3.9a3 3 0 0 0-4.2 0l-.9.9a1 1 0 0 1-1.4 0l-.9-.9a3 3 0 0 0-4.2 0L2 13M2 11l6 6M22 13l-3-3','M16.5 9.4 7.5 4.2M21 16V8a2 2 0 0 0-1-1.7l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.7l7 4a2 2 0 0 0 2 0l7-4a2 2 0 0 0 1-1.7zM3.3 7 12 12l8.7-5M12 22V12','M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18zM3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18'];
@@ -96,7 +96,7 @@ interest:(a)=>{const pre=+a[0]>0&&+a[0]<6?OPT[+a[0]-1]:'';return `<section class
 login:()=>`<section class="s login"><div class="w lg-w"><div class="lg-head"><h1>NC | Team Access</h1><p>For authorized personnel only.</p></div><div class="box" id="lg"><p>Loading…</p></div><p class="lg-note">Restricted to authorized NUSUK Consult personnel. All rights reserved.</p></div></section>`,
 guide:()=>`<section class="s"><div class="w" id="gd"><p>Loading…</p></div></section>`,
 admin:()=>`<div class="adm"><div class="side" id="sd"></div><div class="main" id="mn"><p>Loading…</p></div></div>`};
-const TT={home:'NUSUK CONSULT | Beyond Compliance',about:'About NUSUK CONSULT | NUSUK MASAR Consulting',services:'Services | NUSUK CONSULT',booking:'DIY Booking | NUSUK CONSULT',slip:'Booking Slip | NUSUK CONSULT',interest:'Service Interest Form | NUSUK CONSULT',privacy:'Privacy Policy | NUSUK CONSULT',terms:'Terms & Conditions | NUSUK CONSULT',login:'Team Access | NUSUK CONSULT',guide:'My Bookings | NUSUK CONSULT',admin:'Admin Dashboard | NUSUK CONSULT'};
+const TT={home:'NUSUK CONSULT | Beyond Compliance',about:'About NUSUK CONSULT | NUSUK MASAR Consulting',services:'Services | NUSUK CONSULT',booking:'Book & Manage | NUSUK CONSULT',slip:'Booking Slip | NUSUK CONSULT',interest:'Service Interest Form | NUSUK CONSULT',privacy:'Privacy Policy | NUSUK CONSULT',terms:'Terms & Conditions | NUSUK CONSULT',login:'Team Access | NUSUK CONSULT',guide:'My Bookings | NUSUK CONSULT',admin:'Admin Dashboard | NUSUK CONSULT'};
 // ---------------- runtime ----------------
 const $=id=>document.getElementById(id);
 async function api(method,url,body){
@@ -129,7 +129,7 @@ const ready=Promise.all([loadMe(),loadSettings()]);
 function route(){
   const h=location.hash.replace(/^#\/?/,'').split('/');const r=V[h[0]||'home']?(h[0]||'home'):'home';
   document.title=TT[r];$('app').innerHTML=V[r](h.slice(1));window.scrollTo(0,0);
-  const items=[['home','Home'],['about','About'],['services','Services'],['booking','DIY Booking'],me?(me.role=='guide'?['guide','My Bookings','dash']:['admin','Dashboard','dash']):['login','Login','login']];
+  const items=[['home','Home'],['about','About'],['services','Services'],['booking','Book &amp; Manage'],me?(me.role=='guide'?['guide','My Bookings','dash']:['admin','Dashboard','dash']):['login','Login','login']];
   $('nv').innerHTML=items.map(n=>`<a href="#/${n[0]}" class="${n[0]==r?'on ':''}${n[2]?'login':''}">${n[2]?ic(n[2]):''}${n[1]}</a>`).join('');
   $('nv').classList.remove('o');$('mb').setAttribute('aria-expanded','false');
   if(r=='home')bannerInit();if(r=='interest')bindForm();if(r=='booking')bookingView();if(r=='slip')slipView(h.slice(1));if(r=='login')loginView();if(r=='admin')adminView();if(r=='guide')guideView();}

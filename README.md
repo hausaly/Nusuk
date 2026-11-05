@@ -26,7 +26,7 @@ If `ADMIN_PASSWORD` is empty, a random one is printed on first start. Change it 
 | Sub-path hosting | `BASE_PATH=/nusuk` |
 | Notifications | Optional `NOTIFY_WEBHOOK_URL` receives a JSON summary of each new request/booking |
 
-## DIY Booking (Hotels · HHR Train · Transfers)
+## Book & Manage / DIY Booking (Hotels · HHR Train · Transfers)
 
 - **Hotels (Makkah / Madinah):** guests search by dates and rooms, see results **cheapest first**, review the order, enter their details and pay with **Paystack**. A booking ID (`NC-H-XXXXXX`) and a downloadable PDF slip are created. No login for clients.
 - **HHR Train / Transfers:** one-way request forms (HHR Train: one way or round trip; stations: Makkah Station, Madinah Station, Jeddah Airport, Jeddah Al-Sulaymaniyah, KAEC Station; six vehicle types). IDs `NC-T-…` / `NC-R-…`.

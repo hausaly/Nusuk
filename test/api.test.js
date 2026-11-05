@@ -434,6 +434,14 @@ test('installable web app: manifest, icons and service worker match the build', 
   assert.match(pub('index.html'), /rel="manifest"/);
 });
 
+test('quick tour: script and footer replay link are wired in, visa tab title is renamed', async () => {
+  const idx = fs.readFileSync(new URL('../public/index.html', import.meta.url), 'utf8');
+  assert.match(idx, /js\/tour\.js\?v=/); assert.match(idx, /id="tour-again"/);
+  assert.ok(fs.existsSync(new URL('../public/js/tour.js', import.meta.url)));
+  const bk = fs.readFileSync(new URL('../public/js/booking.js', import.meta.url), 'utf8');
+  assert.ok(bk.includes('Umrah Visa Only – Group &amp; Individual')); assert.ok(!bk.includes('Umrah eVisa – Group'));
+});
+
 test('brochure link for service 7 (Umrah Agent Bootcamp) is configurable and public', async () => {
   const put = (b) => call('PUT', '/api/admin/settings', { fxRate: '400', markupPct: '10', markupFixed: '0', ...b }, cookie);
   assert.equal((await put({ brochures: { 7: 'javascript:alert(1)' } })).status, 422);

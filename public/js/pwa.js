@@ -33,12 +33,12 @@
     const close = () => { ls.set(KEY, String(Date.now())); b.classList.remove('on'); setTimeout(() => b.remove(), 350); };
     b.querySelector('.pp-c').onclick = close; b.querySelector('.pp-x').onclick = close; b.querySelector('.pp-i').onclick = install;
   }
-  const eligible = () => (deferred || ios) && matchMedia('(max-width: 900px)').matches && !rested();
+  const eligible = () => (deferred || ios) && matchMedia('(max-width: 900px)').matches && !rested() && !root.classList.contains('tour-on');   // never while the quick tour is showing
   function check() {
     const p = document.getElementById('pwa-pop');
     if (!onHome()) { if (p) { p.classList.remove('on'); setTimeout(() => p.remove(), 350); } return; }
     const y = window.scrollY || document.documentElement.scrollTop, nearEnd = y + innerHeight > document.documentElement.scrollHeight - 900;   // keep clear of the footer (and its Download App button)
-    if (p) { p.classList.toggle('on', !nearEnd); return; }
+    if (p) { p.classList.toggle('on', !nearEnd && !root.classList.contains('tour-on')); return; }
     if (eligible() && y > 380 && !nearEnd) pop();
   }
   addEventListener('scroll', check, { passive: true }); addEventListener('hashchange', check);

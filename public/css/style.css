@@ -561,3 +561,13 @@ html.boot #splash.out{opacity:0}
 @media(min-width:701px){#tour-welcome{left:auto;right:28px;bottom:28px;width:440px;margin:0;transform:translateY(130%)}#tour-welcome.on{transform:none}}
 #tour-tip .tt-l{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:7px}#tour-tip .tt-l li{border-left:3px solid #DDB47E;padding:1px 0 1px 10px;display:flex;flex-direction:column}#tour-tip .tt-l b{font:700 .84rem Poppins,sans-serif}#tour-tip .tt-l span{font:400 .8rem/1.45 Poppins,sans-serif;color:#3a3329}
 #tour-tip.wide .tt-l{grid-template-columns:repeat(3,1fr);gap:12px}
+
+/* phones: the three service categories sit in one compact row (full descriptions stay for screen readers and larger screens) */
+@media(max-width:600px){
+ .hero2{padding-bottom:92px}.hc{margin-top:-64px}
+ .hc .grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+ .hc .card .b{padding:14px 6px 12px;align-items:center;text-align:center;gap:8px;justify-content:flex-start}
+ .hc .card .ico{width:44px;height:44px;border-radius:12px}.hc .card .ico svg{width:24px;height:24px}
+ .hc .card h3{font-size:.74rem;line-height:1.3;letter-spacing:.01em;margin:0;overflow-wrap:anywhere}
+ .hc .card p{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;margin:0}
+}

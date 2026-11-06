@@ -262,6 +262,7 @@ function visaPanel(){
   p.innerHTML=`<form id="vf" novalidate><div class="vgrid"><div>
   <h3 class="vh">Umrah Visa Only – Group &amp; Individual</h3><p class="mu vsubt">Add the pilgrims in your group. Our team will collect passport of each pilgrim after you submit.</p>
   <div class="vfacts"><span>${ic('clock',18)}<b>Processing Time:</b> Within 48 hours</span><span>${ic('passport',18)}<b>Visa Type:</b> Multiple-Entry Umrah Visa</span></div>
+  <div class="vimp" role="note"><p><b>IMPORTANT:</b> A confirmed return flight ticket is required for every Umrah visa application.</p></div>
   <div class="vcnt">${row('adults','Adult','12 years &amp; above')}${row('children','Children','2–12 years')}${row('infants','Infant','Under 2 years')}</div>
   <h3 class="vh">Contact Info</h3><p class="mu vsubt">Who should we contact about this request?</p>
   ${custFields('v_')}

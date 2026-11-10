@@ -21,6 +21,7 @@ const SHOTS = path.resolve("docs/screenshots");
 const PW = "Raudah#2026";
 const demo = makePilgrims(150);
 const results: { name: string; ok: boolean; err?: string }[] = [];
+const allPages: Page[] = [];
 
 async function pdfToPng(buf: Buffer, name: string, pageNo = 1, dpi = 80) {
   const tmp = path.join(SHOTS, `.${name}.pdf`);
@@ -37,7 +38,7 @@ it("walks the whole platform as every role", async () => {
   const browser = await chromium.launch();
   const mk = async (opts: Parameters<typeof browser.newContext>[0] = {}) => {
     const ctx = await browser.newContext({ viewport: { width: 1360, height: 860 }, acceptDownloads: true, ...opts });
-    ctx.on("page", (p) => p.on("dialog", (d) => d.accept()));
+    ctx.on("page", (p) => { allPages.push(p); p.on("dialog", (d) => d.accept()); });
     return ctx;
   };
   const login = async (ctx: Awaited<ReturnType<typeof mk>>, email: string, totp?: string) => {
@@ -53,7 +54,11 @@ it("walks the whole platform as every role", async () => {
   const shot = (page: Page, name: string, full = false) => page.screenshot({ path: path.join(SHOTS, `${name}.png`), fullPage: full });
   const step = async (name: string, fn: () => Promise<void>) => {
     try { await fn(); results.push({ name, ok: true }); console.log("PASS", name); }
-    catch (e: any) { results.push({ name, ok: false, err: String(e.message).split("\n")[0] }); console.log("FAIL", name, "→", String(e.message).split("\n")[0]); }
+    catch (e: any) {
+      const err = String(e.message).split("\n").slice(0, 3).join(" ");
+      results.push({ name, ok: false, err }); console.log("FAIL", name, "→", err);
+      for (const [i, pg] of allPages.entries()) await pg.screenshot({ path: path.join(SHOTS, `.fail-${results.length}-${i}.png`) }).catch(() => {});
+    }
   };
   const msg = async (page: Page, re: RegExp) => { await page.waitForSelector(`[role=status]:text-matches("${re.source}", "i"), [role=alert]:text-matches("${re.source}", "i")`, { timeout: 20_000 }); };
   const alertText = async (page: Page) => (await page.locator("main [role=alert], main [role=status]").allInnerTexts()).join(" | ");

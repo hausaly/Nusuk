@@ -1,0 +1,64 @@
+@import "@fontsource/marcellus/400.css";
+@import "@fontsource-variable/inter/wght.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* RGB triplets so Tailwind opacity modifiers work */
+    --background: 255 255 255;
+    --surface: 255 255 255;
+    --surface-2: 230 231 232;       /* Light Grey (swoosh) #E6E7E8 */
+    --border: 230 231 232;
+    --foreground: 31 33 51;         /* #1F2133 */
+    --muted: 107 110 128;           /* #6B6E80 */
+    --primary: 63 64 150;           /* Raudah Blue #3F4096 */
+    --primary-hover: 52 52 123;     /* #34347B */
+    --primary-foreground: 255 255 255;
+    --accent: 232 53 59;            /* Raudah Red #E8353B – sparing use */
+    --accent-foreground: 255 255 255;
+    --ring: 63 64 150;
+    --success: 30 158 90;           /* #1E9E5A */
+    --danger: 198 40 40;            /* #C62828 */
+    --warning: 224 161 0;           /* #E0A100 */
+    --page-bg: 247 247 249;
+  }
+  .dark {
+    --background: 20 21 43;         /* #14152B */
+    --surface: 30 32 64;            /* #1E2040 */
+    --surface-2: 42 44 84;
+    --border: 52 54 100;
+    --foreground: 236 237 245;
+    --muted: 164 167 190;
+    --primary: 124 127 214;         /* #7C7FD6 */
+    --primary-hover: 148 151 224;
+    --primary-foreground: 20 21 43;
+    --accent: 240 98 103;
+    --accent-foreground: 20 21 43;
+    --ring: 124 127 214;
+    --success: 52 190 118;
+    --danger: 240 96 96;
+    --warning: 240 188 50;
+    --page-bg: 20 21 43;
+  }
+  * { @apply border-border; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    @apply bg-[rgb(var(--page-bg))] font-sans text-foreground antialiased;
+  }
+  h1, h2, h3 { @apply font-heading tracking-tight; }
+  table { font-variant-numeric: tabular-nums; }
+  :focus-visible { @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background; }
+}
+
+@layer components {
+  .card { @apply rounded-xl border border-border bg-surface shadow-soft; }
+  /* Subtle swoosh motif used on the login background */
+  .swoosh-bg {
+    background-image:
+      radial-gradient(1200px 420px at 85% -10%, rgb(232 53 59 / 0.07), transparent 60%),
+      radial-gradient(900px 500px at -10% 110%, rgb(63 64 150 / 0.10), transparent 60%);
+  }
+}

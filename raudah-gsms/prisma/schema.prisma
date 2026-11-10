@@ -1,0 +1,75 @@
+// Raudah GSMS – Phase 1 schema (identity, agents, audit).
+// Later phases add Group, Pilgrim, ClearanceCheck, Document, Hotel, Trip, ... via new migrations.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  SUPER_ADMIN
+  VISA_OFFICER
+  TICKET_OFFICER
+  FINANCE_STAFF
+  OPERATIONS_STAFF
+  AGENT
+}
+
+model Agent {
+  id          String   @id @default(cuid())
+  groupName   String   @unique // "Agent Group Name"
+  contactName String
+  phone       String?
+  email       String?
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]
+
+  @@index([groupName])
+}
+
+model User {
+  id             String    @id @default(cuid())
+  name           String
+  email          String?   @unique
+  phone          String?   @unique
+  passwordHash   String
+  role           Role
+  agentId        String? // required when role = AGENT
+  agent          Agent?    @relation(fields: [agentId], references: [id])
+  totpSecretEnc  String? // AES-256-GCM encrypted base32 secret
+  totpEnabled    Boolean   @default(false)
+  active         Boolean   @default(true)
+  failedLogins   Int       @default(0)
+  lockedUntil    DateTime?
+  lastLoginAt    DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  auditEntries   AuditLog[]
+
+  @@index([role])
+  @@index([agentId])
+  @@index([phone])
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String? // actor; null for system / failed-login events
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action    String // CREATE | UPDATE | DELETE | LOGIN | LOGIN_FAILED | ...
+  entity    String
+  entityId  String
+  field     String? // null for CREATE/DELETE rows
+  oldValue  String?
+  newValue  String?
+  at        DateTime @default(now())
+
+  @@index([entity, entityId])
+  @@index([userId])
+  @@index([at])
+}

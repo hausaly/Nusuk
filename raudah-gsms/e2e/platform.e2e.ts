@@ -99,7 +99,7 @@ it("walks the whole platform as every role", async () => {
     await d.locator("button[type=submit]").click(); await msg(admin, /no pilgrims copied/);
     await shot(admin, "06-groups-duplicated");
     await admin.goto(BASE + "/pilgrims");
-    const sw = admin.locator('select[aria-label="Switch group"]');
+    const sw = admin.locator('select[aria-label="Switch group"]:visible');
     const opts = await sw.locator("option").allInnerTexts(); const copy = opts.find((o) => o.includes("Umrah March 2027"))!;
     await sw.selectOption({ label: copy }); await admin.locator("main").getByText("0 pilgrim(s)").waitFor();
     await shot(admin, "07-switcher-new-group-empty");

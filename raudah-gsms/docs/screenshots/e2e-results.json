@@ -14,12 +14,12 @@
   {
     "name": "Groups: list, create-duplicate copies setup WITHOUT pilgrims, switcher filters data",
     "ok": false,
-    "err": "page.waitForSelector: Timeout 30000ms exceeded. Call log: \u001b[2m  - waiting for locator('text=UMR-2026-001') to be visible\u001b[22m"
+    "err": "locator.selectOption: Error: strict mode violation: locator('select[aria-label=\"Switch group\"]') resolved to 2 elements:     1) <select aria-label=\"Switch group\" class=\"w-full min-w-0 cursor-pointer truncate bg-transparent pr-1 outline-none disabled:opacity-60\">…</select> aka getByRole('banner').getByRole('combobox')     2) <select aria-label=\"Switch group\" class=\"w-full min-w-0 cursor-pointer truncate bg-transparent pr-1 outline-none disabled:opacity-60\">…</select> aka getByLabel('Switch group').nth(1)"
   },
   {
     "name": "Pilgrims: filter RED, profile names the blocking checks",
     "ok": false,
-    "err": "page.waitForSelector: Timeout 30000ms exceeded. Call log: \u001b[2m  - waiting for locator('text=Blocked') to be visible\u001b[22m"
+    "err": "locator.waitFor: Timeout 30000ms exceeded. Call log: \u001b[2m  - waiting for locator('tbody').getByText('Blocked').first() to be visible\u001b[22m"
   },
   {
     "name": "Excel import: branded template download, preview shows row errors, only valid rows saved",
@@ -31,7 +31,8 @@
   },
   {
     "name": "Ticket officer uploads a 5-passenger group ticket → 5 matched records; scanned PDF goes to manual review",
-    "ok": true
+    "ok": false,
+    "err": "expected +0 to be 5 // Object.is equality"
   },
   {
     "name": "Review screen: PDF on the left, extracted fields on the right, low-confidence highlighted",
@@ -45,7 +46,7 @@
   {
     "name": "Visa officer: visas matched by passport; expiry-before-return warning shown; confirm clears VISA",
     "ok": false,
-    "err": "page.waitForSelector: Timeout 20000ms exceeded. Call log: \u001b[2m  - waiting for locator('[role=status]:text-matches(\"Confirmed with 1 warning\", \"i\"), [role=alert]:text-matches(\"Confirmed with 1 warning\", \"i\")') to be visible\u001b[22m"
+    "err": "expected +0 to be 3 // Object.is equality"
   },
   {
     "name": "Hotels: occupancy board; RED pilgrim cannot be put in a room (server message names the check)",
@@ -53,11 +54,13 @@
   },
   {
     "name": "Hotels: auto-fill Madinah, then check-in a guest",
-    "ok": true
+    "ok": false,
+    "err": "page.waitForFunction: Timeout 30000ms exceeded."
   },
   {
     "name": "Trips: bus manifest, RED seat rejected, boarding, flight delay",
-    "ok": true
+    "ok": false,
+    "err": "page.waitForSelector: Timeout 30000ms exceeded. Call log: \u001b[2m  - waiting for locator('text=Buses (2)') to be visible\u001b[22m"
   },
   {
     "name": "Ziyarah: fixed package listed, mark a stop visited",
@@ -66,7 +69,7 @@
   {
     "name": "Handover: ops sends bus handover; Super Admin confirms; responsibility changes only then",
     "ok": false,
-    "err": "page.waitForSelector: Timeout 20000ms exceeded. Call log: \u001b[2m  - waiting for locator('[role=status]:text-matches(\"now responsible\", \"i\"), [role=alert]:text-matches(\"now responsible\", \"i\")') to be visible\u001b[22m"
+    "err": "locator.selectOption: Timeout 30000ms exceeded. Call log: \u001b[2m  - waiting for locator('#h-b')\u001b[22m"
   },
   {
     "name": "Reminders: simulated clock at 7 days before departure sends in-app + WhatsApp (mock) to staff only",
@@ -78,7 +81,8 @@
   },
   {
     "name": "Reports: branded PDF + Excel exports",
-    "ok": true
+    "ok": false,
+    "err": "expected 400 to be 200 // Object.is equality"
   },
   {
     "name": "Global search finds by name / passport / PNR / phone",
@@ -94,8 +98,7 @@
   },
   {
     "name": "Dark mode + mobile layout + PWA manifest/service worker",
-    "ok": false,
-    "err": "page.waitForSelector: Timeout 30000ms exceeded. Call log: \u001b[2m  - waiting for locator('text=Buses') to be visible\u001b[22m"
+    "ok": true
   },
   {
     "name": "Performance: 150-pilgrim list and dashboard render quickly",

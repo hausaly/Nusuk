@@ -29,6 +29,8 @@ model Agent {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   users       User[]
+  pilgrims    Pilgrim[]
+  groups      GroupAgent[]
 
   @@index([groupName])
 }
@@ -51,6 +53,8 @@ model User {
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
   auditEntries   AuditLog[]
+  supervised     Group[]
+  notifications  Notification[]
 
   @@index([role])
   @@index([agentId])
@@ -72,4 +76,397 @@ model AuditLog {
   @@index([entity, entityId])
   @@index([userId])
   @@index([at])
+}
+
+// ===================== Phases 2-6: domain =====================
+
+enum GroupStatus {
+  PLANNING
+  ACTIVE
+  COMPLETED
+  ARCHIVED
+}
+enum Gender {
+  M
+  F
+}
+enum JourneyStatus {
+  PRE_TRAVEL
+  ARRIVED
+  IN_MAKKAH
+  IN_MADINAH
+  IN_TRANSIT
+  DEPARTED
+}
+enum CheckType {
+  PAYMENT
+  DOCUMENTS
+  VISA
+  TICKET
+}
+enum CheckStatus {
+  PENDING
+  CLEARED
+}
+enum DocType {
+  TICKET
+  VISA
+  PASSPORT_COPY
+  PAYMENT_RECEIPT
+}
+enum DocStatus {
+  UPLOADED
+  EXTRACTED
+  NEEDS_REVIEW
+  UNMATCHED
+  CONFIRMED
+}
+enum City {
+  MAKKAH
+  MADINAH
+  OTHER
+}
+enum RoomType {
+  DOUBLE
+  TRIPLE
+  QUAD
+  OTHER
+}
+enum TripType {
+  ARRIVAL_PICKUP
+  INTERCITY
+  ZIYARAH
+  DEPARTURE_DROPOFF
+}
+enum TripStatus {
+  PLANNED
+  IN_PROGRESS
+  DONE
+}
+enum BoardingStatus {
+  PENDING
+  BOARDED
+  MISSING
+  STAYED_BEHIND
+}
+enum HandoverScope {
+  PILGRIMS
+  BUS
+  HOTEL
+}
+enum HandoverStatus {
+  SENT
+  CONFIRMED
+  REJECTED
+}
+enum Channel {
+  IN_APP
+  WHATSAPP
+}
+
+model Group {
+  id             String      @id @default(cuid())
+  code           String      @unique // UMR-YYYY-NNN
+  name           String
+  startDate      DateTime
+  endDate        DateTime
+  arrivalAirport String // KSA airport IATA
+  departureAirport String
+  status         GroupStatus @default(PLANNING)
+  supervisorId   String?
+  supervisor     User?       @relation(fields: [supervisorId], references: [id])
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  agents         GroupAgent[]
+  pilgrims       Pilgrim[]
+  documents      Document[]
+  hotels         Hotel[]
+  trips          Trip[]
+  ziyarah        ZiyarahItem[]
+  handovers      Handover[]
+
+  @@index([status])
+}
+
+model GroupAgent {
+  groupId String
+  agentId String
+  group   Group @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  agent   Agent @relation(fields: [agentId], references: [id])
+  @@id([groupId, agentId])
+}
+
+model Pilgrim {
+  id                    String        @id @default(cuid())
+  groupId               String
+  group                 Group         @relation(fields: [groupId], references: [id])
+  agentId               String
+  agent                 Agent         @relation(fields: [agentId], references: [id])
+  fullName              String
+  passportNo            String
+  passportExpiry        DateTime
+  dateOfBirth           DateTime
+  gender                Gender
+  phoneNigeria          String
+  phoneKsa              String?
+  whatsapp              String?
+  specialNeeds          String?
+  emergencyContactName  String
+  emergencyContactPhone String
+  familyLinkId          String?
+  currentResponsibleStaffId String?
+  journeyStatus         JourneyStatus @default(PRE_TRAVEL)
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  checks                ClearanceCheck[]
+  documents             Document[]
+  ticket                Ticket?
+  visa                  Visa?
+  assignments           RoomAssignment[]
+  tripSeats             TripPassenger[]
+
+  @@unique([groupId, passportNo])
+  @@index([passportNo])
+  @@index([groupId])
+  @@index([phoneNigeria])
+  @@index([agentId])
+  @@index([familyLinkId])
+}
+
+model ClearanceCheck {
+  id          String      @id @default(cuid())
+  pilgrimId   String
+  pilgrim     Pilgrim     @relation(fields: [pilgrimId], references: [id], onDelete: Cascade)
+  type        CheckType
+  status      CheckStatus @default(PENDING)
+  updatedById String?
+  updatedAt   DateTime    @default(now())
+  note        String?
+  @@unique([pilgrimId, type])
+}
+
+model Document {
+  id              String    @id @default(cuid())
+  groupId         String
+  group           Group     @relation(fields: [groupId], references: [id])
+  pilgrimId       String?
+  pilgrim         Pilgrim?  @relation(fields: [pilgrimId], references: [id])
+  type            DocType
+  fileKey         String // several rows may share one file (group ticket split per passenger)
+  fileName        String
+  passengerIndex  Int       @default(0)
+  uploadedById    String
+  extractedJson   Json?
+  fieldConfidence Json?
+  warnings        Json?
+  status          DocStatus @default(UPLOADED)
+  error           String?
+  createdAt       DateTime  @default(now())
+  ticket          Ticket?
+  visa            Visa?
+  @@index([groupId, status])
+  @@index([pilgrimId])
+}
+
+model Ticket {
+  id         String   @id @default(cuid())
+  pilgrimId  String   @unique
+  pilgrim    Pilgrim  @relation(fields: [pilgrimId], references: [id], onDelete: Cascade)
+  documentId String?  @unique
+  document   Document? @relation(fields: [documentId], references: [id])
+  pnr        String
+  ticketNo   String
+  airline    String
+  outFlightNo        String
+  outDepartureAirport String
+  outDepartureAt     DateTime
+  outArrivalAirport  String
+  outArrivalAt       DateTime
+  retFlightNo        String
+  retDepartureAirport String
+  retDepartureAt     DateTime
+  retArrivalAirport  String
+  retArrivalAt       DateTime
+  @@index([pnr])
+  @@index([ticketNo])
+}
+
+model Visa {
+  id         String   @id @default(cuid())
+  pilgrimId  String   @unique
+  pilgrim    Pilgrim  @relation(fields: [pilgrimId], references: [id], onDelete: Cascade)
+  documentId String?  @unique
+  document   Document? @relation(fields: [documentId], references: [id])
+  visaNo     String
+  issueDate  DateTime
+  expiryDate DateTime
+  permittedStayDays Int
+  entryType  String
+  @@index([visaNo])
+}
+
+model Hotel {
+  id           String  @id @default(cuid())
+  groupId      String
+  group        Group   @relation(fields: [groupId], references: [id])
+  name         String
+  city         City
+  address      String?
+  contactPhone String?
+  rooms        Room[]
+  @@index([groupId])
+}
+
+model Room {
+  id       String   @id @default(cuid())
+  hotelId  String
+  hotel    Hotel    @relation(fields: [hotelId], references: [id], onDelete: Cascade)
+  roomNo   String
+  type     RoomType
+  capacity Int
+  gender   Gender? // null = family / mixed
+  assignments RoomAssignment[]
+  @@unique([hotelId, roomNo])
+}
+
+model RoomAssignment {
+  id          String    @id @default(cuid())
+  roomId      String
+  room        Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  pilgrimId   String
+  pilgrim     Pilgrim   @relation(fields: [pilgrimId], references: [id])
+  checkInAt   DateTime?
+  checkInById String?
+  checkOutAt  DateTime?
+  checkOutById String?
+  @@unique([roomId, pilgrimId])
+  @@index([pilgrimId])
+}
+
+model RoomChangeLog {
+  id         String   @id @default(cuid())
+  pilgrimId  String
+  fromRoomId String?
+  toRoomId   String?
+  byId       String
+  reason     String?
+  at         DateTime @default(now())
+  @@index([pilgrimId])
+}
+
+model TransportCompany {
+  id          String    @id @default(cuid())
+  name        String    @unique
+  contactName String?
+  phone       String?
+  buses       TripBus[]
+}
+
+model Trip {
+  id           String     @id @default(cuid())
+  groupId      String
+  group        Group      @relation(fields: [groupId], references: [id])
+  type         TripType
+  title        String
+  fromCity     String?
+  toCity       String?
+  scheduledAt  DateTime
+  flightNo     String?
+  airport      String?
+  terminal     String?
+  status       TripStatus @default(PLANNED)
+  delayMinutes Int?
+  autoKey      String? // flightNo|date|airport|type for auto-generated airport trips
+  buses        TripBus[]
+  ziyarah      ZiyarahItem[]
+  @@unique([groupId, autoKey])
+  @@index([groupId, scheduledAt])
+}
+
+model TripBus {
+  id                 String   @id @default(cuid())
+  tripId             String
+  trip               Trip     @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  transportCompanyId String
+  transportCompany   TransportCompany @relation(fields: [transportCompanyId], references: [id])
+  vehiclePlate       String
+  busNo              String
+  driverName         String
+  driverPhone        String
+  staffInChargeId    String?
+  passengers         TripPassenger[]
+}
+
+model TripPassenger {
+  id             String         @id @default(cuid())
+  tripId         String
+  tripBusId      String
+  tripBus        TripBus        @relation(fields: [tripBusId], references: [id], onDelete: Cascade)
+  pilgrimId      String
+  pilgrim        Pilgrim        @relation(fields: [pilgrimId], references: [id])
+  seatNo         String?
+  boardingStatus BoardingStatus @default(PENDING)
+  markedById     String?
+  markedAt       DateTime?
+  @@unique([tripId, pilgrimId])
+  @@index([tripBusId])
+}
+
+model ZiyarahItem {
+  id          String    @id @default(cuid())
+  groupId     String
+  group       Group     @relation(fields: [groupId], references: [id])
+  tripId      String
+  trip        Trip      @relation(fields: [tripId], references: [id], onDelete: Cascade)
+  site        String
+  city        City
+  scheduledAt DateTime
+  done        Boolean   @default(false)
+  doneAt      DateTime?
+  @@index([groupId])
+}
+
+model Handover {
+  id          String         @id @default(cuid())
+  groupId     String
+  group       Group          @relation(fields: [groupId], references: [id])
+  fromStaffId String
+  toStaffId   String
+  scope       HandoverScope
+  pilgrimIds  String[]
+  tripBusId   String?
+  hotelId     String?
+  notes       String?
+  issues      String?
+  sentAt      DateTime       @default(now())
+  confirmedAt DateTime?
+  status      HandoverStatus @default(SENT)
+  @@index([groupId])
+}
+
+model Notification {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  channel        Channel
+  title          String
+  body           String
+  link           String?
+  readAt         DateTime?
+  sentAt         DateTime @default(now())
+  deliveryStatus String   @default("SENT")
+  @@index([userId, readAt])
+}
+
+model ReminderRule {
+  key     String  @id
+  label   String
+  enabled Boolean @default(true)
+  offsets Json // minutes before the event (positive) – or hour-of-day etc, see reminders.ts
+}
+
+/// Dedupe: each reminder fires once per (rule, entity, offset).
+model ReminderLog {
+  key     String   @id
+  firedAt DateTime @default(now())
 }

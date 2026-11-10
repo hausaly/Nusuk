@@ -6,3 +6,6 @@ node_modules/
 next-env.d.ts
 coverage/
 test-results/
+.storage/
+backups/
+docs/screenshots/.*

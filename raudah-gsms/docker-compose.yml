@@ -50,7 +50,36 @@ services:
     ports: ["9000:9000", "9001:9001"]
     volumes: [miniodata:/data]
 
+  # Daily automated database backups (03:00 UTC) into the `backups` volume.
+  # Pruning old dumps is left to your retention policy (volume lifecycle / external job).
+  backup:
+    image: postgres:16-alpine
+    depends_on: { postgres: { condition: service_healthy } }
+    environment: { PGPASSWORD: raudah }
+    volumes: [backups:/backups]
+    entrypoint: ["/bin/sh", "-c"]
+    command:
+      - |
+        while true; do
+          now=$$(date -u +%s); next=$$(date -u -d "tomorrow 03:00" +%s 2>/dev/null || echo $$((now+86400)))
+          sleep $$((next-now))
+          pg_dump -h postgres -U raudah -Fc raudah_gsms > /backups/raudah-$$(date -u +%Y%m%dT%H%M%SZ).dump
+        done
+
+  # Optional: BullMQ worker (extraction jobs + reminders). Set USE_QUEUE=1 on `app` to use it.
+  worker:
+    build: .
+    profiles: ["worker"]
+    depends_on: [postgres, redis]
+    command: ["npx", "tsx", "src/worker.ts"]
+    environment:
+      DATABASE_URL: postgresql://raudah:raudah@postgres:5432/raudah_gsms?schema=public
+      REDIS_URL: redis://redis:6379
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET:-dev-only-secret-change-me}
+      APP_ENCRYPTION_KEY: ${APP_ENCRYPTION_KEY:-0000000000000000000000000000000000000000000000000000000000000000}
+
 volumes:
+  backups:
   pgdata:
   redisdata:
   miniodata:

@@ -1,0 +1,122 @@
+[
+  {
+    "name": "Login page shows Raudah branding",
+    "ok": false,
+    "err": "page.goto: Protocol error (Page.navigate): Cannot navigate to invalid URL"
+  },
+  {
+    "name": "Super Admin must enrol 2FA on first sign-in; TOTP then required",
+    "ok": false,
+    "err": "page.goto: Protocol error (Page.navigate): Cannot navigate to invalid URL"
+  },
+  {
+    "name": "Group dashboard: 150 pilgrims, GREEN vs RED with blocking breakdown, flights with bus status",
+    "ok": false,
+    "err": "Cannot read properties of undefined (reading 'goto')"
+  },
+  {
+    "name": "Groups: list, create-duplicate copies setup WITHOUT pilgrims, switcher filters data",
+    "ok": false,
+    "err": "Cannot read properties of undefined (reading 'goto')"
+  },
+  {
+    "name": "Pilgrims: filter RED, profile names the blocking checks",
+    "ok": false,
+    "err": "Cannot read properties of undefined (reading 'goto')"
+  },
+  {
+    "name": "Excel import: branded template download, preview shows row errors, only valid rows saved",
+    "ok": false,
+    "err": "Cannot read properties of undefined (reading 'request')"
+  },
+  {
+    "name": "Add pilgrim form is available to Super Admin",
+    "ok": false,
+    "err": "Cannot read properties of undefined (reading 'goto')"
+  },
+  {
+    "name": "Ticket officer uploads a 5-passenger group ticket → 5 matched records; scanned PDF goes to manual review",
+    "ok": false,
+    "err": "page.goto: Protocol error (Page.navigate): Cannot navigate to invalid URL"
+  },
+  {
+    "name": "Review screen: PDF on the left, extracted fields on the right, low-confidence highlighted",
+    "ok": false,
+    "err": "Cannot read properties of undefined (reading 'locator')"
+  },
+  {
+    "name": "Bulk-confirm → tickets saved, TICKET cleared, pick-up and drop-off trips auto-created",
+    "ok": false,
+    "err": "Cannot read properties of undefined (reading 'goto')"
+  },
+  {
+    "name": "Visa officer: visas matched by passport; expiry-before-return warning shown; confirm clears VISA",
+    "ok": false,
+    "err": "page.goto: Protocol error (Page.navigate): Cannot navigate to invalid URL"
+  },
+  {
+    "name": "Hotels: occupancy board; RED pilgrim cannot be put in a room (server message names the check)",
+    "ok": false,
+    "err": "page.goto: Protocol error (Page.navigate): Cannot navigate to invalid URL"
+  },
+  {
+    "name": "Hotels: auto-fill Madinah, then check-in a guest",
+    "ok": false,
+    "err": "Cannot read properties of undefined (reading 'goto')"
+  },
+  {
+    "name": "Trips: bus manifest, RED seat rejected, boarding, flight delay",
+    "ok": false,
+    "err": "Cannot read properties of undefined (reading 'goto')"
+  },
+  {
+    "name": "Ziyarah: fixed package listed, mark a stop visited",
+    "ok": false,
+    "err": "Cannot read properties of undefined (reading 'goto')"
+  },
+  {
+    "name": "Handover: ops sends bus handover; Super Admin confirms; responsibility changes only then",
+    "ok": false,
+    "err": "Cannot read properties of undefined (reading 'goto')"
+  },
+  {
+    "name": "Reminders: simulated clock at 7 days before departure sends in-app + WhatsApp (mock) to staff only",
+    "ok": false,
+    "err": "Cannot read properties of undefined (reading 'goto')"
+  },
+  {
+    "name": "Finance: payment pending list, can clear payment but cannot edit pilgrims",
+    "ok": false,
+    "err": "page.goto: Protocol error (Page.navigate): Cannot navigate to invalid URL"
+  },
+  {
+    "name": "Reports: branded PDF + Excel exports",
+    "ok": false,
+    "err": "Cannot read properties of undefined (reading 'goto')"
+  },
+  {
+    "name": "Global search finds by name / passport / PNR / phone",
+    "ok": false,
+    "err": "Cannot read properties of undefined (reading 'goto')"
+  },
+  {
+    "name": "Audit log records every change with old/new values",
+    "ok": false,
+    "err": "Cannot read properties of undefined (reading 'goto')"
+  },
+  {
+    "name": "Agent (phone): sees only own pilgrims, no edit controls, no admin/other-agent access",
+    "ok": false,
+    "err": "page.goto: Protocol error (Page.navigate): Cannot navigate to invalid URL"
+  },
+  {
+    "name": "Dark mode + mobile layout + PWA manifest/service worker",
+    "ok": false,
+    "err": "Cannot read properties of undefined (reading 'goto')"
+  },
+  {
+    "name": "Performance: 150-pilgrim list and dashboard render quickly",
+    "ok": false,
+    "err": "Cannot read properties of undefined (reading 'goto')"
+  }
+]

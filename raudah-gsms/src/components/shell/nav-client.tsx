@@ -2,13 +2,14 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Building2, LayoutDashboard, Menu, ScrollText, Users, X, type LucideIcon } from "lucide-react";
+import { Bell, BedDouble, Building2, BusFront, FileText, Handshake, Layers, LayoutDashboard, Menu, BarChart3, ScrollText, UserRound, Users, X, AlarmClock, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import type { NavItem } from "./nav";
 
 const ICONS: Record<NavItem["icon"], LucideIcon> = {
-  dashboard: LayoutDashboard, users: Users, agents: Building2, audit: ScrollText,
+  dashboard: LayoutDashboard, users: Users, agents: Building2, audit: ScrollText, groups: Layers, pilgrims: UserRound, documents: FileText,
+  hotels: BedDouble, trips: BusFront, handovers: Handshake, reports: BarChart3, bell: Bell, reminders: AlarmClock,
 };
 
 const isActive = (path: string, href: string) => (href === "/" ? path === "/" : path.startsWith(href));

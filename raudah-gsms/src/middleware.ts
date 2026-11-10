@@ -19,5 +19,5 @@ export default withAuth(
 
 export const config = {
   // Everything except the login page, auth API, static assets and PWA files.
-  matcher: ["/((?!login|api/auth|_next/static|_next/image|brand|icons|favicon|icon|apple-icon|manifest|sw\\.js).*)"],
+  matcher: ["/((?!login|api/auth|api/health|_next/static|_next/image|brand|icons|favicon|icon|apple-icon|manifest|sw\\.js).*)"],
 };

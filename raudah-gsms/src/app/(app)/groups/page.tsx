@@ -40,7 +40,7 @@ export default async function GroupsPage() {
       <Table head={["Code", "Group", "Dates", "Airports", "Pilgrims", "Status", ""]} min={900} empty={groups.length ? undefined : "No groups yet."}>
         {groups.map((g) => (
           <tr key={g.id}>
-            <td className="font-mono text-xs">{g.code}</td>
+            <td className="whitespace-nowrap font-mono text-xs">{g.code}</td>
             <td className="font-medium">{g.name}<div className="text-xs font-normal text-muted">{g.agents.map((a) => a.agent.groupName).join(", ") || "No agents"}{g.supervisor ? ` · Supervisor: ${g.supervisor.name}` : ""}</div></td>
             <td className="whitespace-nowrap">{day(g.startDate)} → {day(g.endDate)}</td>
             <td>{g.arrivalAirport} / {g.departureAirport}</td>

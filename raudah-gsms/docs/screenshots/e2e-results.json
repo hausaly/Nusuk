@@ -14,12 +14,12 @@
   {
     "name": "Groups: list, create-duplicate copies setup WITHOUT pilgrims, switcher filters data",
     "ok": false,
-    "err": "page.waitForSelector: Timeout 30000ms exceeded."
+    "err": "page.waitForSelector: Timeout 30000ms exceeded. Call log: \u001b[2m  - waiting for locator('text=UMR-2026-001') to be visible\u001b[22m"
   },
   {
     "name": "Pilgrims: filter RED, profile names the blocking checks",
     "ok": false,
-    "err": "page.waitForSelector: Timeout 30000ms exceeded."
+    "err": "page.waitForSelector: Timeout 30000ms exceeded. Call log: \u001b[2m  - waiting for locator('text=Blocked') to be visible\u001b[22m"
   },
   {
     "name": "Excel import: branded template download, preview shows row errors, only valid rows saved",
@@ -40,12 +40,12 @@
   {
     "name": "Bulk-confirm → tickets saved, TICKET cleared, pick-up and drop-off trips auto-created",
     "ok": false,
-    "err": "page.waitForSelector: Timeout 20000ms exceeded."
+    "err": "page.waitForSelector: Timeout 20000ms exceeded. Call log: \u001b[2m  - waiting for locator('[role=status]:text-matches(\"Confirmed 5\", \"i\"), [role=alert]:text-matches(\"Confirmed 5\", \"i\")') to be visible\u001b[22m"
   },
   {
     "name": "Visa officer: visas matched by passport; expiry-before-return warning shown; confirm clears VISA",
     "ok": false,
-    "err": "page.waitForSelector: Timeout 20000ms exceeded."
+    "err": "page.waitForSelector: Timeout 20000ms exceeded. Call log: \u001b[2m  - waiting for locator('[role=status]:text-matches(\"Confirmed with 1 warning\", \"i\"), [role=alert]:text-matches(\"Confirmed with 1 warning\", \"i\")') to be visible\u001b[22m"
   },
   {
     "name": "Hotels: occupancy board; RED pilgrim cannot be put in a room (server message names the check)",
@@ -66,7 +66,7 @@
   {
     "name": "Handover: ops sends bus handover; Super Admin confirms; responsibility changes only then",
     "ok": false,
-    "err": "page.waitForSelector: Timeout 20000ms exceeded."
+    "err": "page.waitForSelector: Timeout 20000ms exceeded. Call log: \u001b[2m  - waiting for locator('[role=status]:text-matches(\"now responsible\", \"i\"), [role=alert]:text-matches(\"now responsible\", \"i\")') to be visible\u001b[22m"
   },
   {
     "name": "Reminders: simulated clock at 7 days before departure sends in-app + WhatsApp (mock) to staff only",
@@ -95,7 +95,7 @@
   {
     "name": "Dark mode + mobile layout + PWA manifest/service worker",
     "ok": false,
-    "err": "page.waitForSelector: Timeout 30000ms exceeded."
+    "err": "page.waitForSelector: Timeout 30000ms exceeded. Call log: \u001b[2m  - waiting for locator('text=Buses') to be visible\u001b[22m"
   },
   {
     "name": "Performance: 150-pilgrim list and dashboard render quickly",

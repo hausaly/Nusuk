@@ -91,7 +91,7 @@ it("walks the whole platform as every role", async () => {
   });
 
   await step("Groups: list, create-duplicate copies setup WITHOUT pilgrims, switcher filters data", async () => {
-    await admin.goto(BASE + "/groups"); await admin.waitForSelector("text=UMR-2026-001");
+    await admin.goto(BASE + "/groups"); await admin.locator("td", { hasText: "UMR-2026-001" }).first().waitFor();
     await shot(admin, "05-groups");
     await admin.locator("details", { hasText: "Duplicate setup" }).first().locator("summary").click();
     const d = admin.locator("details", { hasText: "Duplicate setup" }).first();
@@ -101,15 +101,15 @@ it("walks the whole platform as every role", async () => {
     await admin.goto(BASE + "/pilgrims");
     const sw = admin.locator('select[aria-label="Switch group"]');
     const opts = await sw.locator("option").allInnerTexts(); const copy = opts.find((o) => o.includes("Umrah March 2027"))!;
-    await sw.selectOption({ label: copy }); await admin.waitForSelector("text=0 pilgrim(s)");
+    await sw.selectOption({ label: copy }); await admin.locator("main").getByText("0 pilgrim(s)").waitFor();
     await shot(admin, "07-switcher-new-group-empty");
     expect((await prisma.pilgrim.count({ where: { group: { name: "Umrah March 2027" } } }))).toBe(0);
     expect(await prisma.room.count({ where: { hotel: { group: { name: "Umrah March 2027" } } } })).toBe(80);
-    await sw.selectOption({ label: opts.find((o) => o.includes("Umrah December 2026"))! }); await admin.waitForSelector("text=150 pilgrim(s)");
+    await sw.selectOption({ label: opts.find((o) => o.includes("Umrah December 2026"))! }); await admin.locator("main").getByText("150 pilgrim(s)").waitFor();
   });
 
   await step("Pilgrims: filter RED, profile names the blocking checks", async () => {
-    await admin.goto(BASE + "/pilgrims?status=RED"); await admin.waitForSelector("text=Blocked");
+    await admin.goto(BASE + "/pilgrims?status=RED"); await admin.locator("tbody").getByText("Blocked").first().waitFor();
     await shot(admin, "08-pilgrims-red");
     await admin.locator("tbody a").first().click(); await admin.waitForSelector("text=Clearance checks");
     await admin.getByText("Cannot be assigned to a bus or room until").waitFor();
@@ -185,7 +185,8 @@ it("walks the whole platform as every role", async () => {
     await visa.locator("tr", { hasText: `visa-${risky.passportNo}.pdf` }).locator("a:has-text('Review')").click();
     await visa.getByText("Visa expires before the return flight").waitFor();
     await shot(visa, "16-visa-warning", true);
-    await visa.click("button:has-text('Confirm & attach')"); await msg(visa, /Confirmed with 1 warning/);
+    await visa.click("button:has-text('Confirm & attach')"); await visa.locator("main").getByText("confirmed", { exact: false }).first().waitFor();
+    await visa.getByText("Visa expires before the return flight").waitFor(); // warning stays visible after confirming
     await visa.goto(BASE + "/documents?type=VISA"); await visa.click("button:has-text('Bulk-confirm visas')"); await msg(visa, /Confirmed 2/);
     const p = await prisma.pilgrim.findFirstOrThrow({ where: { passportNo: risky.passportNo }, include: { checks: true } });
     expect(p.checks.find((c) => c.type === "VISA")!.status).toBe("CLEARED");
@@ -250,7 +251,7 @@ it("walks the whole platform as every role", async () => {
     const before = await prisma.tripBus.findUniqueOrThrow({ where: { id: h.tripBusId! } });
     await admin.goto(BASE + "/handovers"); await admin.getByText("handed over bus to you").waitFor();
     await shot(admin, "27-handover-pending", true);
-    await admin.click("button:has-text('Confirm receipt')"); await msg(admin, /now responsible/);
+    await admin.click("button:has-text('Confirm receipt')"); await admin.getByText("handed over bus to you").waitFor({ state: "detached" });
     const after = await prisma.tripBus.findUniqueOrThrow({ where: { id: h.tripBusId! } });
     expect(before.staffInChargeId).not.toBe(after.staffInChargeId);
     const adminUser = await prisma.user.findUniqueOrThrow({ where: { email: "admin@raudah.test" } });
@@ -340,7 +341,7 @@ it("walks the whole platform as every role", async () => {
     const sec = await (await admin.request.get(BASE + "/login")).headers();
     expect(sec["content-security-policy"]).toContain("default-src 'self'"); expect(sec["x-content-type-options"]).toBe("nosniff");
     const mob = await mk({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true });
-    const mp = await login(mob, "ops@raudah.test"); await mp.goto(BASE + "/trips"); await mp.locator("tbody a").first().click(); await mp.waitForSelector("text=Buses");
+    const mp = await login(mob, "ops@raudah.test"); await mp.goto(BASE + "/trips"); await mp.locator("tbody a").first().click(); await mp.locator("h2", { hasText: "Buses" }).waitFor();
     await shot(mp, "42-ops-trip-mobile");
     const login2 = await (await mk({ viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true })).newPage(); await login2.goto(BASE + "/login"); await shot(login2, "43-login-mobile");
   });

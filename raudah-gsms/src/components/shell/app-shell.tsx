@@ -14,6 +14,7 @@ import { GroupSwitcher } from "./group-switcher";
 export async function AppShell({ user, children }: { user: CurrentUser; children: React.ReactNode }) {
   const items = NAV_ITEMS.filter((i) => !i.cap || can(user.role, i.cap));
   const [{ groups, current }, unread] = await Promise.all([getGroupContext(user), prisma.notification.count({ where: { userId: user.id, readAt: null, channel: "IN_APP" } })]);
+  const groupOpts = groups.map((g) => ({ id: g.id, code: g.code, name: g.name, status: g.status }));
   return (
     <div className="min-h-screen">
       <header className="sticky top-0 z-40 border-b border-border bg-surface">
@@ -24,7 +25,7 @@ export async function AppShell({ user, children }: { user: CurrentUser; children
             <Logo height={28} className="md:hidden" priority />
           </Link>
           <div className="mx-1 hidden h-6 w-px bg-border md:block" />
-          <GroupSwitcher groups={groups.map((g) => ({ id: g.id, code: g.code, name: g.name, status: g.status }))} currentId={current?.id} />
+          <div className="hidden md:block"><GroupSwitcher groups={groupOpts} currentId={current?.id} /></div>
           <form action="/search" className="ml-2 hidden flex-1 md:block md:max-w-sm" role="search">
             <label className="flex h-10 items-center gap-2 rounded-xl border border-border bg-background px-3 text-sm">
               <Search className="h-4 w-4 text-muted" aria-hidden />
@@ -43,6 +44,8 @@ export async function AppShell({ user, children }: { user: CurrentUser; children
             <UserMenu name={user.name} role={ROLE_LABELS[user.role]} />
           </div>
         </div>
+        {/* phones: the switcher gets its own full-width row so the current group is always readable */}
+        <div className="border-t border-border px-3 py-2 md:hidden"><GroupSwitcher groups={groupOpts} currentId={current?.id} full /></div>
       </header>
       <div className="md:flex">
         <aside className="sticky top-16 hidden h-[calc(100vh-4rem)] w-60 shrink-0 overflow-y-auto border-r border-border bg-surface p-3 md:block">

@@ -41,13 +41,15 @@ export function AB({ action, children, confirm, variant = "outline", size = "sm"
   const router = useRouter();
   const [pending, start] = useTransition();
   const [err, setErr] = useState<string | null>(null);
+  const [ok, setOk] = useState<string | null>(null);
   return (
     <span className="inline-flex flex-col">
       <Button type="button" variant={variant} size={size} className={className} disabled={pending} onClick={() => {
         if (confirm && !window.confirm(confirm)) return;
-        start(async () => { const r = await action(); setErr(r.ok ? null : r.error ?? "Failed."); router.refresh(); });
+        start(async () => { const r = await action(); setErr(r.ok ? null : r.error ?? "Failed."); setOk(r.ok ? r.message ?? "Done." : null); router.refresh(); });
       }}>{pending && <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden />}{children}</Button>
       {err && <span role="alert" className="mt-1 max-w-xs text-xs text-danger">{err}</span>}
+      {ok && <span role="status" className="mt-1 max-w-xs text-xs text-success">{ok}</span>}
     </span>
   );
 }

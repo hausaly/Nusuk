@@ -3,7 +3,7 @@
 Raudah Travels & Tours Ltd · tracks pilgrims from pre-travel clearance through airport pick-up, hotels, transfers,
 ziyarah and drop-off. Next.js 14 (App Router) · TypeScript · PostgreSQL + Prisma · Tailwind · NextAuth.
 
-**Status: Phase 1 of 7** – project setup, branding, auth + 2FA, roles, users, agents, audit log.
+**Status: all 7 phases built and tested** – see `docs/screenshots/` for the end-to-end run and `DECISIONS.md` for choices and known limits.
 See `DECISIONS.md` for choices made along the way.
 
 ## Run locally
@@ -49,3 +49,33 @@ src/services/      business logic + authorization + audit (the only place that w
 src/app/           routes (login, dashboard, admin/users|agents|audit, account/security)
 src/components/    ui primitives, brand logo, app shell
 ```
+
+## Modules
+
+Groups & switcher · Pilgrims (CRUD, Excel/CSV import with preview) · Clearance (GREEN/RED, auto rules) · Tickets & visas (PDF upload, extraction,
+matching, review, validation warnings) · Hotels & rooms (drag-and-drop board, auto-fill, check-in/out) · Trips & buses (auto pick-up/drop-off,
+intercity, ziyarah, boarding, flight delay) · Handovers · Notifications (in-app + WhatsApp) · Reminders (editable rules, Lagos/Riyadh time) ·
+Dashboards · Global search · Branded PDF/Excel reports · PWA.
+
+## Seed data and samples
+
+`npm run db:seed` creates 1 group (UMR-2026-001) with 150 pilgrims (mixed clearance), 2 hotels with 40 rooms each, 3 arrival flights + 2 return flights,
+1 intercity trip, 4 ziyarah stops, 6 users and 3 agents. `npm run samples` regenerates the sample PDFs in `samples/` (group ticket with 5 passengers,
+3 text visas — one expires before the return flight — and 2 scanned PDFs). Upload them in *Tickets & visas* to see extraction.
+
+## Tests
+
+```bash
+createdb raudah_gsms_test && npm test          # 65 unit/integration tests (Vitest)
+npm run build && npm start                     # then, with the app running on a freshly seeded DB:
+npm run e2e                                    # Playwright walkthrough as every role; writes docs/screenshots/
+```
+
+## Operations
+
+- Background work: in-process by default; `USE_QUEUE=1` + `npm run worker` (or `docker compose --profile worker up`) uses BullMQ/Redis.
+- Env: see `.env.example` — `ANTHROPIC_API_KEY` (scanned-PDF extraction), `WHATSAPP_TOKEN` + `WHATSAPP_PHONE_NUMBER_ID`, `STORAGE_DRIVER=s3` + `S3_*`,
+  `DATA_HOSTING_REGION`, `DATA_RETENTION_DAYS`.
+- Backups: `npm run backup` / the `backup` compose service (daily dumps; prune per your retention policy).
+- Production checklist: strong `NEXTAUTH_SECRET` and `APP_ENCRYPTION_KEY`, HTTPS, change seed passwords (or don't seed), host in your chosen region,
+  create/approve the WhatsApp template `raudah_staff_alert`, restrict DB/Redis/MinIO network access.

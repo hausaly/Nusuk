@@ -39,7 +39,7 @@ export function Stat({ label, value, tone, hint }: { label: string; value: React
   return (
     <div className="card p-4">
       <div className="text-xs uppercase tracking-wide text-muted">{label}</div>
-      <div className={cn("mt-1 font-heading text-3xl", tone === "success" && "text-success", tone === "danger" && "text-danger", tone === "primary" && "text-primary")}>{value}</div>
+      <div className={cn("mt-1 font-sans text-3xl font-semibold tabular-nums", tone === "success" && "text-success", tone === "danger" && "text-danger", tone === "primary" && "text-primary")}>{value}</div>
       {hint && <div className="mt-0.5 text-xs text-muted">{hint}</div>}
     </div>
   );

@@ -36,7 +36,7 @@ export default async function ReviewPage({ params }: { params: { id: string } })
       <PageHeader title={`Review ${kind.toLowerCase()}`} sub={doc.fileName}><Badge tone={doc.status === "CONFIRMED" ? "success" : "warning"}>{doc.status.replace("_", " ").toLowerCase()}</Badge></PageHeader>
       {doc.error && <Alert tone="warning" className="mb-3">{doc.error}</Alert>}
       <div className="grid gap-4 lg:grid-cols-2">
-        <div className="card overflow-hidden"><div className="border-b border-border px-3 py-2 text-xs uppercase tracking-wide text-muted">Original PDF</div>
+        <div className="card overflow-hidden"><div className="flex items-center justify-between border-b border-border px-3 py-2 text-xs uppercase tracking-wide text-muted"><span>Original PDF</span>{url && <a href={url} target="_blank" rel="noreferrer" className="normal-case text-primary underline">Open in new tab</a>}</div>
           {url ? <iframe title="PDF preview" src={url} className="h-[70vh] w-full" /> : <p className="p-6 text-sm text-muted">File purged.</p>}</div>
         <div className="card p-4">
           <h2 className="mb-1 text-lg">Extracted fields</h2>

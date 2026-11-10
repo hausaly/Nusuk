@@ -153,7 +153,7 @@ it("walks the whole platform as every role", async () => {
     await shot(ticket, "12-documents-queue", true);
   });
   await step("Review screen: PDF on the left, extracted fields on the right, low-confidence highlighted", async () => {
-    await ticket.locator("a:has-text('Review')").first().click(); await ticket.waitForSelector("text=Extracted fields");
+    await ticket.locator("tr", { hasText: "group-ticket" }).locator("a:has-text('Review')").first().click(); await ticket.waitForSelector("text=Extracted fields");
     await ticket.waitForSelector("iframe[title='PDF preview']");
     await shot(ticket, "13-review-screen", true);
     const bad = await ticket.goto(BASE + "/documents?type=TICKET");

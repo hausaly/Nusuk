@@ -36,7 +36,7 @@ export default async function Home() {
         <Stat label="Pilgrims" value={d.total} />
         <Stat label="Cleared (green)" value={d.green} tone="success" />
         <Stat label="Blocked (red)" value={d.red} tone="danger" hint={d.red ? Object.entries(d.redBy).filter(([, n]) => n).map(([k, n]) => `${k.toLowerCase()} ${n}`).join(" · ") : undefined} />
-        <Stat label="Journey" value={<span className="text-base font-sans">{JOURNEY.map(([k, l]) => <span key={k} className="mr-3 inline-block"><b className="text-xl font-heading text-primary">{d.journey[k] ?? 0}</b> <span className="text-xs text-muted">{l}</span></span>)}</span>} />
+        <Stat label="Journey" value={<span className="text-base font-sans font-normal">{JOURNEY.map(([k, l]) => <span key={k} className="mr-3 inline-block"><b className="text-xl font-sans font-semibold text-primary">{d.journey[k] ?? 0}</b> <span className="text-xs text-muted">{l}</span></span>)}</span>} />
       </section>
 
       {d.red > 0 && (

@@ -67,13 +67,13 @@ textarea:focus-visible{outline:3px solid var(--gd);outline-offset:2px}
 .hero2 .row{margin-top:34px}
 
 /* Top info bar */
-.topbar{background:#14110d;color:#e6dfd2;font-size:.84rem;border-bottom:1px solid #2c261e}
-.tb-in{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:6px 0;min-height:42px;padding-top:6px;padding-bottom:6px}
-.tb-in>*:not(.sep){display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.topbar{background:#14110d;color:#e6dfd2;font-size:.68rem;border-bottom:1px solid #2c261e}
+.tb-in{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:2px 0;min-height:28px;padding-top:3px;padding-bottom:3px}
+.tb-in>*:not(.sep){display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 .tb-in a{text-decoration:none}.tb-in a:hover b{color:var(--g)}
-.tb-in svg.i{width:16px;height:16px;color:var(--g)}.tb-in b{font-weight:600;color:#fff}
-.tb-in .sep{width:1px;height:16px;background:#4a4236;margin:0 18px}
-@media(max-width:700px){.topbar{font-size:.78rem}.tb-in{justify-content:flex-start;gap:4px 0}.tb-in .sep{margin:0 10px}.tb-in .lbl{display:none}}
+.tb-in svg.i{width:11px;height:11px;color:var(--g)}.tb-in b{font-weight:600;color:#fff}
+.tb-in .sep{width:1px;height:11px;background:#4a4236;margin:0 12px}
+@media(max-width:700px){.topbar{font-size:.64rem}.tb-in{justify-content:flex-start;gap:4px 0}.tb-in .sep{margin:0 10px}.tb-in .lbl{display:none}}
 
 /* Footer */
 footer{padding:56px 0 24px}
@@ -238,7 +238,7 @@ footer .copy{margin:34px 0 0;border-top:1px solid #3a3329;padding-top:18px;font-
  html{font-size:14px}body{font-size:1rem;line-height:1.6}
  h1{font-size:1.75rem}h2{font-size:1.3rem}h3{font-size:1rem}
  .s{padding:44px 0}.w{padding:0 16px}
- .topbar{font-size:.72rem}.tb-in svg.i{width:14px;height:14px}
+ .topbar{font-size:.64rem}.tb-in svg.i{width:10px;height:10px}
  .hero2{padding:56px 0 120px}.hero2 h1{font-size:clamp(1.75rem,8.2vw,2.15rem);margin-bottom:20px}.hero2 .lead{font-size:.92rem;padding-left:14px;line-height:1.65}.hero2 .badge{font-size:.72rem;padding:8px 12px}
  .hero2 .btn{min-height:42px;padding:9px 16px;font-size:.88rem}.stats{gap:8px;margin-top:36px;padding-top:22px}.stats b{font-size:1.45rem}.stats span{display:block;font-size:clamp(.56rem,2.35vw,.68rem);line-height:1.35;margin-top:3px;overflow-wrap:anywhere}
  .card .b p,.ev p{font-size:.84rem}.btn{min-height:42px;padding:9px 16px;font-size:.9rem}
@@ -333,12 +333,12 @@ footer .copy{margin:34px 0 0;border-top:1px solid #3a3329;padding-top:18px;font-
 
 /* mobile: top info bar on one tidy line */
 @media(max-width:700px){
- .tb-in{flex-wrap:nowrap;justify-content:space-between;align-items:center;gap:0;min-height:40px;padding-top:0;padding-bottom:0}
+ .tb-in{flex-wrap:nowrap;justify-content:space-between;align-items:center;gap:0;min-height:27px;padding-top:0;padding-bottom:0}
  .tb-in>*:not(.sep){gap:6px;flex:0 0 auto;line-height:1}
  .tb-in .sep{display:block;flex:0 0 1px;height:14px;margin:0}
  .tb-in svg.i{flex:none}
 }
-@media(max-width:380px){.topbar{font-size:.66rem}.tb-in svg.i{width:12px;height:12px}.tb-in>*:not(.sep){gap:4px}.w.tb-in{padding-left:12px;padding-right:12px}}
+@media(max-width:380px){.topbar{font-size:.58rem}.tb-in svg.i{width:9px;height:9px}.tb-in>*:not(.sep){gap:4px}.w.tb-in{padding-left:12px;padding-right:12px}}
 /* mobile: booking tabs slide sideways, same look as desktop */
 @media(max-width:700px){
  .bk-tabs{flex-wrap:nowrap;overflow-x:auto;gap:6px;padding:8px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior-x:contain}

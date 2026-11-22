@@ -576,3 +576,10 @@ html.boot #splash.out{opacity:0}
 .vimp{background:#fff8ea;border:1px solid #f0dfb8;border-left:3px solid #e0b866;border-radius:8px;padding:5px 10px;margin:0 0 12px}
 .vimp p{margin:0;font-size:.74rem;line-height:1.4;color:#4a3d28}.vimp p b{color:#a15c07;letter-spacing:.03em}
 @media(max-width:600px){.vimp{padding:5px 9px}.vimp p{font-size:.72rem}}
+/* Booking slip page: compact status banner and action buttons (same left/right edges as the slip below) */
+.sb{gap:8px;padding:6px 12px;margin-bottom:10px;border-radius:9px;align-items:flex-start}
+.sb>svg{width:15px;height:15px;margin-top:1px;flex:none}
+.sb b{font-size:.8rem;line-height:1.3}.sb span{font-size:.72rem;line-height:1.45;display:block;margin-top:0}
+.slact{gap:6px;margin-bottom:10px}
+.slact .btn{min-height:30px;padding:4px 12px;font-size:.74rem;border-radius:4px;gap:6px}.slact .btn svg{width:13px;height:13px}
+@media(max-width:600px){.sb{padding:6px 10px;gap:7px}.sb b{font-size:.76rem}.sb span{font-size:.68rem}.slact .btn{padding:4px 10px;font-size:.72rem}}

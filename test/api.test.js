@@ -624,3 +624,29 @@ test('hotel inventory export round-trips and lean sheets never blank other detai
   assert.equal(r.status, 200); assert.match(r.headers.get('content-disposition'), /nusuk-hotel-inventory-\d{4}-\d{2}-\d{2}\.xlsx/);
   assert.equal(Buffer.from(await r.arrayBuffer()).readUInt32LE(0), 0x04034b50);
 });
+
+test('hotel Google Maps link: validated, saved, shown to clients, kept on lean uploads', async () => {
+  const bad = await call('POST', '/api/admin/hotels', hotelRow({ name: 'Map Bad', mapUrl: 'https://evil.example.com/maps' }), cookie);
+  assert.equal(bad.status, 422);
+  assert.equal((await call('POST', '/api/admin/hotels', hotelRow({ name: 'Map Bad2', mapUrl: 'javascript:alert(1)' }), cookie)).status, 422);
+  for (const u of ['https://maps.app.goo.gl/abc123', 'https://www.google.com/maps/place/Hotel', 'https://goo.gl/maps/xyz', 'https://maps.google.com/?q=21.42,39.82']) {
+    const ok = await call('POST', '/api/admin/hotels', hotelRow({ name: 'Map Ok ' + u.length, mapUrl: u, cost: 20000, currency: 'NGN' }), cookie);
+    assert.equal(ok.status, 200, u); assert.equal(ok.body.mapUrl, u);
+  }
+  const { records } = await import('../server/db.js');
+  const { parseRatesFile, upsertHotels } = await import('../server/hotels.js');
+  const { writeXlsx } = await import('../server/xlsx.js');
+  const h = records.list('hotels').find(r => r.mapUrl === 'https://maps.app.goo.gl/abc123');
+  const lean = parseRatesFile(writeXlsx([['hotel_name', 'city', 'room_type', 'rate_per_night', 'currency'], [h.name, h.city, h.roomType, 21000, h.currency]]), 'l.xlsx', { markupPct: h.markupPct, markupFixed: h.markupFixed });
+  upsertHotels(lean.rows, lean.cols);
+  assert.equal(records.get('hotels', h.id).mapUrl, 'https://maps.app.goo.gl/abc123');
+  const withCol = parseRatesFile(writeXlsx([['hotel_name', 'city', 'room_type', 'rate_per_night', 'currency', 'map_link'], [h.name, h.city, h.roomType, 21000, h.currency, 'https://maps.app.goo.gl/new']]), 'm.xlsx', { markupPct: h.markupPct, markupFixed: h.markupFixed });
+  upsertHotels(withCol.rows, withCol.cols);
+  assert.equal(records.get('hotels', h.id).mapUrl, 'https://maps.app.goo.gl/new');
+  const bd = parseRatesFile(writeXlsx([['hotel_name', 'city', 'room_type', 'rate_per_night', 'currency', 'map_link'], ['X', 'Makkah', 'Room', 10, 'SAR', 'http://nope.com']]), 'b.xlsx', {});
+  assert.equal(bd.rows.length, 0); assert.equal(bd.errors.length, 1);
+  const s = await call('GET', '/api/hotels/search?' + new URLSearchParams({ city: 'Makkah', checkIn: dayStr(5), checkOut: dayStr(7), adults: 2, children: 0, rooms: 1 }));
+  assert.equal(s.status, 200);
+  assert.ok(s.body.results.some(r => r.mapUrl === 'https://maps.app.goo.gl/new'), JSON.stringify(s.body.results.map(r => [r.name, r.mapUrl])));
+  assert.ok(s.body.results.every(r => typeof r.mapUrl === 'string'));
+});

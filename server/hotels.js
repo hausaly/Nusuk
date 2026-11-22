@@ -18,6 +18,7 @@ export function distanceLabel(h) {
 }
 
 /** Validate + normalise one inventory row (manual form or Excel row). Returns {value} | {errors}. */
+const MAP_URL = /^https:\/\/(maps\.app\.goo\.gl|goo\.gl\/maps|(www\.|maps\.)?google\.[a-z.]{2,6}\/maps|maps\.google\.[a-z.]{2,6})(\/|\?|$)\S*$/i;
 export function normalizeHotel(b = {}, defaults = {}) {
   const errors = {};
   const cityRaw = str(b.city).toLowerCase();
@@ -30,7 +31,7 @@ export function normalizeHotel(b = {}, defaults = {}) {
     facilities: fac.map(x => str(x, 40)).filter(Boolean).slice(0, 20),
     cost: num(b.cost), currency: str(b.currency || 'SAR', 3).toUpperCase(),
     capacity: b.capacity === '' || b.capacity == null ? 4 : Math.round(num(b.capacity)),
-    imageUrl: str(b.imageUrl, 300), validFrom: excelDate(b.validFrom), validTo: excelDate(b.validTo),
+    mapUrl: str(b.mapUrl, 300), imageUrl: str(b.imageUrl, 300), validFrom: excelDate(b.validFrom), validTo: excelDate(b.validTo),
     markupPct: b.markupPct === '' || b.markupPct == null ? (defaults.markupPct ?? 0) : num(b.markupPct),
     markupFixed: b.markupFixed === '' || b.markupFixed == null ? (defaults.markupFixed ?? 0) : num(b.markupFixed),
     active: b.active === false || /^(false|no|0|off)$/i.test(String(b.active ?? '')) ? false : true,
@@ -49,6 +50,7 @@ export function normalizeHotel(b = {}, defaults = {}) {
   if (Number.isNaN(v.markupFixed) || v.markupFixed < 0 || v.markupFixed > 1e7) errors.markupFixed = 'Fixed mark-up must be ₦0–10,000,000.';
   for (const k of ['validFrom', 'validTo']) if (v[k] && !validDate(v[k])) errors[k] = 'Use the date format YYYY-MM-DD.';
   if (v.validFrom && v.validTo && v.validTo < v.validFrom) errors.validTo = '“Valid to” must be after “valid from”.';
+  if (v.mapUrl && !MAP_URL.test(v.mapUrl)) errors.mapUrl = 'Use a Google Maps link (https://maps.app.goo.gl/… or https://www.google.com/maps/…).';
   if (v.imageUrl && !/^(https?:\/\/\S+|api\/media\/[\w.-]+)$/i.test(v.imageUrl)) errors.imageUrl = 'Image must be an http(s) link or an uploaded image.';
   return Object.keys(errors).length ? { errors } : { value: v };
 }
@@ -61,7 +63,7 @@ export function nightlyNgn(h, fx) {
 }
 
 const publicHotel = (h, nights, rooms, perNight) => ({
-  id: h.id, name: h.name, city: h.city, address: h.address, description: h.description || '', distance: distanceLabel(h), distanceM: h.distanceM, stars: h.stars,
+  id: h.id, name: h.name, city: h.city, address: h.address, mapUrl: h.mapUrl || '', description: h.description || '', distance: distanceLabel(h), distanceM: h.distanceM, stars: h.stars,
   facilities: h.facilities, roomType: h.roomType, capacity: h.capacity, image: h.imageUrl || '',
   nights, rooms, perNight, total: perNight * nights * rooms, currency: 'NGN',
 });
@@ -103,18 +105,18 @@ export function quoteHotel(id, s) {
 
 // ---------- Excel / CSV import ----------
 // Lean template: only the columns the platform really uses. (Cover images are added from the hotel form; an existing image is kept on re-upload.)
-export const TEMPLATE_COLUMNS = ['hotel_name', 'city', 'room_type', 'rate_per_night', 'currency', 'stars', 'distance_m', 'capacity', 'facilities', 'address', 'description', 'valid_from', 'valid_to', 'markup_pct'];
+export const TEMPLATE_COLUMNS = ['hotel_name', 'city', 'room_type', 'rate_per_night', 'currency', 'stars', 'distance_m', 'capacity', 'facilities', 'address', 'map_link', 'description', 'valid_from', 'valid_to', 'markup_pct'];
 const ALIAS = {
   hotel_name: 'name', name: 'name', hotel: 'name', city: 'city', destination: 'city', address: 'address', distance_m: 'distanceM', distance: 'distanceM', distance_to_haram: 'distanceM',
   stars: 'stars', star: 'stars', facilities: 'facilities', amenities: 'facilities', room_type: 'roomType', room: 'roomType', roomtype: 'roomType',
   rate_per_night: 'cost', rate: 'cost', price: 'cost', cost: 'cost', price_per_night: 'cost', currency: 'currency', capacity: 'capacity', max_guests: 'capacity',
-  featured: 'featured', active: 'active', live: 'active', visible: 'active', image_url: 'imageUrl', image: 'imageUrl', valid_from: 'validFrom', valid_to: 'validTo', markup_pct: 'markupPct', markup: 'markupPct', markup_fixed: 'markupFixed', description: 'description', short_description: 'description', about: 'description',
+  featured: 'featured', map_link: 'mapUrl', map: 'mapUrl', google_map: 'mapUrl', map_url: 'mapUrl', location_link: 'mapUrl', active: 'active', live: 'active', visible: 'active', image_url: 'imageUrl', image: 'imageUrl', valid_from: 'validFrom', valid_to: 'validTo', markup_pct: 'markupPct', markup: 'markupPct', markup_fixed: 'markupFixed', description: 'description', short_description: 'description', about: 'description',
 };
 export function templateXlsx() {
   const col = k => TEMPLATE_COLUMNS.indexOf(k);
   const row = o => TEMPLATE_COLUMNS.map(k => o[k] ?? '');
   return writeXlsx([TEMPLATE_COLUMNS,
-    row({ hotel_name: 'Sample Makkah Hotel', city: 'Makkah', room_type: 'Double Room', rate_per_night: 450, currency: 'SAR', stars: 5, distance_m: 250, capacity: 3, facilities: 'Wi-Fi, Breakfast, Shuttle', address: 'Ibrahim Al-Khalil Rd, Makkah', description: 'Walking distance to the Haram, ideal for families', valid_from: '2026-11-01', valid_to: '2027-03-31' }),
+    row({ hotel_name: 'Sample Makkah Hotel', city: 'Makkah', room_type: 'Double Room', rate_per_night: 450, currency: 'SAR', stars: 5, distance_m: 250, capacity: 3, facilities: 'Wi-Fi, Breakfast, Shuttle', address: 'Ibrahim Al-Khalil Rd, Makkah', map_link: 'https://maps.app.goo.gl/your-hotel-link', description: 'Walking distance to the Haram, ideal for families', valid_from: '2026-11-01', valid_to: '2027-03-31' }),
     row({ hotel_name: 'Sample Madinah Hotel', city: 'Madinah', room_type: 'Quad Room', rate_per_night: 380, currency: 'SAR', stars: 4, distance_m: 120, capacity: 4, facilities: 'Wi-Fi, Breakfast', address: 'Central Area, Madinah', description: 'Quiet stay close to the Prophet’s Mosque', markup_pct: 12 })], 'Hotel rates');
 }
 
@@ -126,7 +128,7 @@ export function inventoryXlsx(list = records.list('hotels')) {
   const cols = [
     ['hotel_name', true, h => h.name], ['city', true, h => h.city], ['room_type', true, h => h.roomType], ['rate_per_night', true, h => h.cost], ['currency', true, h => h.currency],
     ['stars', any(h => h.stars), h => h.stars || ''], ['distance_m', any(h => h.distanceM != null), h => h.distanceM ?? ''], ['capacity', true, h => h.capacity],
-    ['facilities', any(h => h.facilities?.length), h => (h.facilities || []).join(', ')], ['address', any(h => h.address), h => h.address || ''], ['description', any(h => h.description), h => h.description || ''],
+    ['facilities', any(h => h.facilities?.length), h => (h.facilities || []).join(', ')], ['address', any(h => h.address), h => h.address || ''], ['map_link', any(h => h.mapUrl), h => h.mapUrl || ''], ['description', any(h => h.description), h => h.description || ''],
     ['valid_from', any(h => h.validFrom), h => h.validFrom || ''], ['valid_to', any(h => h.validTo), h => h.validTo || ''],
     ['markup_pct', true, h => h.markupPct ?? 0], ['markup_fixed', any(h => h.markupFixed), h => h.markupFixed || ''],
     ['live', any(h => !h.active), h => h.active ? 'yes' : 'no'], ['featured', any(h => h.featured), h => h.featured ? 'yes' : ''],
@@ -161,7 +163,7 @@ export function upsertHotels(items, cols = null) {
     const cur = map.get(key(it));
     if (cur) {
       // a column that is not in the file leaves that field as it is (so a lean sheet never blanks details held elsewhere)
-      const keep = {}; if (cols) for (const k of ['address', 'description', 'distanceM', 'stars', 'facilities', 'capacity', 'active', 'featured']) if (!cols.has(k)) keep[k] = cur[k];
+      const keep = {}; if (cols) for (const k of ['address', 'mapUrl', 'description', 'distanceM', 'stars', 'facilities', 'capacity', 'active', 'featured']) if (!cols.has(k)) keep[k] = cur[k];
       records.update('hotels', cur.id, { ...it, ...keep, offerPdf: it.offerPdf || cur.offerPdf || '', imageUrl: it.imageUrl || cur.imageUrl || '' }); updated++;
     }
     else { map.set(key(it), records.create('hotels', it)); created++; }

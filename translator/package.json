@@ -1,0 +1,13 @@
+{
+  "name": "hausaly-translation-desk",
+  "version": "1.0.0",
+  "description": "Hausaly EduTravels Ltd — certified translation desk (Arabic ⇄ English) with AI engine fail-over",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=22.13" },
+  "scripts": {
+    "start": "node --disable-warning=ExperimentalWarning server/index.js",
+    "dev": "node --watch --disable-warning=ExperimentalWarning server/index.js",
+    "test": "node --disable-warning=ExperimentalWarning --test test/*.test.js"
+  }
+}

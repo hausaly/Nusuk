@@ -102,17 +102,36 @@ export function quoteHotel(id, s) {
 }
 
 // ---------- Excel / CSV import ----------
-export const TEMPLATE_COLUMNS = ['hotel_name', 'city', 'address', 'distance_m', 'stars', 'facilities', 'room_type', 'rate_per_night', 'currency', 'capacity', 'image_url', 'valid_from', 'valid_to', 'markup_pct', 'description'];
+// Lean template: only the columns the platform really uses. (Cover images are added from the hotel form; an existing image is kept on re-upload.)
+export const TEMPLATE_COLUMNS = ['hotel_name', 'city', 'room_type', 'rate_per_night', 'currency', 'stars', 'distance_m', 'capacity', 'facilities', 'address', 'description', 'valid_from', 'valid_to', 'markup_pct'];
 const ALIAS = {
   hotel_name: 'name', name: 'name', hotel: 'name', city: 'city', destination: 'city', address: 'address', distance_m: 'distanceM', distance: 'distanceM', distance_to_haram: 'distanceM',
   stars: 'stars', star: 'stars', facilities: 'facilities', amenities: 'facilities', room_type: 'roomType', room: 'roomType', roomtype: 'roomType',
   rate_per_night: 'cost', rate: 'cost', price: 'cost', cost: 'cost', price_per_night: 'cost', currency: 'currency', capacity: 'capacity', max_guests: 'capacity',
-  featured: 'featured', image_url: 'imageUrl', image: 'imageUrl', valid_from: 'validFrom', valid_to: 'validTo', markup_pct: 'markupPct', markup: 'markupPct', markup_fixed: 'markupFixed', description: 'description', short_description: 'description', about: 'description',
+  featured: 'featured', active: 'active', live: 'active', visible: 'active', image_url: 'imageUrl', image: 'imageUrl', valid_from: 'validFrom', valid_to: 'validTo', markup_pct: 'markupPct', markup: 'markupPct', markup_fixed: 'markupFixed', description: 'description', short_description: 'description', about: 'description',
 };
 export function templateXlsx() {
+  const col = k => TEMPLATE_COLUMNS.indexOf(k);
+  const row = o => TEMPLATE_COLUMNS.map(k => o[k] ?? '');
   return writeXlsx([TEMPLATE_COLUMNS,
-    ['Sample Makkah Hotel', 'Makkah', 'Ibrahim Al-Khalil Rd, Makkah', 250, 5, 'Wi-Fi, Breakfast, Shuttle', 'Double Room', 450, 'SAR', 3, 'https://example.com/photo.jpg', '2026-11-01', '2027-03-31', '', 'Walking distance to the Haram, ideal for families'],
-    ['Sample Madinah Hotel', 'Madinah', 'Central Area, Madinah', 120, 4, 'Wi-Fi, Breakfast', 'Quad Room', 380, 'SAR', 4, '', '', '', 12, 'Quiet stay close to the Prophet’s Mosque']], 'Hotel rates');
+    row({ hotel_name: 'Sample Makkah Hotel', city: 'Makkah', room_type: 'Double Room', rate_per_night: 450, currency: 'SAR', stars: 5, distance_m: 250, capacity: 3, facilities: 'Wi-Fi, Breakfast, Shuttle', address: 'Ibrahim Al-Khalil Rd, Makkah', description: 'Walking distance to the Haram, ideal for families', valid_from: '2026-11-01', valid_to: '2027-03-31' }),
+    row({ hotel_name: 'Sample Madinah Hotel', city: 'Madinah', room_type: 'Quad Room', rate_per_night: 380, currency: 'SAR', stars: 4, distance_m: 120, capacity: 4, facilities: 'Wi-Fi, Breakfast', address: 'Central Area, Madinah', description: 'Quiet stay close to the Prophet’s Mosque', markup_pct: 12 })], 'Hotel rates');
+}
+
+/** The current inventory in the same layout as the template, so it can be edited and uploaded straight back.
+ *  Only columns that hold data are written (the five required ones always are), so there is nothing to scroll past. */
+export function inventoryXlsx(list = records.list('hotels')) {
+  const rows = [...list].sort((a, b) => a.city.localeCompare(b.city) || a.name.localeCompare(b.name) || a.roomType.localeCompare(b.roomType) || (a.validFrom || '').localeCompare(b.validFrom || ''));
+  const any = f => rows.some(f);
+  const cols = [
+    ['hotel_name', true, h => h.name], ['city', true, h => h.city], ['room_type', true, h => h.roomType], ['rate_per_night', true, h => h.cost], ['currency', true, h => h.currency],
+    ['stars', any(h => h.stars), h => h.stars || ''], ['distance_m', any(h => h.distanceM != null), h => h.distanceM ?? ''], ['capacity', true, h => h.capacity],
+    ['facilities', any(h => h.facilities?.length), h => (h.facilities || []).join(', ')], ['address', any(h => h.address), h => h.address || ''], ['description', any(h => h.description), h => h.description || ''],
+    ['valid_from', any(h => h.validFrom), h => h.validFrom || ''], ['valid_to', any(h => h.validTo), h => h.validTo || ''],
+    ['markup_pct', true, h => h.markupPct ?? 0], ['markup_fixed', any(h => h.markupFixed), h => h.markupFixed || ''],
+    ['live', any(h => !h.active), h => h.active ? 'yes' : 'no'], ['featured', any(h => h.featured), h => h.featured ? 'yes' : ''],
+  ].filter(c => c[1]);
+  return writeXlsx([cols.map(c => c[0]), ...rows.map(h => cols.map(c => c[2](h)))], 'Hotel inventory');
 }
 
 export function parseRatesFile(buf, filename = '', defaults = {}) {
@@ -129,18 +148,22 @@ export function parseRatesFile(buf, filename = '', defaults = {}) {
     const res = normalizeHotel(obj, defaults);
     if (res.errors) errors.push({ row: i + 2, errors: Object.values(res.errors).join(' ') }); else out.push(res.value);
   });
-  return { rows: out, errors };
+  return { rows: out, errors, cols: new Set(head.filter(Boolean)) };
 }
 
 /** Insert or update (match on name + city + room type + valid window). */
-export function upsertHotels(items) {
+export function upsertHotels(items, cols = null) {
   const existing = records.list('hotels');
   const key = h => [h.name, h.city, h.roomType, h.validFrom || '', h.validTo || ''].join('|').toLowerCase();
   const map = new Map(existing.map(h => [key(h), h]));
   let created = 0, updated = 0;
   for (const it of items) {
     const cur = map.get(key(it));
-    if (cur) { records.update('hotels', cur.id, { ...it, offerPdf: it.offerPdf || cur.offerPdf || '', imageUrl: it.imageUrl || cur.imageUrl || '' }); updated++; }
+    if (cur) {
+      // a column that is not in the file leaves that field as it is (so a lean sheet never blanks details held elsewhere)
+      const keep = {}; if (cols) for (const k of ['address', 'description', 'distanceM', 'stars', 'facilities', 'capacity', 'active', 'featured']) if (!cols.has(k)) keep[k] = cur[k];
+      records.update('hotels', cur.id, { ...it, ...keep, offerPdf: it.offerPdf || cur.offerPdf || '', imageUrl: it.imageUrl || cur.imageUrl || '' }); updated++;
+    }
     else { map.set(key(it), records.create('hotels', it)); created++; }
   }
   return { created, updated };

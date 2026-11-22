@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { records, settings, db } from './db.js';
 import { config } from './config.js';
-import { parseStay, quoteHotel, searchHotels, featuredHotels, normalizeHotel, parseRatesFile, upsertHotels, templateXlsx, validDate, today, CITIES } from './hotels.js';
+import { parseStay, quoteHotel, searchHotels, featuredHotels, normalizeHotel, parseRatesFile, upsertHotels, templateXlsx, inventoryXlsx, validDate, today, CITIES } from './hotels.js';
 
 export const STATIONS = ['Makkah Station', 'Madinah Station', 'Jeddah Airport', 'Jeddah Al-Sulaymaniyah', 'KAEC Station'];
 export const VEHICLES = [
@@ -319,6 +319,7 @@ export function registerBooking(k) {
     return records.update('hotels', params.id, v);
   });
   route('DELETE', '/api/admin/hotels/:id', A, ({ params }) => { if (!records.remove('hotels', params.id)) throw new HttpError(404, 'Not found'); return { ok: true }; });
+  route('GET', '/api/admin/hotels-export.xlsx', A, () => ({ file: inventoryXlsx(), type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', name: `nusuk-hotel-inventory-${today()}.xlsx` }));
   route('GET', '/api/admin/hotels-template.xlsx', A, () => ({ file: templateXlsx(), type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', name: 'nusuk-hotel-rates-template.xlsx' }));
   route('POST', '/api/admin/hotels/import', { auth: true, maxBody: 6 * 1024 * 1024 }, ({ body }) => {
     let buf; try { buf = Buffer.from(String(body.data || ''), 'base64'); } catch { fail({ file: 'Could not read the file.' }); }
@@ -327,7 +328,7 @@ export function registerBooking(k) {
     if (body.markupPct !== undefined && body.markupPct !== '') { const n = Number(body.markupPct); if (!(n >= 0 && n <= 500)) fail({ markupPct: 'Mark-up % must be 0–500.' }); d.markupPct = n; }
     if (body.markupFixed !== undefined && body.markupFixed !== '') { const n = Number(body.markupFixed); if (!(n >= 0 && n <= 1e7)) fail({ markupFixed: 'Fixed mark-up must be 0–10,000,000.' }); d.markupFixed = n; }
     let parsed; try { parsed = parseRatesFile(buf, str(body.filename), d); } catch (e) { fail({ file: e.message }); }
-    const res = parsed.rows.length ? upsertHotels(parsed.rows) : { created: 0, updated: 0 };
+    const res = parsed.rows.length ? upsertHotels(parsed.rows, parsed.cols) : { created: 0, updated: 0 };
     return { ...res, skipped: parsed.errors.length, errors: parsed.errors.slice(0, 50), markupPct: d.markupPct, markupFixed: d.markupFixed };
   });
   const saveBlob = (dir, buf, exts) => { fs.mkdirSync(path.join(config.dataDir, dir), { recursive: true }); const name = `${crypto.randomBytes(8).toString('hex')}.${exts}`; fs.writeFileSync(path.join(config.dataDir, dir, name), buf); return name; };

@@ -587,3 +587,40 @@ test('home banners: admin uploads, orders and hides them; public list shows only
   assert.equal((await call('GET', '/api/banners')).body.items.length, 0);
   assert.equal((await call('DELETE', `/api/admin/banners/${b.body.id}`, null, cookie)).status, 200);
 });
+
+test('hotel inventory export round-trips and lean sheets never blank other details', async () => {
+  const { inventoryXlsx, templateXlsx, parseRatesFile, upsertHotels, TEMPLATE_COLUMNS } = await import('../server/hotels.js');
+  const { readXlsx, writeXlsx } = await import('../server/xlsx.js');
+  const { records } = await import('../server/db.js');
+  // template: lean, no image column
+  const t = readXlsx(templateXlsx());
+  assert.deepEqual(t[0], TEMPLATE_COLUMNS);
+  assert.ok(!t[0].includes('image_url'));
+  // export: required columns always, empty optional columns left out, hidden/featured only when used
+  const before = records.list('hotels').length;
+  assert.ok(before > 0);
+  const x = readXlsx(inventoryXlsx());
+  for (const c of ['hotel_name', 'city', 'room_type', 'rate_per_night', 'currency']) assert.ok(x[0].includes(c), c);
+  assert.ok(!x[0].includes('image_url'));
+  assert.equal(x[0].includes('markup_fixed'), records.list('hotels').some(h => h.markupFixed));
+  assert.ok(x[0].includes('live'), 'hidden hotel present, so the live column is exported');
+  assert.equal(x.length - 1, before);
+  // re-uploading the export changes nothing
+  const snap = JSON.stringify(records.list('hotels').map(({ id, name, city, roomType, cost, active, address, distanceM, stars, facilities, capacity }) => ({ id, name, city, roomType, cost, active, address, distanceM, stars, facilities, capacity })));
+  const p = parseRatesFile(inventoryXlsx(), 'inv.xlsx', { markupPct: 0, markupFixed: 0 });
+  assert.equal(p.errors.length, 0);
+  const res = upsertHotels(p.rows, p.cols);
+  assert.equal(res.created, 0); assert.equal(res.updated, before);
+  assert.equal(JSON.stringify(records.list('hotels').map(({ id, name, city, roomType, cost, active, address, distanceM, stars, facilities, capacity }) => ({ id, name, city, roomType, cost, active, address, distanceM, stars, facilities, capacity }))), snap);
+  // a lean sheet (name, city, room, rate only) updates the rate and keeps address, stars, facilities, visibility
+  const h = records.list('hotels').find(r => r.name === 'Inactive');
+  const lean = parseRatesFile(writeXlsx([['hotel_name', 'city', 'room_type', 'rate_per_night', 'currency'], [h.name, h.city, h.roomType, 77, h.currency]]), 'lean.xlsx', { markupPct: h.markupPct, markupFixed: h.markupFixed });
+  upsertHotels(lean.rows, lean.cols);
+  const after = records.get('hotels', h.id);
+  assert.equal(after.cost, 77); assert.equal(after.active, false); assert.equal(after.address, h.address); assert.equal(after.stars, h.stars);
+  // endpoint is admin-only and serves a real xlsx
+  assert.equal((await call('GET', '/api/admin/hotels-export.xlsx')).status, 401);
+  const r = await fetch(base + '/api/admin/hotels-export.xlsx', { headers: { Cookie: cookie } });
+  assert.equal(r.status, 200); assert.match(r.headers.get('content-disposition'), /nusuk-hotel-inventory-\d{4}-\d{2}-\d{2}\.xlsx/);
+  assert.equal(Buffer.from(await r.arrayBuffer()).readUInt32LE(0), 0x04034b50);
+});

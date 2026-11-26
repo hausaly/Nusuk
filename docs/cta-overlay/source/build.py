@@ -1,12 +1,13 @@
 import json, soundfile as sf
 d={n:(lambda f:len(f[0])/f[1])(sf.read(f'tts/{n}.wav')) for n in 'a1 a2 b1 i1 i2 i3 i4 i5 c1 c2 d1 d2 d3'.split()}
+d={k:v*1.3 for k,v in d.items()}  # allow slower, natural human reading
 vo={}; TL={}
-GI=0.22   # pause inside a scene between phrases
-HOLD=0.6 # pause after the last phrase of a scene before it exits
-SIN=0.30  # gap between exit and next scene entering
+GI=0.55   # pause inside a scene between phrases
+HOLD=1.1 # pause after the last phrase of a scene before it exits
+SIN=0.45  # gap between exit and next scene entering
 # ---- scene 1
 TL['s1pill']=[0.5]; TL['s1h']=[0.8]
-vo['a1']=0.95; TL['s1sub']=[1.55]
+vo['a1']=1.3; TL['s1sub']=[1.9]
 vo['a2']=vo['a1']+d['a1']+GI+0.1
 a2=vo['a2']
 TL['s1bar']=[a2+0.75]; TL['s1visa']=[a2+0.35]; TL['s1badge']=[a2+d['a2']-0.9]
@@ -19,7 +20,7 @@ TL['s2path']=[b1+1.75]; TL['s2ksa']=[b1+2.45]
 inc=b1+d['b1']+0.55; TL['s2inc']=[inc]
 t=inc+0.45; items=[]
 for i in range(1,6):
-    vo[f'i{i}']=t; items.append(t-0.05); t+=d[f'i{i}']+0.2
+    vo[f'i{i}']=t; items.append(t-0.05); t+=d[f'i{i}']+0.6
 TL['items']=items
 s2out=t-0.2+HOLD
 # ---- scene 3
@@ -35,7 +36,7 @@ TL['s4addr']=[d1e-1.2]   # address card shows while number is finishing
 vo['d2']=d1e+0.4; TL['s4map']=[vo['d2']-0.1]
 vo['d3']=vo['d2']+d['d2']+0.35; TL['s4web']=[vo['d3']-0.1]; TL['s4trust']=[vo['d3']+0.5]
 end=vo['d3']+d['d3']
-DUR=round(end+1.7,2)
+DUR=round(end+2.6,2)
 TL['out1']=s1out; TL['out2']=s2out; TL['out3']=s3out
 TL['dur']=DUR; TL['fadeout']=DUR-0.5; TL['vo']=vo; TL['scenes']=[0,s2,s3,s4]
 json.dump(TL,open('TL.json','w'),indent=1)

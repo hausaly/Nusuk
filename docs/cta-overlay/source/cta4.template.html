@@ -1,0 +1,222 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:A;src:url(Anton.ttf)}
+@font-face{font-family:P;font-weight:500;src:url(Poppins-Medium.ttf)}
+@font-face{font-family:P;font-weight:600;src:url(Poppins-SemiBold.ttf)}
+@font-face{font-family:P;font-weight:700;src:url(Poppins-Bold.ttf)}
+@font-face{font-family:P;font-weight:800;src:url(Poppins-ExtraBold.ttf)}
+:root{--paper:#f3efe7;--note:#fffcf5;--ink:#161616;--deep:#0d5557;--dk:#0a3b3d;--brand:#73d0cf;--strip:#12292b}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;background:transparent;overflow:hidden;font-family:P,sans-serif;color:var(--ink)}
+#stage{position:relative;width:1080px;height:1920px;overflow:hidden}
+.el{position:absolute;opacity:0;will-change:transform,opacity}
+.A{font-family:A,Impact,sans-serif;font-weight:400;text-transform:uppercase;line-height:1}
+.tab{display:inline-block;background:var(--brand);color:var(--dk);font-weight:700;font-size:30px;letter-spacing:3px;padding:12px 28px;border-radius:14px;text-transform:uppercase}
+.tab.dark{background:var(--ink);color:var(--brand)}
+.layer{position:absolute;left:0;top:0}
+.pp{background-color:var(--paper);
+ background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='360' height='360'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .38  0 0 0 0 .32  0 0 0 0 .22  0 0 0 .13 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>")}
+.fold{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,transparent 49.6%,rgba(0,0,0,.075) 50%,rgba(255,255,255,.45) 50.35%,transparent 51%),linear-gradient(0deg,transparent 66.4%,rgba(0,0,0,.06) 66.7%,rgba(255,255,255,.4) 67%,transparent 67.5%)}
+.tape{position:absolute;width:150px;height:48px;background:rgba(228,214,176,.82);box-shadow:0 2px 4px rgba(0,0,0,.18);clip-path:polygon(0 8%,4% 0,8% 10%,12% 0,100% 0,96% 12%,100% 25%,96% 38%,100% 52%,96% 65%,100% 78%,96% 90%,100% 100%,0 100%,4% 88%,0 74%,4% 62%,0 50%,4% 36%,0 22%)}
+.note{position:absolute;background:var(--note);box-shadow:0 8px 16px rgba(0,0,0,.28)}
+.stampbox{border:7px solid var(--deep);border-radius:12px;color:var(--deep);padding:10px 24px;text-align:center;filter:url(#rough);mix-blend-mode:multiply}
+svg{display:block;overflow:visible}
+</style></head><body>
+<svg width="0" height="0" style="position:absolute"><defs>
+ <filter id="rough" x="-5%" y="-5%" width="110%" height="110%">
+  <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="2" seed="4" result="t"/>
+  <feDisplacementMap in="SourceGraphic" in2="t" scale="4" result="d"/>
+  <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="9" result="g"/>
+  <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -2.2 1.75" result="holes"/>
+  <feComposite in="d" in2="holes" operator="in"/>
+ </filter></defs></svg>
+
+<div id="stage">
+  <div id="dim" style="position:absolute;inset:0;background:rgba(0,0,0,.22)"></div>
+
+  <!-- persistent logo tab -->
+  <div class="el note" style="left:50px;top:104px;padding:16px 30px 14px;border-radius:6px" data-in="0.25" data-fx="slide" data-base="rotate(-2deg)">
+    <div class="tape" style="left:60px;top:-26px;width:130px;transform:rotate(-3deg)"></div>
+    <img src="logo_ink.png" style="width:270px;display:block"></div>
+
+  <!-- ============ SCENE 1 ============ -->
+  <div class="el sheet" style="left:40px;top:268px;width:1000px;height:1380px" data-k="s1pill" data-s="1" data-fx="slide" data-base="rotate(-1deg)" data-seed="3" data-fold="1" data-under="1">
+    <div class="el" style="left:56px;top:48px" data-k="s1pill" data-fx="up"><span class="tab">Umrah Package</span></div>
+    <div class="el A" style="left:40px;top:134px;font-size:400px;color:var(--deep);letter-spacing:-6px" data-k="s1h" data-fx="up">14</div>
+    <div class="el A" style="left:440px;top:270px;font-size:190px;color:var(--ink);letter-spacing:2px" data-k="s1h" data-fx="up">DAYS</div>
+    <svg class="el" width="420" height="420" viewBox="0 0 480 330" preserveAspectRatio="none" style="left:-18px;top:114px" data-k="s1h" data-delay="0.55" data-fx="stroke">
+      <path pathLength="1" d="M70 150 C 60 60, 260 12, 390 52 C 480 84, 470 230, 300 288 C 140 330, 6 250, 40 150 C 60 96, 150 52, 250 40" fill="none" stroke="#73d0cf" stroke-width="15" stroke-linecap="round" style="mix-blend-mode:multiply"/></svg>
+    <div class="el" style="left:60px;top:566px;font-weight:700;font-size:34px;letter-spacing:5px;color:var(--ink)" data-k="s1sub" data-fx="up">2 WEEKS · MAKKAH &amp; MADINAH</div>
+    <div class="el note" style="left:56px;top:648px;width:400px;height:230px;padding:22px 30px" data-k="s1bar" data-fx="slide" data-base="rotate(-2.5deg)">
+      <div class="tape" style="left:125px;top:-24px;transform:rotate(2deg)"></div>
+      <div class="A" style="font-size:150px;color:var(--deep);display:inline-block">10</div><span class="A" style="font-size:60px;margin-left:12px">DAYS</span>
+      <div style="font-weight:700;font-size:36px;letter-spacing:6px;color:var(--ink);margin-top:-2px">MAKKAH</div></div>
+    <div class="el note" style="left:540px;top:668px;width:400px;height:230px;padding:22px 30px" data-k="s1bar" data-delay="0.3" data-fx="slide" data-base="rotate(2deg)">
+      <div class="tape" style="left:125px;top:-24px;transform:rotate(-3deg)"></div>
+      <div class="A" style="font-size:150px;color:var(--deep);display:inline-block">4</div><span class="A" style="font-size:60px;margin-left:14px">DAYS</span>
+      <div style="font-weight:700;font-size:36px;letter-spacing:6px;color:var(--ink);margin-top:-2px">MADINAH</div></div>
+    <div class="el" style="left:70px;top:900px;width:860px" data-k="s1visa" data-fx="slide" data-base="rotate(3deg)">
+      <img src="3.png" style="width:860px;display:block;filter:drop-shadow(3px 0 0 #fff) drop-shadow(-3px 0 0 #fff) drop-shadow(0 3px 0 #fff) drop-shadow(0 -3px 0 #fff) drop-shadow(0 16px 18px rgba(0,0,0,.38))"></div>
+    <div class="el stampbox" style="left:520px;top:915px" data-k="s1badge" data-fx="stamp" data-base="rotate(-9deg)">
+      <div class="A" style="font-size:62px;letter-spacing:2px;line-height:1.05">MULTIPLE ENTRY<br>VISA</div></div>
+  </div>
+
+  <!-- ============ SCENE 2 ============ -->
+  <div class="el sheet" style="left:40px;top:268px;width:1000px;height:1290px" data-k="s2h" data-s="2" data-fx="slide" data-base="rotate(.8deg)" data-seed="11" data-fold="1" data-under="1">
+    <div class="el" style="left:56px;top:64px" data-k="s2h" data-fx="up"><span class="tab">Fly from</span></div>
+    <div id="cities"></div>
+    <svg class="el" width="520" height="12" viewBox="0 0 520 12" style="left:60px;top:488px;transform-origin:left" data-k="s2path" data-fx="hl"><path pathLength="1" d="M2 6 L518 6" stroke="#161616" stroke-width="5" stroke-dasharray="0.012 0.02" stroke-linecap="round" fill="none"/></svg>
+    <div class="el" id="plane" style="left:60px;top:466px;width:56px" data-k="s2path" data-fx="up"><svg width="56" height="56" viewBox="0 0 24 24" style="transform:rotate(90deg)"><path fill="#0d5557" d="M21 16v-2l-8-5V3.500a1.500 1.500 0 00-3 0V9l-8 5v2l8-2.500V19l-2 1.500V22l3.500-1 3.500 1v-1.500L13 19v-5.500z"/></svg></div>
+    <div class="el" style="left:620px;top:440px;width:320px" data-k="s2ksa" data-fx="up"><img src="ksa_black.png" style="width:320px;display:block"></div>
+    <div class="el" style="left:56px;top:580px" data-k="s2inc" data-fx="up"><span class="A" style="font-size:84px;color:var(--ink)">WHAT'S INCLUDED</span>
+      <div id="hl1" style="position:absolute;left:-8px;top:52px;width:780px;height:34px;background:rgba(115,208,207,.75);z-index:-1;transform-origin:left;transform:scaleX(0)"></div></div>
+    <div id="inc"></div>
+  </div>
+
+  <!-- ============ SCENE 3 ============ -->
+  <div class="el" style="left:56px;top:380px" data-k="s3t" data-s="3" data-fx="slide" data-base="rotate(-2deg)"><span class="tab dark" style="font-size:34px;padding:14px 32px">Exclusive offers</span></div>
+  <div class="el strip" style="left:-30px;top:480px;width:1140px;height:500px" data-k="s3a" data-s="3" data-fx="stripL" data-base="rotate(-3deg)" data-seed="21" data-color="#73d0cf" data-amp="22,22,0,0">
+    <div class="el" style="left:90px;top:44px" data-k="s3a" data-fx="none"><span class="tab dark" style="font-size:28px">Offer 01</span></div>
+    <div class="el A" style="left:80px;top:100px;font-size:236px;color:var(--ink);letter-spacing:1px;white-space:nowrap" data-k="s3a" data-fx="none">FREE VISA</div>
+    <div class="el A" style="left:84px;top:330px;font-size:150px;color:var(--dk);white-space:nowrap" data-k="s3a" data-fx="none">REACTIVATION!</div>
+    <div class="tape" style="left:20px;top:-14px;transform:rotate(-30deg)"></div><div class="tape" style="right:50px;top:-8px;transform:rotate(18deg)"></div></div>
+  <div class="el strip" style="left:-30px;top:1040px;width:1140px;height:520px" data-k="s3b" data-s="3" data-fx="stripR" data-base="rotate(2.5deg)" data-seed="33" data-color="#12292b" data-amp="22,22,0,0">
+    <div class="el" style="left:90px;top:48px" data-k="s3b" data-fx="none"><span class="tab" style="font-size:28px">Offer 02</span></div>
+    <div class="el A" style="left:84px;top:84px;font-size:205px;color:#f3efe7;white-space:nowrap" data-k="s3b" data-fx="none">PAY SMALL</div>
+    <div class="el A" style="left:84px;top:290px;font-size:205px;color:#73d0cf;white-space:nowrap" data-k="s3b" data-fx="none">SMALL!</div>
+    <div class="el" style="left:640px;top:424px;font-weight:700;font-size:36px;letter-spacing:6px;color:#f3efe7" data-k="s3b" data-fx="none">AVAILABLE NOW</div>
+    <div class="tape" style="left:40px;bottom:-10px;transform:rotate(14deg)"></div></div>
+
+  <!-- ============ SCENE 4 ============ -->
+  <div class="el sheet" style="left:40px;top:250px;width:1000px;height:1510px" data-k="s4h" data-fx="slide" data-base="rotate(-.7deg)" data-seed="5" data-fold="1" data-under="1">
+    <div class="el A" style="left:52px;top:56px;font-size:236px;color:var(--deep);letter-spacing:-2px;white-space:nowrap" data-k="s4h" data-fx="up">BOOK <span style="color:var(--ink)">NOW</span></div>
+    <div class="el" id="hl2" style="left:44px;top:286px;width:900px;height:30px;background:rgba(115,208,207,.8);transform-origin:left" data-k="s4sub" data-fx="hl"></div>
+    <div class="el" style="left:56px;top:330px;font-weight:600;font-size:36px;letter-spacing:1px" data-k="s4sub" data-fx="up">Chat with us on WhatsApp or call</div>
+    <div class="el" style="left:50px;top:430px;width:900px;height:220px;background:var(--brand);border-radius:34px;box-shadow:0 10px 20px rgba(0,0,0,.28);display:flex;align-items:center;gap:30px;padding:24px 44px 0" data-k="s4wa" data-fx="slide" data-base="rotate(.6deg)">
+      <div style="position:absolute;left:50%;top:-24px;transform:translateX(-50%)"><span class="tab dark" style="font-size:26px;padding:10px 26px;white-space:nowrap">Online booking · WhatsApp / Call</span></div>
+      <svg width="104" height="104" viewBox="0 0 32 32" style="flex:none"><path fill="#0a3b3d" d="M16 3C9 3 3.300 8.600 3.300 15.600c0 2.400.7 4.700 1.900 6.600L3 29l7-1.800a12.700 12.700 0 006 1.500c7 0 12.700-5.600 12.700-12.600S23 3 16 3zm0 23c-1.900 0-3.700-.5-5.300-1.400l-.4-.2-4.100 1.100 1.100-4-.3-.4a10.300 10.300 0 01-1.600-5.500C5.400 9.900 10.200 5.300 16 5.300s10.600 4.600 10.600 10.300S21.800 26 16 26zm5.800-7.600c-.3-.2-1.900-.9-2.200-1-.3-.1-.5-.2-.7.200s-.8 1-1 1.200c-.2.200-.4.200-.7.100a8.700 8.700 0 01-4.300-3.800c-.3-.6.300-.5.900-1.700.1-.2 0-.4 0-.5l-1-2.300c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.6.100-.9.400-.3.300-1.200 1.200-1.200 2.900s1.300 3.400 1.400 3.600c.2.200 2.500 3.900 6.200 5.400 2.300.9 3.200 1 4.300.8.700-.1 1.900-.8 2.200-1.500.3-.7.300-1.400.2-1.500-.1-.2-.3-.3-.6-.4z"/></svg>
+      <div class="A" style="font-size:120px;color:var(--ink);letter-spacing:1px;white-space:nowrap">0813 122 7047</div></div>
+    <div class="el note" style="left:50px;top:722px;width:900px;height:170px;padding:40px 40px 0;display:flex;gap:26px" data-k="s4addr" data-fx="slide" data-base="rotate(-.8deg)">
+      <div class="tape" style="left:380px;top:-22px;transform:rotate(-2deg)"></div>
+      <div style="position:absolute;left:36px;top:-20px"><span class="tab dark" style="font-size:24px;padding:8px 22px">Offline booking</span></div>
+      <svg width="62" height="62" viewBox="0 0 24 24" style="flex:none;margin-top:6px"><path fill="#0d5557" d="M12 2a7 7 0 00-7 7c0 5.200 7 13 7 13s7-7.800 7-13a7 7 0 00-7-7zm0 9.500A2.500 2.500 0 1112 6.500a2.500 2.500 0 010 5z"/></svg>
+      <div style="font-weight:700;font-size:38px;line-height:1.25">Bosso Plaza, Along Gombe Rd,<br>Biu – Borno, Nigeria</div></div>
+    <div class="el" style="left:50px;top:940px;width:900px;display:flex;align-items:center;gap:36px" data-k="s4map" data-fx="slide" data-base="rotate(.5deg)">
+      <img src="map_deep.png" style="height:160px;flex:none">
+      <div><div class="A" style="font-size:150px;color:var(--deep);letter-spacing:1px;white-space:nowrap">36 STATES</div><div style="font-weight:700;font-size:30px;letter-spacing:6px;margin-top:6px;white-space:nowrap">NATIONWIDE COVERAGE</div></div></div>
+    <div class="el" style="left:50px;top:1150px;width:900px;display:flex;align-items:center;gap:24px" data-k="s4web" data-fx="slide">
+      <div style="display:inline-block;background:#fff;border:3px solid var(--ink);border-radius:60px;padding:14px 36px;font-weight:700;font-size:46px;box-shadow:0 6px 0 var(--ink);white-space:nowrap">www.hausaly.com</div>
+      <div style="font-weight:600;font-size:29px;white-space:nowrap">contact@hausaly.com</div></div>
+    <div class="el" style="left:60px;top:1290px;width:880px" data-k="s4trust" data-fx="up"><img src="trust_ink.png" style="width:880px;display:block;opacity:.85"></div>
+  </div>
+
+  <div id="wipes"></div>
+</div>
+
+<script>
+window.TL=__TL__;
+const clamp=x=>Math.min(1,Math.max(0,x));
+const E={out:x=>1-Math.pow(1-x,4),io:x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2};
+const DUR=TL.dur, FADE_OUT=TL.fadeout;
+const DURS={up:.65,slide:.8,stamp:.3,stroke:.9,hl:.7,stripL:.85,stripR:.85,none:.01};
+function rng(seed){let a=seed;return()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function torn(w,h,seed,amp){ // amp = [top,bottom,left,right]
+  const r=rng(seed),[at,ab,al,ar]=amp,p=[];
+  for(let x=0;x<=w;x+=10+r()*14) p.push(`${Math.min(x,w)}px ${r()*at}px`);
+  for(let y=0;y<=h;y+=22+r()*30) p.push(`${w-r()*ar}px ${Math.min(y,h)}px`);
+  for(let x=w;x>=0;x-=10+r()*14) p.push(`${Math.max(x,0)}px ${h-r()*ab}px`);
+  for(let y=h;y>=0;y-=22+r()*30) p.push(`${r()*al}px ${Math.max(y,0)}px`);
+  return `polygon(${p.join(',')})`;
+}
+function build(el,isStrip){
+  const w=parseFloat(el.style.width),h=parseFloat(el.style.height),seed=+el.dataset.seed||1;
+  const amp=(el.dataset.amp||'18,14,7,7').split(',').map(Number);
+  const wrap=document.createElement('div');
+  wrap.style.cssText=`position:absolute;inset:0;filter:drop-shadow(0 14px 20px rgba(0,0,0,.42));pointer-events:none`;
+  let html='';
+  if(el.dataset.under){
+    html+=`<div class="layer" style="width:${w}px;height:${h}px;background:#73d0cf;clip-path:${torn(w,h,seed+50,[30,26,10,12])};transform:translate(16px,22px) rotate(1.6deg);transform-origin:center"></div>`;
+  }
+  const col=el.dataset.color||'';
+  html+=`<div class="layer" style="width:${w}px;height:${h}px;background:#fbf8f1;clip-path:${torn(w,h,seed+1,amp.map(a=>a+4))};transform:translate(-3px,-3px)"></div>`;
+  html+=`<div class="layer ${col?'':'pp'}" style="width:${w}px;height:${h}px;${col?`background:${col};`:''}clip-path:${torn(w,h,seed,amp)}">${el.dataset.fold?'<div class="fold"></div>':''}</div>`;
+  wrap.innerHTML=html; el.insertBefore(wrap,el.firstChild);
+}
+document.querySelectorAll('.sheet').forEach(e=>build(e));
+document.querySelectorAll('.strip').forEach(e=>build(e,true));
+
+// scene-2 city tiles
+const cities=[['KAN','KANO','-3deg'],['ABV','ABUJA','2deg'],['LOS','LAGOS','-2deg']];
+const cwrap=document.getElementById('cities');
+cities.forEach((c,i)=>{
+  const d=document.createElement('div'); d.className='el note';
+  d.style.cssText=`left:${56+i*312}px;top:150px;width:276px;height:268px;border-radius:8px;overflow:hidden`;
+  d.dataset.k='city'+i; d.dataset.fx='slide'; d.dataset.base=`rotate(${c[2]})`;
+  d.innerHTML=`<div style="background:var(--brand);color:var(--dk);font-weight:700;font-size:30px;letter-spacing:6px;text-align:center;padding:12px 0">${c[1]}</div>
+  <div class="A" style="font-size:150px;color:var(--deep);text-align:center;margin-top:22px;letter-spacing:1px">${c[0]}</div>`;
+  cwrap.parentNode.appendChild(d);
+});
+// scene-2 checklist
+const names=['MULTIPLE ENTRY VISA','HOTEL IN MAKKAH','HOTEL IN MADINAH','TRANSPORTS','ZIYARAH TOURS'];
+const inc=document.getElementById('inc');
+names.forEach((n,i)=>{
+  const d=document.createElement('div'); d.className='el';
+  d.style.cssText=`left:56px;top:${700+i*106}px;width:890px;height:96px;border-bottom:3px solid rgba(22,22,22,.22);display:flex;align-items:center;gap:28px`;
+  d.dataset.k='item'+i; d.dataset.fx='up';
+  d.innerHTML=`<svg width="64" height="64" viewBox="0 0 64 64" style="flex:none"><rect x="6" y="8" width="48" height="48" rx="4" fill="none" stroke="#161616" stroke-width="4.500" transform="rotate(-2 30 32)"/>
+   <path class="tick" pathLength="1" d="M14 32 L28 46 L60 8" fill="none" stroke="#0d5557" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:1;stroke-dashoffset:1"/></svg>
+   <div class="A" style="font-size:66px;letter-spacing:1.5px">${n}</div>`;
+  inc.parentNode.appendChild(d);
+});
+TL.item0=[TL.items[0]];TL.item1=[TL.items[1]];TL.item2=[TL.items[2]];TL.item3=[TL.items[3]];TL.item4=[TL.items[4]];
+
+// colour wipes between scenes
+const wipes=document.getElementById('wipes'); const WP=[];
+[TL.out1,TL.out2,TL.out3].forEach((o,i)=>{
+  const w=document.createElement('div'); w.style.cssText='position:absolute;left:0;top:0;width:1500px;height:1920px;';
+  const r=rng(70+i); let p=['0 0']; for(let y=0;y<=1920;y+=40+r()*60) p.push(`${1500-r()*38}px ${y}px`); p.push('1500px 1920px','0 1920px');
+  w.innerHTML=`<div style="position:absolute;inset:0;background:#12292b;clip-path:polygon(${p.join(',')});transform:translateX(-110px)"></div><div style="position:absolute;inset:0;background:#73d0cf;clip-path:polygon(${p.join(',')})"></div>`;
+  wipes.appendChild(w); WP.push({el:w,start:o-0.12,dur:0.9});
+});
+
+const els=[...document.querySelectorAll('.el')];
+els.forEach(el=>{
+  const k=el.dataset.k;
+  if(k){ el.dataset.in=TL[k][0]+(+el.dataset.delay||0); }
+  // scene membership: inherit from nearest sheet/strip/tab with data-s
+  const sc=el.closest('[data-s]'); if(sc){ el.__out=TL['out'+sc.dataset.s]+0.33; }
+});
+const planeEl=document.getElementById('plane');
+els.filter(e=>e.querySelector&&e.parentElement&&!e.parentElement.closest('.el')||true);
+
+window.render=function(t){
+  const gin=E.out(clamp(t/0.5)), gout=1-clamp((t-FADE_OUT)/(DUR-FADE_OUT));
+  document.getElementById('stage').style.opacity=gin*gout;
+  els.forEach(el=>{
+    const ti=+el.dataset.in, fx=el.dataset.fx||'up', base=el.dataset.base||'';
+    const hide=el.__out!==undefined && t>=el.__out;
+    const e=E.out(clamp((t-ti)/(DURS[fx]||.7)));
+    let op=1, tf=base;
+    if(t<ti||hide){el.style.opacity=0;return;}
+    if(fx==='up'){op=E.out(clamp((t-ti)/0.4)); tf+=` translateY(${(1-e)*50}px)`;}
+    else if(fx==='slide'){op=E.out(clamp((t-ti)/0.25)); tf+=` translateY(${(1-e)*170}px) rotate(${(1-e)*-2.5}deg)`;}
+    else if(fx==='stamp'){op=clamp((t-ti)/0.1)*0.95; tf+=` scale(${1+(1-e)*0.8})`;}
+    else if(fx==='stripL'){op=1; tf+=` translateX(${(1-e)*-1250}px)`;}
+    else if(fx==='stripR'){op=1; tf+=` translateX(${(1-e)*1250}px)`;}
+    else if(fx==='hl'){op=1; tf+=` scaleX(${e})`;}
+    else if(fx==='stroke'){op=1; const p=el.querySelector('path'); if(p&&!el.id) p.style.strokeDashoffset=(1-e);}
+    else {op=1;}
+    el.style.opacity=op; el.style.transform=tf;
+  });
+  // tick marks draw slightly after each row appears
+  document.querySelectorAll('.tick').forEach((p,i)=>{const ti=TL.items[i]+0.28; p.style.strokeDashoffset=1-E.out(clamp((t-ti)/0.35));});
+  // highlighter bars
+  const h1=document.getElementById('hl1'); h1.style.transform=`scaleX(${E.out(clamp((t-TL.s2inc[0]-0.3)/0.6))})`;
+  // plane travel
+  const pp=E.io(clamp((t-TL.s2path[0]-0.15)/1.3)); planeEl.style.left=(60+pp*470)+'px';
+  // wipes
+  WP.forEach(w=>{const p=E.io(clamp((t-w.start)/w.dur)); w.el.style.transform=`translateX(${-1500+p*(1500+1080)}px)`; w.el.style.display=(p<=0||p>=1)?'none':'block';});
+};
+render(0);
+</script></body></html>

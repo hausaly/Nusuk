@@ -63,7 +63,7 @@ svg{display:block;overflow:visible}
   </div>
 
   <!-- ============ SCENE 2 ============ -->
-  <div class="el sheet" style="left:40px;top:268px;width:1000px;height:1290px" data-k="s2h" data-s="2" data-fx="slide" data-base="rotate(.8deg)" data-seed="11" data-fold="1" data-under="1">
+  <div class="el sheet" style="left:40px;top:268px;width:1000px;height:1340px" data-k="s2h" data-s="2" data-fx="slide" data-base="rotate(.8deg)" data-seed="11" data-fold="1" data-under="1">
     <div class="el" style="left:56px;top:64px" data-k="s2h" data-fx="up"><span class="tab">Fly from</span></div>
     <div id="cities"></div>
     <svg class="el" width="520" height="12" viewBox="0 0 520 12" style="left:60px;top:488px;transform-origin:left" data-k="s2path" data-fx="hl"><path pathLength="1" d="M2 6 L518 6" stroke="#161616" stroke-width="5" stroke-dasharray="0.012 0.02" stroke-linecap="round" fill="none"/></svg>
@@ -158,18 +158,18 @@ cities.forEach((c,i)=>{
   cwrap.parentNode.appendChild(d);
 });
 // scene-2 checklist
-const names=['MULTIPLE ENTRY VISA','HOTEL IN MAKKAH','HOTEL IN MADINAH','TRANSPORTS','ZIYARAH TOURS'];
+const names=['MULTIPLE ENTRY VISA','FLIGHT TICKETS','HOTEL IN MAKKAH','HOTEL IN MADINAH','TRANSPORTS','ZIYARAH TOURS'];
 const inc=document.getElementById('inc');
 names.forEach((n,i)=>{
   const d=document.createElement('div'); d.className='el';
-  d.style.cssText=`left:56px;top:${700+i*106}px;width:890px;height:96px;border-bottom:3px solid rgba(22,22,22,.22);display:flex;align-items:center;gap:28px`;
+  d.style.cssText=`left:56px;top:${688+i*94}px;width:890px;height:86px;border-bottom:3px solid rgba(22,22,22,.22);display:flex;align-items:center;gap:28px`;
   d.dataset.k='item'+i; d.dataset.fx='up';
-  d.innerHTML=`<svg width="64" height="64" viewBox="0 0 64 64" style="flex:none"><rect x="6" y="8" width="48" height="48" rx="4" fill="none" stroke="#161616" stroke-width="4.500" transform="rotate(-2 30 32)"/>
+  d.innerHTML=`<svg width="58" height="58" viewBox="0 0 64 64" style="flex:none"><rect x="6" y="8" width="48" height="48" rx="4" fill="none" stroke="#161616" stroke-width="4.500" transform="rotate(-2 30 32)"/>
    <path class="tick" pathLength="1" d="M14 32 L28 46 L60 8" fill="none" stroke="#0d5557" stroke-width="9" stroke-linecap="round" stroke-linejoin="round" style="stroke-dasharray:1;stroke-dashoffset:1"/></svg>
-   <div class="A" style="font-size:66px;letter-spacing:1.5px">${n}</div>`;
+   <div class="A" style="font-size:60px;letter-spacing:1.5px">${n}</div>`;
   inc.parentNode.appendChild(d);
 });
-TL.item0=[TL.items[0]];TL.item1=[TL.items[1]];TL.item2=[TL.items[2]];TL.item3=[TL.items[3]];TL.item4=[TL.items[4]];
+TL.items.forEach((v,i)=>{TL['item'+i]=[v];});
 
 // colour wipes between scenes
 const wipes=document.getElementById('wipes'); const WP=[];

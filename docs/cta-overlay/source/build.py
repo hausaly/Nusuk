@@ -1,5 +1,5 @@
 import json, soundfile as sf
-d={n:(lambda f:len(f[0])/f[1])(sf.read(f'tts/{n}.wav')) for n in 'a1 a2 b1 i1 i2 i3 i4 i5 c1 c2 d1 d2 d3'.split()}
+d={n:(lambda f:len(f[0])/f[1])(sf.read(f'tts/{n}.wav')) for n in 'a1 a2 b1 i1 f i2 i3 i4 i5 c1 c2 d1 d2 d3'.split()}
 d={k:v*1.3 for k,v in d.items()}  # allow slower, natural human reading
 vo={}; TL={}
 GI=0.55   # pause inside a scene between phrases
@@ -19,8 +19,8 @@ TL['city0']=[b1+0.30]; TL['city1']=[b1+0.85]; TL['city2']=[b1+1.40]
 TL['s2path']=[b1+1.75]; TL['s2ksa']=[b1+2.45]
 inc=b1+d['b1']+0.55; TL['s2inc']=[inc]
 t=inc+0.45; items=[]
-for i in range(1,6):
-    vo[f'i{i}']=t; items.append(t-0.05); t+=d[f'i{i}']+0.6
+for n in ['i1','f','i2','i3','i4','i5']:
+    vo[n]=t; items.append(t-0.05); t+=d[n]+0.6
 TL['items']=items
 s2out=t-0.2+HOLD
 # ---- scene 3

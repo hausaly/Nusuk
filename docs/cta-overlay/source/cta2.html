@@ -1,0 +1,174 @@
+<!doctype html>
+<html><head><meta charset="utf-8">
+<style>
+@font-face{font-family:P;font-weight:500;src:url(Poppins-Medium.ttf)}
+@font-face{font-family:P;font-weight:600;src:url(Poppins-SemiBold.ttf)}
+@font-face{font-family:P;font-weight:700;src:url(Poppins-Bold.ttf)}
+@font-face{font-family:P;font-weight:800;src:url(Poppins-ExtraBold.ttf)}
+@font-face{font-family:P;font-weight:900;src:url(Poppins-Black.ttf)}
+:root{--b:#73d0cf;--bd:#3fa9a8;--d:#06272a;--g:#f6c453;}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{width:1080px;height:1920px;background:transparent;overflow:hidden;font-family:P,sans-serif;color:#fff}
+#stage{position:relative;width:1080px;height:1920px;overflow:hidden}
+.abs{position:absolute}
+#scrim{inset:0;background:linear-gradient(180deg,rgba(5,30,33,.66) 0%,rgba(6,39,42,.78) 45%,rgba(4,26,29,.90) 100%)}
+#glow1{left:-300px;top:200px;width:900px;height:900px;border-radius:50%;background:radial-gradient(circle,rgba(115,208,207,.38),transparent 65%)}
+#glow2{right:-350px;top:1000px;width:1000px;height:1000px;border-radius:50%;background:radial-gradient(circle,rgba(246,196,83,.18),transparent 65%)}
+#pattern{inset:-200px;opacity:.07}
+.el{position:absolute;opacity:0;will-change:transform,opacity}
+.pill{display:inline-flex;align-items:center;gap:14px;border-radius:999px;font-weight:700}
+.t-b{color:var(--b)} .t-g{color:var(--g)}
+svg{display:block}
+.card{background:linear-gradient(160deg,rgba(115,208,207,.20),rgba(115,208,207,.06));border:2px solid rgba(115,208,207,.45);border-radius:28px;backdrop-filter:blur(4px)}
+.shine{position:absolute;inset:0;overflow:hidden;border-radius:inherit}
+.shine i{position:absolute;top:-20%;bottom:-20%;width:90px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);left:-150px}
+</style></head><body>
+<div id="stage">
+  <div id="scrim" class="abs"></div>
+  <div id="glow1" class="abs"></div><div id="glow2" class="abs"></div>
+  <svg id="pattern" class="abs" width="1480" height="2320"><defs>
+    <pattern id="star" width="120" height="120" patternUnits="userSpaceOnUse">
+      <path d="M60 8 L70 30 L92 20 L82 42 L104 52 L82 62 L92 84 L70 74 L60 96 L50 74 L28 84 L38 62 L16 52 L38 42 L28 20 L50 30Z" fill="none" stroke="#73d0cf" stroke-width="2"/></pattern></defs>
+    <rect width="100%" height="100%" fill="url(#star)"/></svg>
+
+  <!-- persistent header -->
+  <img class="el" id="logo" src="logo.png" style="left:60px;top:130px;width:330px" data-in="0.2" data-fx="left">
+  <div class="el" id="live" style="right:150px;top:158px" data-in="0.5" data-fx="fade">
+    <div class="pill" style="font-size:24px;padding:10px 22px;background:rgba(246,196,83,.15);border:2px solid var(--g);color:var(--g);letter-spacing:2px"><span id="dot" style="width:14px;height:14px;border-radius:50%;background:var(--g)"></span>LIMITED SLOTS</div>
+  </div>
+
+  <!-- ===== SCENE 1 : hero ===== -->
+  <div class="el" style="left:60px;top:330px" data-k="s1pill" data-s="1" data-fx="up">
+    <div class="pill" style="font-size:34px;padding:12px 32px;background:var(--b);color:var(--d);letter-spacing:4px">UMRAH PACKAGE</div></div>
+  <div class="el" style="left:56px;top:410px;font-size:250px;font-weight:900;line-height:1;letter-spacing:-8px" data-k="s1h" data-s="1" data-fx="pop">14<span style="font-size:130px;letter-spacing:0;margin-left:20px" class="t-b">DAYS</span></div>
+  <div class="el" style="left:60px;top:700px;font-size:44px;font-weight:600;color:#d8efef" data-k="s1sub" data-s="1" data-fx="up">Two weeks of worship, made easy</div>
+  <!-- 10 / 4 split bar -->
+  <div class="el" style="left:60px;top:790px;width:900px" data-k="s1bar" data-s="1" data-fx="up">
+    <div style="display:flex;height:96px;border-radius:24px;overflow:hidden;font-weight:800;font-size:27px">
+      <div id="bar10" style="width:0;background:linear-gradient(90deg,var(--bd),var(--b));color:var(--d);display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden">10 DAYS MAKKAH</div>
+      <div id="bar4" style="width:0;background:linear-gradient(90deg,#d99f2c,var(--g));color:#3a2800;display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden">4 DAYS MADINAH</div>
+    </div></div>
+  <div class="el" id="visa" style="left:90px;top:960px;width:900px;-webkit-mask-image:linear-gradient(180deg,#000 72%,transparent 99%);mask-image:linear-gradient(180deg,#000 72%,transparent 99%)" data-k="s1visa" data-s="1" data-fx="pop" data-base="rotate(-5deg)" data-float="14">
+    <img src="3.png" style="width:900px;filter:drop-shadow(0 40px 50px rgba(0,0,0,.55)) drop-shadow(0 0 40px rgba(115,208,207,.35))"></div>
+  <div class="el" style="left:560px;top:1000px" data-k="s1badge" data-s="1" data-fx="pop" data-base="rotate(6deg)">
+    <div class="pill" style="font-size:36px;padding:16px 34px;background:var(--g);color:#3a2800;box-shadow:0 12px 40px rgba(246,196,83,.45)">MULTIPLE ENTRY VISA</div></div>
+
+  <!-- ===== SCENE 2 : routes + inclusions ===== -->
+  <div class="el" style="left:60px;top:330px;font-size:34px;font-weight:700;letter-spacing:5px" data-k="s2h" data-s="2" data-fx="up"><span class="t-b">FLY DIRECT FROM</span></div>
+  <div style="position:absolute;left:60px;top:395px;width:900px;display:flex;gap:20px" id="cities">
+    <div class="card city" style="flex:1;padding:28px 0;text-align:center"><svg width="56" height="56" viewBox="0 0 24 24" style="margin:0 auto 8px"><path fill="#73d0cf" d="M21 16v-2l-8-5V3.5a1.5 1.5 0 00-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg><div style="font-size:44px;font-weight:800">KANO</div></div>
+    <div class="card city" style="flex:1;padding:28px 0;text-align:center"><svg width="56" height="56" viewBox="0 0 24 24" style="margin:0 auto 8px"><path fill="#73d0cf" d="M21 16v-2l-8-5V3.5a1.5 1.5 0 00-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg><div style="font-size:44px;font-weight:800">ABUJA</div></div>
+    <div class="card city" style="flex:1;padding:28px 0;text-align:center"><svg width="56" height="56" viewBox="0 0 24 24" style="margin:0 auto 8px"><path fill="#73d0cf" d="M21 16v-2l-8-5V3.5a1.5 1.5 0 00-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg><div style="font-size:44px;font-weight:800">LAGOS</div></div>
+  </div>
+  <!-- flight path to KSA -->
+  <div class="el" style="left:60px;top:640px;width:900px;height:120px" data-k="s2path" data-s="2" data-fx="fade">
+    <svg width="900" height="120" viewBox="0 0 900 120"><path d="M150 10 C 150 100, 380 100, 520 60" fill="none" stroke="rgba(115,208,207,.7)" stroke-width="4" stroke-dasharray="4 14" stroke-linecap="round"/>
+      <path d="M450 10 C 450 90, 480 90, 520 60" fill="none" stroke="rgba(115,208,207,.7)" stroke-width="4" stroke-dasharray="4 14" stroke-linecap="round"/>
+      <path d="M750 10 C 750 100, 620 100, 560 60" fill="none" stroke="rgba(115,208,207,.7)" stroke-width="4" stroke-dasharray="4 14" stroke-linecap="round"/></svg></div>
+  <div class="el" style="left:330px;top:735px;width:420px" data-k="s2ksa" data-s="2" data-fx="pop"><img src="ksa.png" style="width:420px"></div>
+  <div class="el" style="left:60px;top:900px;font-size:34px;font-weight:700;letter-spacing:5px" data-k="s2inc" data-s="2" data-fx="up"><span class="t-g">WHAT'S INCLUDED</span></div>
+  <div id="inc"></div>
+
+  <!-- ===== SCENE 3 : offers ===== -->
+  <div class="el" style="left:60px;top:360px;width:900px;text-align:center;font-size:38px;font-weight:700;letter-spacing:6px;color:#d8efef" data-k="s3t" data-s="3" data-fx="up">EXCLUSIVE OFFERS</div>
+  <div class="el" style="left:60px;top:450px;width:900px" data-k="s3a" data-s="3" data-fx="pop" data-float="8">
+    <div style="position:relative;border-radius:44px;padding:60px 40px;text-align:center;background:linear-gradient(135deg,#d99f2c,var(--g) 60%,#ffe39a);color:#3a2800;box-shadow:0 30px 80px rgba(246,196,83,.35)">
+      <div style="font-size:40px;font-weight:700;letter-spacing:4px">100% FREE</div>
+      <div style="font-size:96px;font-weight:900;line-height:1.02;letter-spacing:-2px;margin-top:6px">VISA<br>REACTIVATION!</div>
+      <div class="shine"><i class="sh"></i></div></div></div>
+  <div class="el" style="left:60px;top:1010px;width:900px" data-k="s3b" data-s="3" data-fx="pop" data-float="-8">
+    <div style="position:relative;border-radius:44px;padding:56px 40px;text-align:center;background:linear-gradient(135deg,var(--bd),var(--b) 60%,#b6ecea);color:var(--d);box-shadow:0 30px 80px rgba(115,208,207,.35)">
+      <div style="font-size:40px;font-weight:700;letter-spacing:4px">FLEXIBLE PAYMENT</div>
+      <div style="font-size:104px;font-weight:900;line-height:1.02;letter-spacing:-2px;margin-top:6px">PAY SMALL<br>SMALL!</div>
+      <div style="font-size:38px;font-weight:700;margin-top:14px">Available now</div>
+      <div class="shine"><i class="sh"></i></div></div></div>
+
+  <!-- ===== SCENE 4 : CTA ===== -->
+  <div class="el" style="left:60px;top:320px;width:900px;text-align:center;font-size:120px;font-weight:900;letter-spacing:-3px;line-height:1" data-k="s4h" data-fx="pop">BOOK <span class="t-b">NOW</span></div>
+  <div class="el" style="left:60px;top:455px;width:900px;text-align:center;font-size:38px;font-weight:600;color:#d8efef" data-k="s4sub" data-fx="up">Chat with us on WhatsApp or call</div>
+  <div class="el" id="ring" style="left:60px;top:540px;width:900px;height:170px;border-radius:999px;border:4px solid #25d366" data-k="s4wa" data-fx="fade"></div>
+  <div class="el" id="wa" style="left:60px;top:540px;width:900px" data-k="s4wa" data-fx="pop">
+    <div style="position:relative;height:170px;border-radius:999px;background:linear-gradient(90deg,#1fb859,#25d366);display:flex;align-items:center;justify-content:center;gap:28px;box-shadow:0 20px 60px rgba(37,211,102,.45)">
+      <svg width="86" height="86" viewBox="0 0 32 32"><path fill="#fff" d="M16 3C9 3 3.3 8.6 3.3 15.6c0 2.4.7 4.7 1.9 6.600L3 29l7-1.800a12.700 12.700 0 006 1.500c7 0 12.700-5.600 12.700-12.600S23 3 16 3zm0 23c-1.900 0-3.700-.5-5.300-1.400l-.4-.2-4.100 1.100 1.100-4-.3-.4a10.300 10.300 0 01-1.600-5.500C5.400 9.900 10.200 5.300 16 5.300s10.600 4.600 10.600 10.300S21.800 26 16 26zm5.800-7.600c-.3-.2-1.900-.9-2.200-1-.3-.1-.5-.2-.7.200s-.8 1-1 1.200c-.2.200-.4.200-.7.100a8.700 8.700 0 01-4.300-3.800c-.3-.6.300-.5.900-1.700.1-.2 0-.4 0-.5l-1-2.300c-.2-.6-.5-.5-.7-.5h-.6c-.2 0-.6.100-.9.400-.3.300-1.200 1.200-1.200 2.900s1.300 3.400 1.400 3.600c.2.200 2.500 3.900 6.200 5.400 2.300.9 3.200 1 4.300.8.700-.1 1.900-.8 2.200-1.500.3-.7.300-1.400.2-1.500-.1-.2-.3-.3-.6-.4z"/></svg>
+      <div style="text-align:left"><div style="font-size:30px;font-weight:700;letter-spacing:3px;opacity:.95">WHATSAPP / CALL</div><div style="font-size:72px;font-weight:900;letter-spacing:1px;line-height:1.05">0813 122 7047</div></div>
+      <div class="shine"><i class="sh"></i></div></div></div>
+
+  <div class="el card" style="left:60px;top:770px;width:900px;padding:30px 36px;display:flex;gap:28px;align-items:center" data-k="s4addr" data-fx="up">
+    <svg width="76" height="76" viewBox="0 0 24 24" style="flex:none"><path fill="#f6c453" d="M12 2a7 7 0 00-7 7c0 5.200 7 13 7 13s7-7.800 7-13a7 7 0 00-7-7zm0 9.500A2.500 2.500 0 1112 6.500a2.500 2.500 0 010 5z"/></svg>
+    <div><div style="font-size:26px;font-weight:700;letter-spacing:3px" class="t-g">VISIT OUR OFFICE</div><div style="font-size:35px;font-weight:600;line-height:1.25;margin-top:4px">Bosso Plaza, Along Gombe Rd,<br>Biu – Borno, Nigeria</div></div></div>
+
+  <div class="el card" style="left:60px;top:1010px;width:900px;padding:30px 36px;display:flex;gap:28px;align-items:center;overflow:hidden" data-k="s4map" data-fx="up">
+    <img src="map.png" style="height:150px;flex:none;filter:drop-shadow(0 0 20px rgba(115,208,207,.7))">
+    <div><div style="font-size:84px;font-weight:900;line-height:1;color:var(--b)">36 STATES</div><div style="font-size:34px;font-weight:700;letter-spacing:3px;margin-top:6px">NATIONWIDE COVERAGE</div></div></div>
+
+  <div class="el" style="left:60px;top:1230px;width:900px;text-align:center" data-k="s4web" data-fx="up">
+    <div style="font-size:50px;font-weight:800;color:var(--b)">www.hausaly.com</div>
+    <div style="font-size:34px;font-weight:600;color:#d8efef;margin-top:4px">contact@hausaly.com</div></div>
+  <div class="el" style="left:60px;top:1385px;width:900px" data-k="s4trust" data-fx="up"><img src="trust.png" style="width:900px;opacity:.95"></div>
+</div>
+
+<script>
+const clamp=x=>Math.min(1,Math.max(0,x));
+const E={out:t=>1-Math.pow(1-t,3),back:t=>{const c1=1.70158,c3=c1+1;return 1+c3*Math.pow(t-1,3)+c1*Math.pow(t-1,2)},io:t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2};
+window.TL={"s1pill": [0.5], "s1h": [0.8], "s1sub": [1.55], "s1bar": [3.559375], "s1visa": [3.1593750000000003], "s1badge": [5.044291666666666], "s2h": [6.844291666666666], "city0": [7.444291666666666], "city1": [7.9942916666666655], "city2": [8.544291666666666], "s2path": [8.894291666666666], "s2ksa": [9.594291666666667], "s2inc": [11.416208333333334], "items": [11.816208333333332, 14.091375, 15.415, 16.779708333333332, 17.75975], "s3t": [19.811000000000003], "s3a": [20.111000000000004], "s3b": [22.00504166666667], "s4h": [24.55058333333334], "s4sub": [24.80058333333334], "s4wa": [25.05058333333334], "s4addr": [29.232750000000006], "s4map": [30.732750000000003], "s4web": [33.68791666666667], "s4trust": [34.287916666666675], "out1": 6.544291666666666, "out2": 19.511000000000003, "out3": 24.25058333333334, "dur": 36.71, "fadeout": 36.21, "vo": {"a1": 0.95, "a2": 2.809375, "b1": 7.144291666666666, "i1": 11.866208333333333, "i2": 14.141375, "i3": 15.465, "i4": 16.829708333333333, "i5": 17.80975, "c1": 20.211000000000002, "c2": 22.15504166666667, "d1": 25.00058333333334, "d2": 30.832750000000004, "d3": 33.787916666666675}, "scenes": [0, 6.844291666666666, 19.811000000000003, 24.55058333333334]}; const DUR=TL.dur, FADE_OUT=TL.fadeout;
+// build inclusions list
+const items=[['Multiple Entry Visa','M4 4h16v16H4z'],['Hotel in Makkah',''],['Hotel in Madinah',''],['Transport',''],['Ziyarah Tours','']];
+const names=['Multiple Entry Visa','Hotel in Makkah','Hotel in Madinah','Transports','Ziyarah Tours'];
+const icons=[
+ '<path fill="#06272a" d="M4 5h16v14H4zM6 7v10h12V7zM8 9h8v2H8zM8 13h5v2H8z"/>',
+ '<path fill="#06272a" d="M3 20V9l9-6 9 6v11h-6v-6H9v6z"/>',
+ '<path fill="#06272a" d="M3 20V9l9-6 9 6v11h-6v-6H9v6z"/>',
+ '<path fill="#06272a" d="M4 16V6a2 2 0 012-2h12a2 2 0 012 2v10h-2a2 2 0 01-4 0h-4a2 2 0 01-4 0zm2-8v4h12V8z"/>',
+ '<path fill="#06272a" d="M12 2a7 7 0 00-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 00-7-7zm0 9a2 2 0 110-4 2 2 0 010 4z"/>'];
+const inc=document.getElementById('inc');
+names.forEach((n,i)=>{
+  const d=document.createElement('div'); d.className='el card';
+  d.style.cssText=`left:60px;top:${970+i*104}px;width:900px;height:90px;display:flex;align-items:center;padding:0 26px;gap:26px;border-radius:24px`;
+  d.dataset.in=TL.items[i]; d.dataset.out=TL.out2; d.dataset.fx='left';
+  d.innerHTML=`<div style="width:56px;height:56px;border-radius:16px;background:var(--b);display:flex;align-items:center;justify-content:center;flex:none"><svg width="34" height="34" viewBox="0 0 24 24">${icons[i]}</svg></div>
+  <div style="font-size:42px;font-weight:700;flex:1">${n}</div>
+  <svg width="48" height="48" viewBox="0 0 24 24"><circle cx="12" cy="12" r="12" fill="#25d366"/><path d="M6.500 12.500l3.500 3.500 7.500-8" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  inc.appendChild(d);
+});
+document.querySelectorAll('.city').forEach((c,i)=>{c.classList.add('el');c.style.position='relative';c.dataset.k='city'+i;c.dataset.s='2';c.dataset.fx='up';});
+const els=[...document.querySelectorAll('.el')];
+els.forEach(el=>{const k=el.dataset.k; if(k){el.dataset.in=TL[k][0]; if(el.dataset.s) el.dataset.out=TL['out'+el.dataset.s];}});
+const bar10=document.getElementById('bar10'),bar4=document.getElementById('bar4'),ring=document.getElementById('ring'),
+ scrim=document.getElementById('scrim'),pat=document.getElementById('pattern'),dot=document.getElementById('dot'),
+ g1=document.getElementById('glow1'),g2=document.getElementById('glow2');
+const shines=[...document.querySelectorAll('.sh')];
+const cities=[...document.querySelectorAll('.city')];
+
+window.render=function(t){
+  // global fade in/out
+  const gin=E.out(clamp(t/0.45)), gout=1-clamp((t-FADE_OUT)/(DUR-FADE_OUT));
+  const G=gin*gout;
+  document.getElementById('stage').style.opacity=G;
+  pat.style.transform=`translate(${-(t*14)%120}px,${-(t*8)%120}px)`;
+  g1.style.transform=`translate(${Math.sin(t*.7)*60}px,${Math.cos(t*.6)*50}px)`;
+  g2.style.transform=`translate(${Math.cos(t*.5)*60}px,${Math.sin(t*.8)*50}px)`;
+  dot.style.opacity=.4+.6*Math.abs(Math.sin(t*4));
+  els.forEach(el=>{
+    const ti=+el.dataset.in, to=el.dataset.out?+el.dataset.out:1e9, fx=el.dataset.fx||'fade';
+    const fl=+(el.dataset.float||0), base=el.dataset.base||'';
+    const pi=clamp((t-ti)/(fx==='pop'?0.7:0.6)), po=E.io(clamp((t-to)/0.4));
+    let op=E.out(clamp((t-ti)/0.35))*(1-po);
+    let tf=base, e=fx==='pop'?E.back(pi):E.out(pi);
+    if(fx==='up') tf+=` translateY(${(1-e)*70}px)`;
+    if(fx==='left') tf+=` translateX(${(1-e)*-120}px)`;
+    if(fx==='pop') tf+=` scale(${.55+.45*e})`;
+    tf+=` translateY(${-po*50 + (fl? Math.sin(t*2.2)*fl:0)}px)`;
+    el.style.opacity=(t<ti)?0:op; el.style.transform=tf;
+  });
+  // split bar growth
+  const bp=E.out(clamp((t-TL.s1bar[0]-0.1)/0.9));
+  bar10.style.width=(10/14*900*bp)+'px'; bar4.style.width=(4/14*900*bp)+'px';
+  // shine sweeps
+  shines.forEach((s,i)=>{const T=(t*0.7+i*0.5)%1.6; s.style.left=(-150+T/1.6*1200)+'px';});
+  // pulsing ring on WhatsApp button
+  const k=(t*1.1)%1; ring.style.transform=`scale(${1+k*0.12}, ${1+k*0.35})`;
+  ring.style.opacity=(t<TL.s4wa[0])?0:(1-k)*0.8*(1-E.io(clamp((t-FADE_OUT)/0.4)));
+  document.getElementById('wa').style.filter=`brightness(${1+0.06*Math.sin(t*5)})`;
+};
+render(0);
+</script></body></html>

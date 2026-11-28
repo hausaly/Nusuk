@@ -187,11 +187,11 @@ VIEWS.hotels=async mn=>{
     const R=items.filter(h=>JSON.stringify(h).toLowerCase().includes(q));
     mn.innerHTML=`<h2>Hotel Inventory</h2><p class="mu">${items.length} rate${items.length==1?'':'s'} · Makkah &amp; Madinah · shown to clients on the Book &amp; Manage page, cheapest first.</p>
     ${fxRate>0?'':'<div class="callout" style="margin:0 0 12px"><div><b>Platform FX rate not set.</b> Hotels priced in SAR are hidden from clients until you set it in <b>Settings</b>.</div></div>'}
-    <div class="toolbar"><input id="q" placeholder="Search hotels…" value="${esc(q)}" aria-label="Search"><button class="btn sm" id="add">Add hotel</button><button class="btn sm" id="bulk">Bulk upload (Excel / CSV)</button><a class="btn sm o" href="api/admin/hotels-export.xlsx">Download current inventory</a><a class="btn sm o" href="api/admin/hotels-template.xlsx">Blank template</a></div>
+    <div class="toolbar"><input id="q" placeholder="Search hotels…" value="${esc(q)}" aria-label="Search"><button class="btn sm" id="add">Add hotel</button><button class="btn sm" id="bulk">Bulk upload (Excel / CSV)</button><button class="btn sm" id="photos">Upload hotel photos</button><input type="file" id="pf" accept="image/jpeg,image/png,image/webp" multiple hidden><a class="btn sm o" href="api/admin/hotels-export.xlsx">Download current inventory</a><a class="btn sm o" href="api/admin/hotels-template.xlsx">Blank template</a></div>
     <div id="hu"></div><div id="hf"></div>
     <div class="tw"><table><tr><th>Hotel</th><th>Room type</th><th>Description</th><th>Rate / night</th><th>Mark-up</th><th>Selling / night</th><th>Valid</th><th>Offer</th><th>Live</th><th></th></tr>${R.map(h=>`<tr${h.active?'':' style="opacity:.55"'}><td><b>${esc(h.name)}</b>${h.featured?' <span class="pill new">Featured</span>':''}<br><small>${esc(h.city)}${h.stars?` · ${h.stars}★`:''}</small></td><td>${esc(h.roomType)}<br><small>sleeps ${h.capacity}</small></td><td style="max-width:220px">${h.description?esc(h.description):'<span class="mu">—</span>'}</td><td>${esc(h.currency)} ${Number(h.cost).toLocaleString('en-NG')}</td><td>${h.markupPct||0}%${h.markupFixed?` + ${NG(h.markupFixed)}`:''}</td><td><b>${nightly(h)!=null?NG(nightly(h)):'<span class="err">needs FX</span>'}</b></td><td><small>${h.validFrom||h.validTo?`${esc(h.validFrom||'…')} → ${esc(h.validTo||'…')}`:'always'}</small></td><td>${h.offerPdf?`<a href="api/admin/offers/${esc(h.offerPdf)}" target="_blank" rel="noopener">PDF</a>`:'—'}</td><td><input type="checkbox" data-a="${h.id}" ${h.active?'checked':''} aria-label="Live" style="width:18px;min-height:18px;margin:0"></td><td style="white-space:nowrap"><button class="btn sm o" data-m="${h.id}">Edit</button> <button class="btn sm o" data-x="${h.id}">Delete</button></td></tr>`).join('')||'<tr><td colspan="10">No hotels yet — add one or upload an Excel file.</td></tr>'}</table></div>`;
     const qi=$('q');qi.oninput=e=>{q=e.target.value.toLowerCase();const p=qi.selectionStart;draw();$('q').focus();$('q').setSelectionRange(p,p)};
-    $('add').onclick=()=>form(null);$('bulk').onclick=upload;
+    $('add').onclick=()=>form(null);$('bulk').onclick=upload;$('photos').onclick=()=>$('pf').click();$('pf').onchange=e=>{const fs=[...e.target.files];e.target.value='';if(fs.length)photos(fs)};
     mn.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>form(items.find(h=>h.id==b.dataset.m)));
     mn.querySelectorAll('[data-a]').forEach(c=>c.onchange=async()=>{try{await api('PUT','/api/admin/hotels/'+c.dataset.a,{active:c.checked});toast(c.checked?'Hotel is live':'Hotel hidden from clients');await reload()}catch(e){toast(errText(e));await reload()}});
     mn.querySelectorAll('[data-x]').forEach(b=>b.onclick=async()=>{if(!confirm('Delete this hotel rate?'))return;try{await api('DELETE','/api/admin/hotels/'+b.dataset.x);await reload()}catch(e){toast(errText(e))}});
@@ -209,7 +209,27 @@ VIEWS.hotels=async mn=>{
         await reload2();}
       catch(err){$('eu').textContent=errText(err)}finally{$('ub').disabled=false}};
   };
-  const reload2=async()=>{items=(await api('GET','/api/admin/hotels')).items;const keep=$('hu').innerHTML;draw();$('hu').innerHTML=keep;$('uc')&&($('uc').onclick=()=>$('hu').innerHTML='')};
+  // Bulk hotel photos: each file is named after its hotel (e.g. "The Venue Al Harithia.jpg"); one photo covers every rate row of that hotel
+  const photos=async files=>{
+    $('hf').innerHTML='';const box=$('hu');
+    box.innerHTML=`<div class="box" style="margin-bottom:14px"><h3>Hotel photos</h3><p class="mu" id="pp">Uploading 0 of ${files.length}…</p><div id="pr"></div></div>`;
+    const ok=[],later=[],bad=[];let n=0;
+    for(const f of files){
+      const name=f.name.replace(/\.[^.]+$/,'').trim();
+      try{const r=await api('POST','/api/admin/hotel-images',{name,data:await resizeImg(f)});(r.matched?ok:later).push({name,r})}
+      catch(e){bad.push({name:f.name,why:errText(e)})}
+      $('pp').textContent=`Uploading ${++n} of ${files.length}…`;
+    }
+    const rows=ok.reduce((a,x)=>a+x.r.rows,0);
+    $('pp').innerHTML=`<b>Done.</b> ${ok.length} photo${ok.length==1?'':'s'} added to ${rows} rate row${rows==1?'':'s'}${later.length?` · ${later.length} saved for hotels not in the inventory yet`:''}${bad.length?` · ${bad.length} failed`:''}.`;
+    $('pr').innerHTML=(ok.length?`<p class="mu" style="margin:8px 0 2px"><b>Matched</b></p><ul style="margin:0 0 6px 18px">${ok.map(x=>`<li>${esc(x.r.hotel)} <span class="mu">— ${x.r.rows} rate row${x.r.rows==1?'':'s'}</span></li>`).join('')}</ul>`:'')
+      +(later.length?`<p class="mu" style="margin:8px 0 2px"><b>Saved for later</b> (no hotel with this name yet; applied automatically when it is added)</p><ul style="margin:0 0 6px 18px">${later.map(x=>`<li>${esc(x.name)}</li>`).join('')}</ul>`:'')
+      +(bad.length?`<p class="err" style="margin:8px 0 2px"><b>Not uploaded</b></p><ul style="margin:0 0 6px 18px">${bad.map(x=>`<li>${esc(x.name)}: ${esc(x.why)}</li>`).join('')}</ul>`:'')
+      +`<div class="row" style="margin:8px 0 0"><button type="button" class="btn sm o" id="pc">Close</button></div>`;
+    $('pc').onclick=()=>$('hu').innerHTML='';
+    await reload2();
+  };
+  const reload2=async()=>{items=(await api('GET','/api/admin/hotels')).items;const keep=$('hu').innerHTML;draw();$('hu').innerHTML=keep;$('uc')&&($('uc').onclick=()=>$('hu').innerHTML='');$('pc')&&($('pc').onclick=()=>$('hu').innerHTML='')};
   const form=h=>{
     $('hu').innerHTML='';const v=h||{city:'Makkah',currency:'SAR',capacity:4,stars:4,markupPct:defaults.markupPct,markupFixed:defaults.markupFixed,active:true,facilities:[]};
     $('hf').innerHTML=`<div class="box" style="margin-bottom:14px"><h3>${h?'Edit hotel rate':'Add hotel rate'}</h3><form id="ef">

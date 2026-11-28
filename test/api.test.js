@@ -665,3 +665,37 @@ test('hotel booking keeps the hotel Google Maps link for the slip', async () => 
   const again = await call('GET', `/api/orders/${o.body.bookingId}/slip?t=${encodeURIComponent(o.body.token)}`);
   assert.equal(again.body.order.details.mapUrl, link);
 });
+
+test('hotel photos: one photo per hotel shared by all its rows; photos can arrive before the hotel', async () => {
+  const PNG = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+  const { records } = await import('../server/db.js');
+  const { parseRatesFile, upsertHotels, TEMPLATE_COLUMNS } = await import('../server/hotels.js');
+  const { writeXlsx } = await import('../server/xlsx.js');
+  assert.ok(!TEMPLATE_COLUMNS.includes('image_url'));
+  const mk = (roomType) => call('POST', '/api/admin/hotels', hotelRow({ name: 'Photo Test Hotel', roomType, cost: 20000, currency: 'NGN' }), cookie);
+  const a = await mk('Double Room'), b = await mk('Quad Room');
+  assert.equal(a.status, 200); assert.equal(a.body.imageUrl, '');
+  // not logged in: refused; wrong type: refused
+  assert.equal((await call('POST', '/api/admin/hotel-images', { name: 'x', data: PNG })).status, 401);
+  assert.equal((await call('POST', '/api/admin/hotel-images', { name: 'Photo Test Hotel', data: Buffer.from('not an image').toString('base64') }, cookie)).status, 422);
+  // the file name matches the hotel name (case and punctuation do not matter) and covers every row of that hotel
+  const r = await call('POST', '/api/admin/hotel-images', { name: 'photo-test HOTEL', data: PNG }, cookie);
+  assert.equal(r.status, 200); assert.equal(r.body.matched, true); assert.equal(r.body.rows, 2);
+  const ra = records.get('hotels', a.body.id), rb = records.get('hotels', b.body.id);
+  assert.match(ra.imageUrl, /^api\/media\/[\w.-]+\.png$/); assert.equal(ra.imageUrl, rb.imageUrl);
+  // a new rate row for that hotel (single form or Excel upload) picks the photo up
+  const c = await call('POST', '/api/admin/hotels', hotelRow({ name: 'Photo Test Hotel', roomType: 'Triple Room', cost: 20000, currency: 'NGN' }), cookie);
+  assert.equal(c.body.imageUrl, ra.imageUrl);
+  const up = parseRatesFile(writeXlsx([['hotel_name', 'city', 'room_type', 'rate_per_night', 'currency'], ['Photo Test Hotel', 'Makkah', 'Suite', 99, 'SAR']]), 'x.xlsx', { markupPct: 0, markupFixed: 0 });
+  upsertHotels(up.rows, up.cols);
+  assert.equal(records.list('hotels').find(h => h.name === 'Photo Test Hotel' && h.roomType === 'Suite').imageUrl, ra.imageUrl);
+  // a photo for a hotel that is not in the inventory yet is kept, and applied when the hotel is added
+  const f = await call('POST', '/api/admin/hotel-images', { name: 'Future Hotel', data: PNG }, cookie);
+  assert.equal(f.body.matched, false); assert.equal(f.body.rows, 0);
+  const fh = await call('POST', '/api/admin/hotels', hotelRow({ name: 'Future Hotel', cost: 20000, currency: 'NGN' }), cookie);
+  assert.match(fh.body.imageUrl, /^api\/media\//);
+  // replacing a photo from the hotel form updates all of its rows
+  const rep = await call('POST', `/api/admin/hotels/${a.body.id}/image`, { data: PNG }, cookie);
+  assert.equal(rep.status, 200);
+  assert.equal(new Set(records.list('hotels').filter(h => h.name === 'Photo Test Hotel').map(h => h.imageUrl)).size, 1);
+});

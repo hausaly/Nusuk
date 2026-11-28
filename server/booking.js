@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { records, settings, db } from './db.js';
 import { config } from './config.js';
-import { parseStay, quoteHotel, searchHotels, featuredHotels, normalizeHotel, parseRatesFile, upsertHotels, templateXlsx, inventoryXlsx, validDate, today, CITIES } from './hotels.js';
+import { parseStay, quoteHotel, searchHotels, featuredHotels, normalizeHotel, parseRatesFile, upsertHotels, setHotelImage, withHotelImage, hotelKey, templateXlsx, inventoryXlsx, validDate, today, CITIES } from './hotels.js';
 
 export const STATIONS = ['Makkah Station', 'Madinah Station', 'Jeddah Airport', 'Jeddah Al-Sulaymaniyah', 'KAEC Station'];
 export const VEHICLES = [
@@ -312,7 +312,7 @@ export function registerBooking(k) {
   // ---------- admin: hotel inventory ----------
   const defaults = () => { const s = settings.all(); return { markupPct: Number(s.markupPct) || 0, markupFixed: Number(s.markupFixed) || 0 }; };
   route('GET', '/api/admin/hotels', A, () => ({ items: records.list('hotels'), defaults: defaults(), fxRate: settings.all().fxRate ?? '' }));
-  route('POST', '/api/admin/hotels', A, ({ body }) => records.create('hotels', must(normalizeHotel(body, defaults()))));
+  route('POST', '/api/admin/hotels', A, ({ body }) => records.create('hotels', withHotelImage(must(normalizeHotel(body, defaults())))));
   route('PUT', '/api/admin/hotels/:id', A, ({ params, body }) => {
     const cur = records.get('hotels', params.id); if (!cur) throw new HttpError(404, 'Not found');
     const v = must(normalizeHotel({ ...cur, ...body }, defaults()));
@@ -337,7 +337,18 @@ export function registerBooking(k) {
     const buf = Buffer.from(String(body.data || ''), 'base64');
     const ext = buf.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff])) ? 'jpg' : buf.subarray(0, 4).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47])) ? 'png' : buf.subarray(0, 4).toString() === 'RIFF' && buf.subarray(8, 12).toString() === 'WEBP' ? 'webp' : null;
     if (!ext || buf.length > 2 * 1024 * 1024) fail({ image: 'Upload a JPG, PNG or WebP image under 2 MB.' });
-    return records.update('hotels', params.id, { imageUrl: `api/media/${saveBlob('media', buf, ext)}` });
+    const url = `api/media/${saveBlob('media', buf, ext)}`;
+    setHotelImage(cur.name, url);   // the photo belongs to the hotel: all its rate rows share it
+    return records.get('hotels', params.id);
+  });
+  // Bulk photos: the file name is the hotel name. Matching hotels get it now; unmatched ones are kept for when that hotel is added.
+  route('POST', '/api/admin/hotel-images', { auth: true, maxBody: 3 * 1024 * 1024 }, ({ body }) => {
+    const name = str(body.name, 120); if (!hotelKey(name)) fail({ name: 'The photo needs a hotel name (use the file name).' });
+    const buf = Buffer.from(String(body.data || '').replace(/^data:[^,]*,/, ''), 'base64');
+    const ext = buf.subarray(0, 3).equals(Buffer.from([0xff, 0xd8, 0xff])) ? 'jpg' : buf.subarray(0, 4).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47])) ? 'png' : buf.subarray(0, 4).toString() === 'RIFF' && buf.subarray(8, 12).toString() === 'WEBP' ? 'webp' : null;
+    if (!ext || buf.length > 2 * 1024 * 1024) fail({ image: 'Use a JPG, PNG or WebP image under 2 MB.' });
+    const r = setHotelImage(name, `api/media/${saveBlob('media', buf, ext)}`);
+    return { name, matched: r.rows > 0, rows: r.rows, hotel: r.hotel };
   });
   route('POST', '/api/admin/hotels/:id/offer', { auth: true, maxBody: 11 * 1024 * 1024 }, ({ params, body }) => {
     const cur = records.get('hotels', params.id); if (!cur) throw new HttpError(404, 'Not found');

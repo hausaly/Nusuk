@@ -110,7 +110,7 @@ const ALIAS = {
   hotel_name: 'name', name: 'name', hotel: 'name', city: 'city', destination: 'city', address: 'address', distance_m: 'distanceM', distance: 'distanceM', distance_to_haram: 'distanceM',
   stars: 'stars', star: 'stars', facilities: 'facilities', amenities: 'facilities', room_type: 'roomType', room: 'roomType', roomtype: 'roomType',
   rate_per_night: 'cost', rate: 'cost', price: 'cost', cost: 'cost', price_per_night: 'cost', currency: 'currency', capacity: 'capacity', max_guests: 'capacity',
-  featured: 'featured', map_link: 'mapUrl', map: 'mapUrl', google_map: 'mapUrl', map_url: 'mapUrl', location_link: 'mapUrl', active: 'active', live: 'active', visible: 'active', image_url: 'imageUrl', image: 'imageUrl', valid_from: 'validFrom', valid_to: 'validTo', markup_pct: 'markupPct', markup: 'markupPct', markup_fixed: 'markupFixed', description: 'description', short_description: 'description', about: 'description',
+  featured: 'featured', map_link: 'mapUrl', map: 'mapUrl', google_map: 'mapUrl', map_url: 'mapUrl', location_link: 'mapUrl', active: 'active', live: 'active', visible: 'active', valid_from: 'validFrom', valid_to: 'validTo', markup_pct: 'markupPct', markup: 'markupPct', markup_fixed: 'markupFixed', description: 'description', short_description: 'description', about: 'description',
 };
 export function templateXlsx() {
   const col = k => TEMPLATE_COLUMNS.indexOf(k);
@@ -154,6 +154,23 @@ export function parseRatesFile(buf, filename = '', defaults = {}) {
 }
 
 /** Insert or update (match on name + city + room type + valid window). */
+// ---------- Hotel photos: one photo per hotel (shared by all its rate rows), kept in a photo library so a photo can be added before the hotel exists ----------
+export const hotelKey = s => String(s || '').normalize('NFKD').toLowerCase().replace(/[^a-z0-9]+/g, '');
+const imageOf = name => {
+  const k = hotelKey(name); if (!k) return '';
+  const sib = records.list('hotels').find(h => hotelKey(h.name) === k && h.imageUrl);
+  return sib ? sib.imageUrl : (records.list('hotel_images').find(i => i.key === k)?.imageUrl || '');
+};
+/** Save `url` as the photo of the hotel called `name`: every matching rate row gets it, and it is remembered for future rows. */
+export function setHotelImage(name, url) {
+  const k = hotelKey(name), rows = records.list('hotels').filter(h => hotelKey(h.name) === k);
+  for (const h of rows) records.update('hotels', h.id, { imageUrl: url });
+  const lib = records.list('hotel_images').find(i => i.key === k);
+  if (lib) records.update('hotel_images', lib.id, { imageUrl: url, name }); else records.create('hotel_images', { key: k, name, imageUrl: url });
+  return { rows: rows.length, hotel: rows[0]?.name || '' };
+}
+export const withHotelImage = v => (v.imageUrl ? v : { ...v, imageUrl: imageOf(v.name) });
+
 export function upsertHotels(items, cols = null) {
   const existing = records.list('hotels');
   const key = h => [h.name, h.city, h.roomType, h.validFrom || '', h.validTo || ''].join('|').toLowerCase();
@@ -164,9 +181,9 @@ export function upsertHotels(items, cols = null) {
     if (cur) {
       // a column that is not in the file leaves that field as it is (so a lean sheet never blanks details held elsewhere)
       const keep = {}; if (cols) for (const k of ['address', 'mapUrl', 'description', 'distanceM', 'stars', 'facilities', 'capacity', 'active', 'featured']) if (!cols.has(k)) keep[k] = cur[k];
-      records.update('hotels', cur.id, { ...it, ...keep, offerPdf: it.offerPdf || cur.offerPdf || '', imageUrl: it.imageUrl || cur.imageUrl || '' }); updated++;
+      records.update('hotels', cur.id, { ...it, ...keep, offerPdf: it.offerPdf || cur.offerPdf || '', imageUrl: it.imageUrl || cur.imageUrl || imageOf(it.name) }); updated++;
     }
-    else { map.set(key(it), records.create('hotels', it)); created++; }
+    else { map.set(key(it), records.create('hotels', withHotelImage(it))); created++; }
   }
   return { created, updated };
 }

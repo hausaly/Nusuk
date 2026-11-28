@@ -1,7 +1,7 @@
 // Service worker: makes the site installable and lets the app shell open offline.
 // Live data (/api/, /pay/) is never cached. Bump V on every release (kept in sync with BUILD).
-const V = 'nusuk-20261128a';
-const SHELL = ['./', 'index.html', 'css/style.css?v=20261128a', 'js/app.js?v=20261128a', 'js/pwa.js?v=20261128a', 'js/tour.js?v=20261128a', 'js/boot.js?v=20261128a', 'img/logo-gold.png', 'img/logo-stack-white.png', 'img/logo.jpg', 'img/logo-white.png', 'img/icon-192.png'];
+const V = 'nusuk-20261128b';
+const SHELL = ['./', 'index.html', 'css/style.css?v=20261128b', 'js/app.js?v=20261128b', 'js/pwa.js?v=20261128b', 'js/tour.js?v=20261128b', 'js/boot.js?v=20261128b', 'img/logo-gold.png', 'img/logo-stack-white.png', 'img/logo.jpg', 'img/logo-white.png', 'img/icon-192.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(V).then(c => Promise.allSettled(SHELL.map(u => c.add(u)))).then(() => self.skipWaiting()));

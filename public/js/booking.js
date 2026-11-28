@@ -165,8 +165,8 @@ function showResults({stay,results}){
   const head=`<div class="rs-head"><div><h2>${esc(stay.city)} <span>· ${fd(stay.checkIn)} – ${fd(stay.checkOut)}</span></h2><p>${stay.nights} night${stay.nights>1?'s':''} · ${guestLabel(stay)} · <b>${results.length}</b> option${results.length==1?'':'s'} · sorted by lowest price</p></div></div>`;
   if(!results.length){r.innerHTML=head+`<div class="empty">${ic('hotel',34)}<h3>No hotels available for these dates</h3><p>Try different dates, fewer rooms, or the other city. You can also <a href="#/interest/6">contact us</a> and we will arrange it for you.</p></div>`;return}
   r.innerHTML=head+`<div class="hlist">${results.map((h,i)=>`<article class="htl"><div class="hc-img ${h.image?'':'ph'}" ${h.image?`style="background-image:url('${esc(h.image)}')"`:''}>${h.image?'':ic('hotel',46)}${i==0?'<span class="best">Lowest price</span>':''}</div>
-  <div class="hc-main"><div class="hc-top"><h3>${esc(h.name)}</h3><span class="stars" aria-label="${h.stars} stars">${stars(h.stars)}</span></div>
-  <div class="hc-city"><span class="hc-loc">${ic('pin',15)} ${esc(h.city)}${h.address?` · ${esc(h.address)}`:''}</span>${h.mapUrl?`<a class="hc-map" href="${esc(h.mapUrl)}" target="_blank" rel="noopener noreferrer" aria-label="View ${esc(h.name)} on Google Maps (opens in a new tab)">${ic('pin',13)} View map</a>`:''}</div>
+  <div class="hc-main"><div class="hc-top"><h3>${esc(h.name)}</h3><span class="stars" aria-label="${h.stars} stars">${stars(h.stars)}</span>${h.mapUrl?`<a class="hc-map" href="${esc(h.mapUrl)}" target="_blank" rel="noopener noreferrer" aria-label="View ${esc(h.name)} on Google Maps (opens in a new tab)">${ic('pin',13)} View map</a>`:''}</div>
+  <div class="hc-city">${ic('pin',15)} ${esc(h.city)}${h.address?` · ${esc(h.address)}`:''}</div>
   ${(h.description||h.distance)?`<div class="hc-desc">${esc(h.description||h.distance)}</div>`:''}
   <div class="hc-room"><b>${esc(h.roomType)}</b> · sleeps up to ${h.capacity}</div>
   ${h.facilities.length?`<div class="hc-fac">${h.facilities.slice(0,8).map(f=>`<span>${ic('check',12)} ${esc(f)}</span>`).join('')}</div>`:''}</div>

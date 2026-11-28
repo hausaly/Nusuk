@@ -576,8 +576,7 @@ html.boot #splash.out{opacity:0}
 .vimp{background:#fff8ea;border:1px solid #f0dfb8;border-left:3px solid #e0b866;border-radius:8px;padding:5px 10px;margin:0 0 12px}
 .vimp p{margin:0;font-size:.74rem;line-height:1.4;color:#4a3d28}.vimp p b{color:#a15c07;letter-spacing:.03em}
 @media(max-width:600px){.vimp{padding:5px 9px}.vimp p{font-size:.72rem}}
-/* Hotel card: "View on Google Maps" button, in the location row */
-.hc-city{flex-wrap:wrap;gap:4px 12px}.hc-loc{display:inline-flex;gap:6px;align-items:center;min-width:0}.hc-loc svg{color:var(--gd);flex:none}
+/* Hotel card: "View map" button, next to the star rating */
 .hc-map{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--g);color:var(--gd);background:#fff;border-radius:99px;padding:2px 11px;font-size:.76rem;font-weight:600;line-height:1.5;text-decoration:none;white-space:nowrap;transition:background .15s,color .15s}
 .hc-map svg{width:13px;height:13px;flex:none}.hc-map:hover,.hc-map:focus-visible{background:var(--g);color:#14110d}
 @media(max-width:600px){.hc-map{font-size:.72rem;padding:2px 10px}}

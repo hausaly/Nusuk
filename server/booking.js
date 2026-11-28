@@ -112,7 +112,7 @@ export function registerBooking(k) {
     const o = records.create('orders', {
       type: 'hotel', bookingId: bookingId('H'), token: crypto.randomBytes(18).toString('base64url'), status: 'Awaiting payment', paymentStatus: 'unpaid',
       amount: q.total, currency: 'NGN', customer: c, notes: '', payment: { provider: manual ? 'manual' : paymentMode(), reference: null, attempts: 0 },
-      details: { hotelId: q.id, hotelName: q.name, city: q.city, address: q.address, distance: q.distance, stars: q.stars, facilities: q.facilities, roomType: q.roomType, checkIn: stay.checkIn, checkOut: stay.checkOut, nights: stay.nights, rooms: stay.rooms, adults: stay.adults, children: stay.children, perNight: q.perNight },
+      details: { hotelId: q.id, hotelName: q.name, city: q.city, address: q.address, mapUrl: q.mapUrl || '', distance: q.distance, stars: q.stars, facilities: q.facilities, roomType: q.roomType, checkIn: stay.checkIn, checkOut: stay.checkOut, nights: stay.nights, rooms: stay.rooms, adults: stay.adults, children: stay.children, perNight: q.perNight },
     });
     if (manual) {
       notify('hotel reservation (payment pending)', { service: `${o.details.hotelName} · ${o.details.checkIn} → ${o.details.checkOut} · ₦${o.amount.toLocaleString('en-NG')}`, name: o.customer.fullName, email: o.customer.email, phone: o.customer.phone });

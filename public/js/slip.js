@@ -75,24 +75,31 @@ function hotelTerms(o){
   <div class="sl-nb sm"><p>${rich(HT.cancel)}</p></div>
   <div class="sl-nb sm"><h5>Notes</h5><ul>${HT.notes.map(l=>`<li>${rich(l)}</li>`).join('')}</ul></div></div>`;
 }
+function dirBlock(o){const u=mapOf(o);if(!u)return '';const svg=qrSvg(u);return `<div class="sl-dir">${svg}<div><b>Directions to the hotel</b><span>${svg?'Scan the code with your phone camera, or tap the link.':'Tap the link to open the hotel on Google Maps.'}</span><a href="${esc(u)}" target="_blank" rel="noopener noreferrer">Get directions on Google Maps</a></div></div>`}
 function html(o){
   const [st,col]=status(o),S=sections(o);
   const tbl=r=>`<table class="sl-t">${r.map(x=>`<tr><th>${esc(x[0])}</th><td>${esc(x[1])}</td></tr>`).join('')}</table>`;
   return `<div class="slip" id="slipCard">
   <div class="sl-head"><img src="img/logo-gold.png" alt="NUSUK CONSULT"><div class="sl-co"><b>${FIRM.name}</b><i></i><p><strong>Platform</strong>: ${esc(CO.web)}</p><p><strong>Email</strong>: ${esc(CO.email)}</p><p><strong>Contact</strong>: ${FIRM.contact}</p></div></div><div class="sl-strip"></div>
   <div class="sl-title"><div><div class="eyebrow">${TYPE[o.type]}</div><h2>BOOKING SLIP</h2><small>Issued ${dtm(o.createdAt)}</small></div><div class="sl-id"><small>BOOKING ID</small><b>${esc(o.bookingId)}</b><span class="chip ${col}">${st}</span></div></div>
-  <div class="sl-grid"><section><h4>Client information</h4>${tbl(S.client)}</section><section><h4>Booking details</h4>${tbl(S.book)}</section></div>
+  <div class="sl-grid"><section><h4>Client information</h4>${tbl(S.client)}</section><section><h4>Booking details</h4>${tbl(S.book)}${dirBlock(o)}</section></div>
   <section><h4>${PAY.includes(o.type)||(o.type=='visa'&&o.details.priced)?'Payment summary':'Pricing'}</h4>${tbl(S.pay)}${PAY.includes(o.type)||(o.type=='visa'&&o.details.priced)?`<div class="sl-total"><span>TOTAL ${o.paymentStatus=='paid'?'PAID':'DUE'}</span><b>₦${num(o.amount)}</b></div>`:''}</section>
   ${TERMS.includes(o.type)?hotelTerms(o):''}
   <div class="sl-foot">Keep this slip and quote your Booking ID when contacting us.<br>${esc(CO.addr)}</div></div>`;
 }
+
+// ---- Directions: QR code (generated here, no outside service) + link to the hotel's Google Maps page
+const mapOf=o=>o.type=='hotel'&&o.details&&/^https:\/\//.test(o.details.mapUrl||'')?o.details.mapUrl:'';
+function qrMatrix(text){if(!window.qrcode)return null;try{const q=window.qrcode(0,'M');q.addData(text,'Byte');q.make();const n=q.getModuleCount();return {n,dark:(r,c)=>q.isDark(r,c)}}catch{return null}}
+function qrSvg(text,px=96){const m=qrMatrix(text);if(!m)return '';const Q=3,N=m.n+2*Q;let d='';for(let r=0;r<m.n;r++){let c=0;while(c<m.n){if(!m.dark(r,c)){c++;continue}let e=c;while(e<m.n&&m.dark(r,e))e++;d+=`M${c+Q} ${r+Q}h${e-c}v1h${-(e-c)}z`;c=e}}return `<svg class="sl-qr" viewBox="0 0 ${N} ${N}" width="${px}" height="${px}" shape-rendering="crispEdges" role="img" aria-label="QR code: directions to the hotel"><rect width="${N}" height="${N}" fill="#fff"/><path d="${d}" fill="#000"/></svg>`}
+async function prep(o){if(mapOf(o)&&!window.qrcode)await loadJs('js/vendor/qrcode.js?v='+(window.NC?NC.v:'')).catch(()=>{})}
 
 const mods={};
 const loadJs=src=>mods[src]??=new Promise((ok,no)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=()=>{delete mods[src];no(new Error('Could not load '+src))};document.head.appendChild(s)});
 const dataUrl=async u=>{const b=await (await fetch(u)).blob();return new Promise(r=>{const f=new FileReader();f.onload=()=>r(f.result);f.readAsDataURL(b)})};
 
 async function pdf(o){
-  await loadJs('js/vendor/jspdf.umd.min.js?v='+(window.NC?NC.v:''));
+  await loadJs('js/vendor/jspdf.umd.min.js?v='+(window.NC?NC.v:''));await prep(o);
   const {jsPDF}=window.jspdf, doc=new jsPDF({unit:'mm',format:'a4'}), W=210, M=12, [st,col]=status(o), S=sections(o);
   const GOLD=[221,180,126],INK=[29,26,22],MU=[107,100,90],LINE=[231,224,212];
   const logo=await dataUrl('img/logo-gold.png').catch(()=>null);
@@ -138,7 +145,19 @@ async function pdf(o){
   const LW=70,RX2=M+LW+6,RW=W-M-RX2;
   const y1=table('Client information',S.client,M,LW,31,y);
   const y1b=table(priced?'Payment summary':'Pricing',S.pay,M,LW,31,y1);
-  const y2=table('Booking details',S.book,RX2,RW,28,y);
+  let y2=table('Booking details',S.book,RX2,RW,28,y);
+  const mapU=mapOf(o);   // directions: QR code + clickable link under the booking details
+  if(mapU){
+    const m=qrMatrix(mapU),QS=24;y2-=3;
+    doc.setFillColor(250,247,240);doc.roundedRect(RX2,y2,RW,QS+6,1.5,1.5,'F');
+    if(m){const Q=3,cell=QS/(m.n+2*Q);doc.setFillColor(255,255,255);doc.rect(RX2+3,y2+3,QS,QS,'F');doc.setFillColor(0,0,0);
+      for(let r=0;r<m.n;r++){let c=0;while(c<m.n){if(!m.dark(r,c)){c++;continue}let e=c;while(e<m.n&&m.dark(r,e))e++;doc.rect(RX2+3+(c+Q)*cell,y2+3+(r+Q)*cell,(e-c)*cell+.02,cell+.02,'F');c=e}}}
+    const tx=RX2+3+(m?QS+4:0),tw2=RW-(tx-RX2)-3;
+    doc.setTextColor(...INK);doc.setFont('helvetica','bold');doc.setFontSize(8.2);doc.text('DIRECTIONS TO THE HOTEL',tx,y2+8);
+    doc.setFont('helvetica','normal');doc.setFontSize(7.4);doc.setTextColor(...MU);doc.text(doc.splitTextToSize(m?'Scan the code with your phone camera, or tap the link below.':'Tap the link below to open the hotel on Google Maps.',tw2),tx,y2+12.4,{lineHeightFactor:1.2});
+    doc.setFont('helvetica','bold');doc.setFontSize(7.6);doc.setTextColor(138,106,54);doc.textWithLink('Get directions on Google Maps',tx,y2+22,{url:mapU});
+    y2+=QS+6+6.5;
+  }
   y=Math.max(y1b,y2);
   if(priced){
     doc.setFillColor(...INK);doc.roundedRect(M,y,W-2*M,11,2,2,'F');
@@ -179,5 +198,5 @@ async function pdf(o){
     doc.text('Keep this slip and quote your Booking ID when contacting us.  '+CO.phone+'  |  '+CO.email,M,291.5);doc.text(`Page ${p} of ${n}`,W-M,291.5,{align:'right'});}
   doc.save(`${o.bookingId}-booking-slip.pdf`);
 }
-window.NCSlip={html,pdf,status,CO};
+window.NCSlip={html,pdf,prep,status,CO};
 })();

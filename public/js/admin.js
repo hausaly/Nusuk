@@ -165,7 +165,7 @@ VIEWS.orders=async mn=>{
     mn.querySelectorAll('[data-s]').forEach(s=>s.onchange=async()=>{try{Object.assign(items.find(o=>o.id==s.dataset.s),await api('PATCH','/api/admin/orders/'+s.dataset.s,{status:s.value}));toast('Status updated')}catch(e){toast(errText(e))}draw()});
     mn.querySelectorAll('[data-p]').forEach(b=>b.onclick=async()=>{b.disabled=true;try{await loadSlip();await NCSlip.pdf(items.find(o=>o.id==b.dataset.p))}catch(e){toast('Could not create the slip')}b.disabled=false});
     mn.querySelectorAll('[data-x]').forEach(b=>b.onclick=async()=>{if(!confirm('Delete this order permanently?'))return;try{await api('DELETE','/api/admin/orders/'+b.dataset.x);items.splice(items.findIndex(o=>o.id==b.dataset.x),1);draw()}catch(e){toast(errText(e))}});
-    mn.querySelectorAll('[data-v]').forEach(b=>b.onclick=()=>{open=items.find(o=>o.id==b.dataset.v);detail()});
+    mn.querySelectorAll('[data-v]').forEach(b=>b.onclick=async()=>{open=items.find(o=>o.id==b.dataset.v);if(window.NCSlip)await NCSlip.prep(open);detail()});
     if(open)detail()};
   const detail=()=>{const o=open;
     $('dt').innerHTML=`<div class="box detail"><h3>Order ${esc(o.bookingId)}</h3>${o.type=='mutawef'&&o.guideStatus?`<p class="mu" style="margin:0 0 8px">Guide: <b>${esc(o.guideStatus)}</b>${o.guideNote?' · '+esc(o.guideNote):''}</p>`:''}<div class="slipwrap">${window.NCSlip?NCSlip.html(o):''}</div>

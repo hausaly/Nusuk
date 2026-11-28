@@ -650,3 +650,18 @@ test('hotel Google Maps link: validated, saved, shown to clients, kept on lean u
   assert.ok(s.body.results.some(r => r.mapUrl === 'https://maps.app.goo.gl/new'), JSON.stringify(s.body.results.map(r => [r.name, r.mapUrl])));
   assert.ok(s.body.results.every(r => typeof r.mapUrl === 'string'));
 });
+
+test('hotel booking keeps the hotel Google Maps link for the slip', async () => {
+  const link = 'https://maps.app.goo.gl/slipTest1';
+  const hr = await call('POST', '/api/admin/hotels', hotelRow({ name: 'Slip Map Hotel', cost: 30000, currency: 'NGN', mapUrl: link }), cookie);
+  assert.equal(hr.status, 200);
+  const s = { city: 'Makkah', checkIn: dayStr(40), checkOut: dayStr(42), adults: 2, children: 0, rooms: 1 };
+  const o = await call('POST', '/api/orders/hotel', { ...s, hotelId: hr.body.id, payMode: 'later', customer: { fullName: 'Map Tester', phone: '+2348031112222', email: 'm@t.ng', country: 'Nigeria', gender: 'Male' } });
+  assert.equal(o.status, 200);
+  const slip = await call('GET', `/api/orders/${o.body.bookingId}/slip?t=${encodeURIComponent(o.body.token)}`);
+  assert.equal(slip.body.order.details.mapUrl, link);
+  // the booking keeps its own copy: changing the hotel's link later does not change an issued slip
+  await call('PUT', `/api/admin/hotels/${hr.body.id}`, { mapUrl: 'https://maps.app.goo.gl/changed' }, cookie);
+  const again = await call('GET', `/api/orders/${o.body.bookingId}/slip?t=${encodeURIComponent(o.body.token)}`);
+  assert.equal(again.body.order.details.mapUrl, link);
+});

@@ -589,3 +589,12 @@ html.boot #splash.out{opacity:0}
 .slact{gap:6px;margin-bottom:10px}
 .slact .btn{min-height:30px;padding:4px 12px;font-size:.74rem;border-radius:4px;gap:6px}.slact .btn svg{width:13px;height:13px}
 @media(max-width:600px){.sb{padding:6px 10px;gap:7px}.sb b{font-size:.76rem}.sb span{font-size:.68rem}.slact .btn{padding:4px 10px;font-size:.72rem}}
+
+/* Booking slip: directions block (QR code + link) under the booking details */
+.sl-dir{display:flex;gap:12px;align-items:center;margin-top:12px;padding:10px 12px;background:#faf7f0;border:1px solid #efe4d0;border-radius:8px}
+.sl-dir .sl-qr{flex:none;width:92px;height:92px;border-radius:4px;border:1px solid #e7e0d4;background:#fff}
+.sl-dir b{display:block;font-size:.76rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink)}
+.sl-dir span{display:block;font-size:.76rem;color:var(--mu);margin:2px 0 5px;line-height:1.4}
+.sl-dir a{font-size:.8rem;font-weight:700;color:#8a6a36;text-decoration:underline;text-underline-offset:2px}
+@media(max-width:600px){.sl-dir .sl-qr{width:80px;height:80px}}
+@media print{.sl-dir{-webkit-print-color-adjust:exact;print-color-adjust:exact;break-inside:avoid}}
